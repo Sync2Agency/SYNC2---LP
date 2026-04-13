@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
 
@@ -76,6 +77,37 @@ async function startServer() {
     } catch (error) {
       console.error("DETAILED SMTP ERROR:", error);
       res.status(500).json({ error: "Failed to send email", details: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
+  // Gemini API Chat Route
+  app.post("/api/chat", async (req, res) => {
+    const { message, history } = req.body;
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({ error: "Gemini API Key not configured on server" });
+    }
+
+    try {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+      const chat = model.startChat({
+        history: history || [],
+        generationConfig: {
+          maxOutputTokens: 1000,
+        },
+      });
+
+      const result = await chat.sendMessage(message);
+      const response = await result.response;
+      const text = response.text();
+
+      res.json({ text });
+    } catch (error) {
+      console.error("Gemini API Error:", error);
+      res.status(500).json({ error: "Failed to get response from AI" });
     }
   });
 

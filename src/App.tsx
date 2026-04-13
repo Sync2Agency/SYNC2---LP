@@ -935,6 +935,129 @@ const Footer = () => (
   </footer>
 );
 
+const AIConsultant = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<{ role: 'user' | 'model', text: string }[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = input;
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userMessage,
+          history: messages.map(m => ({
+            role: m.role === 'user' ? 'user' : 'model',
+            parts: [{ text: m.text }]
+          }))
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to get response');
+      
+      const data = await response.json();
+      setMessages(prev => [...prev, { role: 'model', text: data.text }]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      setMessages(prev => [...prev, { role: 'model', text: '申し訳ありません。エラーが発生しました。' }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="absolute bottom-20 right-0 w-[350px] sm:w-[400px] h-[500px] bg-zinc-950 border border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+          >
+            <div className="p-4 bg-[#373d43] border-b border-zinc-800 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-[#8edce0] rounded-full flex items-center justify-center">
+                  <Zap className="text-[#373d43] w-5 h-5" />
+                </div>
+                <span className="text-white font-bold">AIコンサルタント</span>
+              </div>
+              <button onClick={() => setIsOpen(false)} className="text-zinc-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.length === 0 && (
+                <div className="text-center py-10">
+                  <p className="text-zinc-500 text-sm">
+                    こんにちは！SYNC2 AGENCYのAIコンサルタントです。<br />
+                    SNS運用やマーケティング戦略について、何でもご相談ください。
+                  </p>
+                </div>
+              )}
+              {messages.map((m, i) => (
+                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
+                    m.role === 'user' 
+                      ? 'bg-[#8edce0] text-[#373d43] rounded-tr-none' 
+                      : 'bg-zinc-900 text-zinc-300 rounded-tl-none border border-zinc-800'
+                  }`}>
+                    {m.text}
+                  </div>
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-zinc-900 text-zinc-500 p-3 rounded-2xl text-sm animate-pulse">
+                    考え中...
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <form onSubmit={handleSend} className="p-4 border-t border-zinc-800 bg-zinc-950">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="質問を入力してください..."
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-4 pr-12 text-white text-sm focus:border-[#8edce0] outline-none"
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                />
+                <button 
+                  type="submit"
+                  disabled={isLoading || !input.trim()}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#8edce0] disabled:opacity-50"
+                >
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-14 h-14 bg-[#8edce0] rounded-full flex items-center justify-center shadow-2xl shadow-cyan-900/40 hover:scale-110 transition-transform"
+      >
+        {isOpen ? <X className="text-[#373d43] w-7 h-7" /> : <MessageCircle className="text-[#373d43] w-7 h-7" />}
+      </button>
+    </div>
+  );
+};
+
 export default function App() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-300 font-sans selection:bg-blue-500/30 selection:text-blue-200">
@@ -950,15 +1073,7 @@ export default function App() {
       </main>
       <Footer />
       
-      {/* Floating LINE Button for Mobile */}
-      <div className="fixed bottom-6 right-6 z-50 md:hidden">
-        <a 
-          href="https://lin.ee/UwOZ7ho" 
-          className="w-14 h-14 bg-[#06c755] rounded-full flex items-center justify-center shadow-2xl shadow-green-900/40 animate-bounce"
-        >
-          <MessageCircle className="text-white w-7 h-7" />
-        </a>
-      </div>
+      <AIConsultant />
     </div>
   );
 }
