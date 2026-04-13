@@ -48,9 +48,16 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  app.listen(PORT, () => {
+    console.log(`--- Servidor Ativo ---`);
+    console.log(`Porta: ${PORT}`);
+    console.log(`Modo: ${process.env.NODE_ENV}`);
+    console.log(`Diretório Atual: ${process.cwd()}`);
+  }).on('error', (err) => {
+    console.error("Erro ao iniciar o listener do Express:", err);
   });
 }
 
-startServer();
+startServer().catch(err => {
+  console.error("Falha fatal na inicialização do servidor:", err);
+});
