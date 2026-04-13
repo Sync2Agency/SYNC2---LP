@@ -3,6 +3,7 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
@@ -18,6 +19,60 @@ async function startServer() {
   // API Routes
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Email Sending Route
+  app.post("/api/send-email", async (req, res) => {
+    const { name, email, company } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({ error: "Name and email are required" });
+    }
+
+    const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
+
+    if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
+      console.error("SMTP configuration missing");
+      return res.status(500).json({ error: "Email service not configured on server" });
+    }
+
+    try {
+      const transporter = nodemailer.createTransport({
+        host: SMTP_HOST,
+        port: Number(SMTP_PORT),
+        secure: Number(SMTP_PORT) === 465,
+        auth: {
+          user: SMTP_USER,
+          pass: SMTP_PASS,
+        },
+      });
+
+      const mailOptions = {
+        from: SMTP_FROM || SMTP_USER,
+        to: email,
+        subject: "【SYNC2 AGENCY】資料ダウンロードありがとうございます",
+        text: `${name} 様\n\nこの度は資料をダウンロードいただき、誠にありがとうございます。\n株式会社SYNC2の運用プラン資料をお送りいたします。\n\n会社名: ${company}\n\n※このメールは自動送信されています。`,
+        html: `
+          <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
+            <p>${name} 様</p>
+            <p>この度は資料をダウンロードいただき、誠にありがとうございます。<br>
+            株式会社SYNC2の運用プラン資料をお送りいたします。</p>
+            <p><strong>会社名:</strong> ${company}</p>
+            <hr>
+            <p>SNSを「資産」に変える第一歩として、ぜひご活用ください。</p>
+            <p>ご不明な点がございましたら、お気軽にLINEまたはメールにてお問い合わせください。</p>
+            <br>
+            <p>SYNC2 AGENCY チーム一同</p>
+          </div>
+        `,
+      };
+
+      await transporter.sendMail(mailOptions);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      res.status(500).json({ error: "Failed to send email" });
+    }
   });
 
   // Example Gemini API Proxy (Security: Key stays on server)

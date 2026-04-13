@@ -58,6 +58,13 @@ const LeadMagnet = () => {
     const pageIds = ['pdf-page-1', 'pdf-page-2', 'pdf-page-3', 'pdf-page-4'];
     
     try {
+      // Send Email via Backend
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      }).catch(err => console.error('Email sending failed:', err));
+
       for (let i = 0; i < pageIds.length; i++) {
         const element = document.getElementById(pageIds[i]);
         if (element) {
