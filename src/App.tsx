@@ -63,7 +63,16 @@ const LeadMagnet = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
-      }).catch(err => console.error('Email sending failed:', err));
+      })
+      .then(async response => {
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Server-side email error:', errorData);
+        } else {
+          console.log('Email request sent successfully');
+        }
+      })
+      .catch(err => console.error('Network error sending email:', err));
 
       for (let i = 0; i < pageIds.length; i++) {
         const element = document.getElementById(pageIds[i]);

@@ -37,6 +37,7 @@ async function startServer() {
     }
 
     try {
+      console.log(`Attempting to send email to ${email} via ${SMTP_HOST}:${SMTP_PORT}...`);
       const transporter = nodemailer.createTransport({
         host: SMTP_HOST,
         port: Number(SMTP_PORT),
@@ -45,6 +46,8 @@ async function startServer() {
           user: SMTP_USER,
           pass: SMTP_PASS,
         },
+        debug: true,
+        logger: true
       });
 
       const mailOptions = {
@@ -60,18 +63,19 @@ async function startServer() {
             <p><strong>会社名:</strong> ${company}</p>
             <hr>
             <p>SNSを「資産」に変える第一歩として、ぜひご活用ください。</p>
-            <p>ご不明な点がございましたら、お気軽にLINEまたはメールにてお問い合わせください。</p>
+            <p>ご不明な点がございましたら, お気軽にLINEまたはメールにてお問い合わせください。</p>
             <br>
             <p>SYNC2 AGENCY チーム一同</p>
           </div>
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      const info = await transporter.sendMail(mailOptions);
+      console.log("Email sent successfully:", info.messageId);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error sending email:", error);
-      res.status(500).json({ error: "Failed to send email" });
+      console.error("DETAILED SMTP ERROR:", error);
+      res.status(500).json({ error: "Failed to send email", details: error instanceof Error ? error.message : String(error) });
     }
   });
 
