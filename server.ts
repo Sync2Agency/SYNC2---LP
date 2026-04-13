@@ -86,28 +86,36 @@ async function startServer() {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
+      console.error("CRITICAL: GEMINI_API_KEY is missing in environment variables.");
       return res.status(500).json({ error: "Gemini API Key not configured on server" });
     }
+    console.log("GEMINI_API_KEY is present, proceeding with request.");
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: "あなたはSYNC2 AGENCYのAIコンサルタントです。SNSマーケティングやブランディングに関する質問に答えてください。回答は簡潔に、最大2文程度にまとめてください。回答の最後には必ず、詳細な相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への登録を促すメッセージを含めてください。日本語で回答してください。"
+      });
 
       const chat = model.startChat({
         history: history || [],
         generationConfig: {
-          maxOutputTokens: 1000,
+          maxOutputTokens: 500,
         },
       });
 
+      console.log("Sending message to Gemini:", message);
       const result = await chat.sendMessage(message);
       const response = await result.response;
       const text = response.text();
+      console.log("Gemini response received successfully");
 
       res.json({ text });
     } catch (error) {
-      console.error("Gemini API Error:", error);
-      res.status(500).json({ error: "Failed to get response from AI" });
+      console.error("Gemini API Error Details:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      res.status(500).json({ error: "Failed to get response from AI", details: errorMessage });
     }
   });
 

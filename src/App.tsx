@@ -940,6 +940,13 @@ const AIConsultant = () => {
   const [messages, setMessages] = useState<{ role: 'user' | 'model', text: string }[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isLoading]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -963,13 +970,17 @@ const AIConsultant = () => {
         })
       });
 
-      if (!response.ok) throw new Error('Failed to get response');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || 'Failed to get response');
+      }
       
       const data = await response.json();
       setMessages(prev => [...prev, { role: 'model', text: data.text }]);
     } catch (error) {
       console.error('Chat error:', error);
-      setMessages(prev => [...prev, { role: 'model', text: '申し訳ありません。エラーが発生しました。' }]);
+      const msg = error instanceof Error ? error.message : 'エラーが発生しました。';
+      setMessages(prev => [...prev, { role: 'model', text: `申し訳ありません。${msg}` }]);
     } finally {
       setIsLoading(false);
     }
@@ -997,7 +1008,7 @@ const AIConsultant = () => {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 && (
                 <div className="text-center py-10">
                   <p className="text-zinc-500 text-sm">
