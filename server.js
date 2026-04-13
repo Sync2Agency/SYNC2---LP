@@ -1,16 +1,20 @@
-/**
- * Hostinger Node.js Entry Point
- */
+import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
 
-// Força o ambiente para produção para evitar que o Vite tente iniciar em modo dev
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Força o ambiente para produção
 process.env.NODE_ENV = 'production';
 
 console.log("--- Iniciando Servidor Sync2 ---");
-console.log("Ambiente:", process.env.NODE_ENV);
-console.log("Porta configurada:", process.env.PORT || 3000);
+console.log("Diretório atual:", __dirname);
 
-// Carrega o servidor compilado
-import('./dist/server.js').then(() => {
+// Constrói o caminho absoluto para o servidor compilado
+const serverPath = pathToFileURL(path.join(__dirname, 'dist', 'server.js')).href;
+
+console.log("Tentando carregar:", serverPath);
+
+import(serverPath).then(() => {
   console.log("Servidor carregado com sucesso.");
 }).catch((err) => {
   console.error("Erro crítico ao carregar o servidor:", err);
