@@ -46,10 +46,12 @@ const LeadMagnet = () => {
   const [formData, setFormData] = useState({ name: '', email: '', company: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleDownload = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage(null);
 
     // Simulate processing
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -98,16 +100,20 @@ const LeadMagnet = () => {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Server-side email error:', errorData);
+        setErrorMessage(errorData.details || 'Failed to send email. Please check SMTP configuration.');
         throw new Error('Failed to send email');
       } else {
         console.log('Email sent successfully with PDF attachment');
+        setIsSuccess(true);
       }
     } catch (error) {
       console.error('PDF/Email Error:', error);
+      if (!errorMessage) {
+        setErrorMessage('メールの送信に失敗しました。SMTPの設定を確認してください。');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
-    setIsSuccess(true);
   };
 
   return (
@@ -201,6 +207,11 @@ const LeadMagnet = () => {
                     {isSubmitting ? "送信中..." : "資料をメールで受け取る"}
                     <Mail className="w-5 h-5" />
                   </button>
+                  {errorMessage && (
+                    <p className="text-red-500 text-xs text-center mt-2 font-medium bg-red-50 p-2 rounded-lg border border-red-100">
+                      {errorMessage}
+                    </p>
+                  )}
                   <p className="text-center text-xs text-zinc-400">
                     ご入力いただいたメールアドレスに資料をお送りします。
                   </p>
@@ -264,7 +275,7 @@ const Navbar = () => {
             </div>
             <div className="relative w-3 h-3 bg-white rotate-45 z-10" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-[#1a1a1a]">SYNC2 AGENCY</span>
+          <span className="text-xl font-bold tracking-tight text-[#1a1a1a]">SYNC2</span>
         </div>
 
         <div className="hidden md:flex items-center gap-8">
@@ -536,7 +547,7 @@ const Features = () => (
               <th className="p-6 text-left bg-zinc-50 border border-zinc-100 text-zinc-500 font-bold rounded-tl-3xl">項目</th>
               <th className="p-6 text-center bg-zinc-100 border border-zinc-200 text-zinc-600 font-bold">一般的な代理店</th>
               <th className="p-6 text-center bg-zinc-50 border border-[#8edce0]/30 text-[#373d43] font-bold rounded-tr-3xl relative">
-                SYNC2 AGENCY
+                SYNC2
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#8edce0] text-[#373d43] text-[10px] py-1 px-3 rounded-full shadow-lg">RECOMMENDED</div>
               </th>
             </tr>
@@ -636,10 +647,10 @@ const Footer = () => (
           </div>
           <div className="relative w-3 h-3 bg-white rotate-45 z-10" />
         </div>
-        <span className="text-lg font-bold text-[#1a1a1a]">SYNC2 AGENCY</span>
+        <span className="text-lg font-bold text-[#1a1a1a]">SYNC2</span>
       </div>
       <p className="text-zinc-500 text-sm">
-        © 2026 SYNC2 AGENCY. All rights reserved.
+        © 2026 SYNC2. All rights reserved.
       </p>
       <div className="flex gap-6 text-zinc-400 text-sm">
         <a href="#" className="hover:text-[#373d43] transition-colors">プライバシーポリシー</a>
@@ -699,7 +710,7 @@ const SUGGESTED_QUESTIONS = [
   "多言語展開を視野に入れたグローバルSNS戦略は？",
   "ローカルビジネス（地域密着）のSNS集客術は？",
   "SNSの各プラットフォームの使い分けの基準は？",
-  "SYNC2 AGENCYに運用を任せるメリットは？"
+  "SYNC2に運用を任せるメリットは？"
 ];
 
 import { GoogleGenAI } from "@google/genai";
@@ -747,7 +758,7 @@ const AIConsultant = () => {
           { role: 'user', parts: [{ text: userMessage }] }
         ],
         config: {
-          systemInstruction: "あなたはSYNC2 AGENCYの専属AIコンサルタントです。高級感のある、丁寧で洗練された日本語で回答してください。回答は専門的ですが、要点を絞って簡潔に（シンプルに）まとめてください。読みやすさを重視し、適切な句読点と改行を使用してください。最後には必ず、より深い戦略相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への招待を優雅に添えてください。",
+          systemInstruction: "あなたはSYNC2の専属AIコンサルタントです。高級感のある、丁寧で洗練された日本語で回答してください。回答は専門的ですが、要点を絞って簡潔に（シンプルに）まとめてください。読みやすさを重視し、適切な句読点と改行を使用してください。最後には必ず、より深い戦略相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への招待を優雅に添えてください。",
           maxOutputTokens: 500,
           temperature: 0.6,
         }

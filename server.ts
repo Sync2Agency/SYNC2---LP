@@ -56,12 +56,12 @@ async function startServer() {
       const mailOptions = {
         from: SMTP_FROM || SMTP_USER,
         to: email,
-        subject: "【SYNC2 AGENCY】戦略資料を送付いたしました",
+        subject: "【SYNC2】戦略資料を送付いたしました",
         text: `${name} 様\n\nこの度は資料をご請求いただき、誠にありがとうございます。\nご請求いただいた「B2B SNS戦略ガイド」を添付いたしましたので、ぜひご一読ください。\n\n会社名: ${company}\n\n※本メールは自動送信されています。`,
         html: `
           <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #1a1c2e; font-size: 24px;">SYNC2 AGENCY</h1>
+              <h1 style="color: #1a1c2e; font-size: 24px;">SYNC2</h1>
             </div>
             
             <p style="font-size: 16px;">${name} 様</p>
@@ -82,7 +82,7 @@ async function startServer() {
             <p>ご不明な点や、より具体的な運用についてのご相談がございましたら、お気軽に公式LINEまたは本メールへの返信にてお問い合わせください。</p>
             
             <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
-              <p>SYNC2 AGENCY チーム一同</p>
+              <p>SYNC2 チーム一同</p>
               <p>URL: <a href="https://sync2.agency" style="color: #8edce0;">sync2.agency</a></p>
             </div>
           </div>

@@ -11,7 +11,7 @@ const PDFTemplate = () => {
             <div className="w-6 h-6 bg-white rotate-45 flex items-center justify-center">
               <div className="w-2 h-2 bg-[#1a1c2e] rotate-[-45deg]" />
             </div>
-            <span className="font-bold tracking-widest text-sm">SYNC2 AGENCY</span>
+            <span className="font-bold tracking-widest text-sm">SYNC2</span>
           </div>
           <span className="text-[10px] tracking-widest opacity-60">B2B SNS STRATEGY GUIDE 2026 — COMPLETE EDITION</span>
         </div>
@@ -79,7 +79,7 @@ const PDFTemplate = () => {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 bg-[#8edce0] rotate-45" />
-              <span className="font-bold">SYNC2 AGENCY</span>
+              <span className="font-bold">SYNC2</span>
             </div>
           </div>
           <div>B2B EXPERTS · GLOBAL REACH · DATA DRIVEN · SYNC2.AGENCY</div>
@@ -803,7 +803,7 @@ const PDFTemplate = () => {
             <div className="w-6 h-6 bg-white rotate-45 flex items-center justify-center">
               <div className="w-2 h-2 bg-[#1a1c2e] rotate-[-45deg]" />
             </div>
-            <span className="font-bold tracking-widest text-sm">SYNC2 AGENCY</span>
+            <span className="font-bold tracking-widest text-sm">SYNC2</span>
           </div>
           <span className="text-[10px] tracking-widest opacity-60">NEXT STEP — 次のステップ</span>
         </div>
@@ -815,7 +815,7 @@ const PDFTemplate = () => {
              確かな<span className="text-[#8edce0]">SNS戦略</span>を。
            </h2>
            <p className="text-lg text-zinc-300 max-w-xl mx-auto mb-16 leading-relaxed">
-             SNS運用は「やり方」一つで、コストにも、最強の資産にもなります。SYNC2 AGENCYと共に、次世代のB2Bマーケティングを始めませんか？
+             SNS運用は「やり方」一つで、コストにも、最強の資産にもなります。SYNC2と共に、次世代のB2Bマーケティングを始めませんか？
            </p>
 
            <div className="bg-white text-zinc-900 p-12 rounded-3xl max-w-lg mb-12 shadow-2xl relative overflow-hidden">
@@ -852,7 +852,7 @@ const PDFTemplate = () => {
         </div>
 
         <div className="mt-auto flex justify-between items-center text-[10px] tracking-widest text-zinc-500 relative z-10 pt-12 border-t border-zinc-800">
-          <div>© 2026 SYNC2 AGENCY · SYNC2.AGENCY · TOKYO | SAO PAULO</div>
+          <div>© 2026 SYNC2 · SYNC2.AGENCY · TOKYO | SAO PAULO</div>
           <div className="flex gap-4">
              <span>STRATEGY</span>
              <span>CREATIVE</span>
