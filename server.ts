@@ -10,10 +10,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function startServer() {
+  console.log("--- Initializing Sync2 Server ---");
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
 
   app.use(express.json());
+  console.log("Environment:", process.env.NODE_ENV);
+  console.log("Port:", PORT);
 
   // API Routes
   app.get("/api/health", (req, res) => {
@@ -96,8 +99,15 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server successfully started and listening on http://0.0.0.0:${PORT}`);
+    console.log("Health check available at /api/health");
+  }).on('error', (err) => {
+    console.error("FAILED TO START SERVER:", err);
+    process.exit(1);
   });
 }
 
-startServer();
+startServer().catch(err => {
+  console.error("CRITICAL ERROR DURING SERVER STARTUP:", err);
+  process.exit(1);
+});
