@@ -93,9 +93,10 @@ async function startServer() {
     }
 
     try {
+      console.log("Calling Gemini with model: gemini-3-flash-preview");
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-3-flash-preview",
         contents: [
           ...(history || []).map((h: any) => ({
             role: h.role === 'user' ? 'user' : 'model',
@@ -111,9 +112,14 @@ async function startServer() {
       });
 
       const text = response.text || "申し訳ありません。回答を生成できませんでした。";
+      console.log("Gemini response received successfully");
       res.json({ text });
     } catch (error) {
-      console.error("AI Error:", error);
+      console.error("AI Error Detailed:", {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        error: error
+      });
       res.status(500).json({ error: "Falha na comunicação com a IA" });
     }
   });
