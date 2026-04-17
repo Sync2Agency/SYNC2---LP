@@ -76,6 +76,13 @@ async function startServer() {
 
     const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
 
+    console.log("Checking SMTP Env Vars:");
+    console.log("- HOST:", SMTP_HOST);
+    console.log("- PORT:", SMTP_PORT);
+    console.log("- USER:", SMTP_USER);
+    console.log("- PASS:", SMTP_PASS ? "Set (length: " + SMTP_PASS.length + ")" : "NOT SET");
+    console.log("- FROM:", SMTP_FROM);
+
     if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
       console.error("SMTP configuration missing");
       return res.status(500).json({ error: "Email service not configured on server" });
