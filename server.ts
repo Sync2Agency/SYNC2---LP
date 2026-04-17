@@ -3,7 +3,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
@@ -62,11 +61,11 @@ async function startServer() {
           <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
             <p>${name} 様</p>
             <p>この度は資料をダウンロードいただき、誠にありがとうございます。<br>
-            株式会社SYNC2 de 運用プラン資料をお送りいたします。</p>
+            株式会社SYNC2 運用プラン資料をお送りいたします。</p>
             <p><strong>会社名:</strong> ${company}</p>
             <hr>
             <p>SNSを「資産」に変える第一歩として、ぜひご活用ください。</p>
-            <p>ご不明な点がございましたら, お気軽にLINEまたはメールにてお問い合わせください。</p>
+            <p>ご不明な点がございましたら、お気軽にLINEまたはメールにてお問い合わせください。</p>
             <br>
             <p>SYNC2 AGENCY チーム一同</p>
           </div>
@@ -79,48 +78,6 @@ async function startServer() {
     } catch (error) {
       console.error("DETAILED SMTP ERROR:", error);
       res.status(500).json({ error: "Failed to send email", details: error instanceof Error ? error.message : String(error) });
-    }
-  });
-
-  // AI Consultant Chat Route
-  app.post("/api/chat", async (req, res) => {
-    const { message, history } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (!apiKey) {
-      console.error("GEMINI_API_KEY missing");
-      return res.status(500).json({ error: "Configuração de IA ausente no servidor" });
-    }
-
-    try {
-      console.log("Calling Gemini with model: gemini-3-flash-preview");
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [
-          ...(history || []).map((h: any) => ({
-            role: h.role === 'user' ? 'user' : 'model',
-            parts: [{ text: h.text || h.parts?.[0]?.text }]
-          })),
-          { role: 'user', parts: [{ text: message }] }
-        ],
-        config: {
-          systemInstruction: "あなたはSYNC2 AGENCYの専属AIコンサルタントです。高級感のある、丁寧で洗練された日本語で回答してください。回答は読みやすさを最優先し、適切な句読点を使用し、段落間には必ず1行の空行（改行2つ）を入れて構成してください。最後には必ず、より深い戦略相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への招待を優雅に伝えてください。",
-          maxOutputTokens: 1000,
-          temperature: 0.6,
-        }
-      });
-
-      const text = response.text || "申し訳ありません。回答を生成できませんでした。";
-      console.log("Gemini response received successfully");
-      res.json({ text });
-    } catch (error) {
-      console.error("AI Error Detailed:", {
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-        error: error
-      });
-      res.status(500).json({ error: "Falha na comunicação com a IA" });
     }
   });
 
