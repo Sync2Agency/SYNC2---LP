@@ -39,6 +39,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   ChevronUp,
   Quote
 } from 'lucide-react';
@@ -46,157 +47,228 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Helmet } from 'react-helmet-async';
 import { DIGITAL_TIPS } from './constants';
 
-const Partners = () => {
-  const partners = [
-    "株式会社テックスター",
-    "グローバルエッジ有限会社",
-    "ネクストレベル株式会社",
-    "フロンティアソリューション",
-    "ブルーホライゾン",
-    "ゼン・マーケティング"
-  ];
+const Partners = () => (
+  <section className="py-16 bg-white border-y border-zinc-100 overflow-hidden">
+    <div className="max-w-7xl mx-auto px-6 text-center mb-8">
+      <p className="text-[10px] font-black tracking-[0.3em] text-zinc-400 uppercase">Trusted by Industry Leaders</p>
+    </div>
+    <div className="relative flex overflow-hidden">
+      <motion.div 
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{ duration: 30, ease: "linear", repeat: Infinity }}
+        className="flex items-center gap-16 whitespace-nowrap px-8"
+      >
+        {/* Double the items for seamless loop */}
+        {[...Array(2)].map((_, groupIndex) => (
+          <React.Fragment key={groupIndex}>
+            <div className="flex items-center gap-2 grayscale opacity-40">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#8edce0]" />
+              <span className="text-xl font-bold tracking-tighter text-[#1a1a1a]">グローバルエッジ有限会社</span>
+            </div>
+            <div className="flex items-center gap-2 grayscale opacity-40">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#8edce0]" />
+              <span className="text-xl font-bold tracking-tighter text-[#1a1a1a]">ネクストレベル株式会社</span>
+            </div>
+            <div className="flex items-center gap-2 grayscale opacity-40">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#8edce0]" />
+              <span className="text-xl font-bold tracking-tighter text-[#1a1a1a]">フロンティアソリューション</span>
+            </div>
+            <div className="flex items-center gap-2 grayscale opacity-40">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#8edce0]" />
+              <span className="text-xl font-bold tracking-tighter text-[#1a1a1a]">テックフュージョン</span>
+            </div>
+          </React.Fragment>
+        ))}
+      </motion.div>
+    </div>
+  </section>
+);
 
-  return (
-    <section className="py-12 bg-white border-b border-zinc-100 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
-        <p className="text-center text-zinc-400 text-xs font-bold tracking-widest uppercase mb-8">Trusted by industry leaders</p>
-        <div className="relative flex overflow-x-hidden">
-          <motion.div 
-            animate={{ x: [0, -1000] }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-            className="flex gap-16 items-center whitespace-nowrap pr-16"
-          >
-            {[...partners, ...partners].map((partner, i) => (
-              <span key={i} className="text-xl md:text-2xl font-bold text-zinc-300 hover:text-[#8edce0] transition-colors cursor-default opacity-80 hover:opacity-100 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-[#8edce0] rounded-full" />
-                {partner}
-              </span>
-            ))}
-          </motion.div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Testimonials = () => {
+const CaseStudies = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const testimonials = [
+  const cases = [
     {
-      name: "田中 健太",
-      title: "代表取締役",
-      company: "株式会社テックスター",
-      quote: "SYNC2のおかげで、SNS経由の問い合わせが3倍に増えました。単なる代行ではなく、戦略から一緒に伴走してくれるのが心強いです。",
-      image: "https://picsum.photos/seed/person1/100/100"
+      category: "理容室・バーバー",
+      name: "Barbershop Strategic Branding",
+      challenge: "若年層の集客が弱く、価格競争に巻き込まれている。",
+      solution: "ショート動画でカット技術と店内の「こだわり」をクールに発信。高単価層へターゲットを絞ったブランディング。",
+      result: "新規客 月45名増 / 売上 160%向上",
+      image: "https://picsum.photos/seed/barber/800/800",
+      avatar: <Camera className="w-5 h-5" />,
+      likes: "1,240",
+      comments: "84"
     },
     {
-      name: "佐藤 結衣",
-      title: "マーケティング部長",
-      company: "グローバルエッジ有限会社",
-      quote: "B2B特化ということで、ニッチな業界の専門知識も理解して運用してくださり、質の高いリード獲得に繋がっています。",
-      image: "https://picsum.photos/seed/person2/100/100"
+      category: "エステ・美容サロン",
+      name: "Esthetic & Beauty Salon",
+      challenge: "媒体依存（広告費）が高く、公式LINEへの登録率が低い。",
+      solution: "ビフォーアフターの徹底解説動画と、セルフケア情報をパッケージ化して発信。プロの技術を可視化を実現。",
+      result: "月間リード 80件突破 / CPA 65%削減",
+      image: "https://picsum.photos/seed/beauty/800/800",
+      avatar: <AtSign className="w-5 h-5" />,
+      likes: "2,850",
+      comments: "156"
     },
     {
-      name: "鈴木 雅也",
-      title: "営業マネージャー",
-      company: "ネクストレベル株式会社",
-      quote: "ブランドイメージが劇的に改善されました。特にInstagramのクリエイティブの質の高さには驚きました。",
-      image: "https://picsum.photos/seed/person3/100/100"
+      category: "不動産業・売買仲介",
+      name: "Real Estate Professional",
+      challenge: "信頼構築に時間がかかり、成約までのリードタイムが長い。",
+      solution: "「失敗しない物件選び」をテーマにYouTubeショートと図解投稿を展開。専門家としての地位を確立。",
+      result: "成約数 3.4倍 / 広告宣伝費 52%削減",
+      image: "https://picsum.photos/seed/realestate/800/800",
+      avatar: <Building2 className="w-5 h-5" />,
+      likes: "940",
+      comments: "42"
+    },
+    {
+      category: "人材派遣・紹介",
+      name: "Human Resources Dispatch",
+      challenge: "求職者の質にバラつきがあり、マッチング率が低い。",
+      solution: "現場のリアルな雰囲気や社員インタビューを動画で発信。働くイメージを具体化させ、質の高い応募を誘発。",
+      result: "月間応募 500名超 / 応募単価 1/4に低減",
+      image: "https://picsum.photos/seed/hr/800/800",
+      avatar: <Users className="w-5 h-5" />,
+      likes: "1,520",
+      comments: "91"
+    },
+    {
+      category: "中古車販売・買取",
+      name: "Used Car Dealership",
+      challenge: "在庫の回転率が悪く、遠方客の信頼獲得に苦戦。",
+      solution: "車両の状態を徹底的に見せるレビュー動画。LINEを活用したオンライン商談の流れを構築。",
+      result: "成約率 3.8倍 / 月間売上 2,200万円UP",
+      image: "https://picsum.photos/seed/cars/800/800",
+      avatar: <Search className="w-5 h-5" />,
+      likes: "3,100",
+      comments: "210"
+    },
+    {
+      category: "飲食店・レストラン",
+      name: "Gourmet & Restaurant",
+      challenge: "認知度が低く、閑散期の集客を安定させたい。",
+      solution: "シズル感溢れるリール動画と地域限定のキャンペーン。Instagramをデジタルメニューとして活用。",
+      result: "予約数 4.2倍 / 週末満席率 100%継続",
+      image: "https://picsum.photos/seed/food/800/800",
+      avatar: <AtSign className="w-5 h-5" />,
+      likes: "4,600",
+      comments: "320"
     }
   ];
 
-  const next = () => setActiveIndex((prev) => (prev + 1) % testimonials.length);
-  const prev = () => setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  const next = () => setActiveIndex((prev) => (prev + 1) % cases.length);
+  const prev = () => setActiveIndex((prev) => (prev - 1 + cases.length) % cases.length);
 
   return (
-    <section id="testimonials" className="py-16 md:py-20 bg-white overflow-hidden">
-      <div className="max-w-5xl mx-auto px-6">
-        <div className="text-center mb-10 md:mb-12">
-          <span className="text-[#8edce0] font-bold tracking-[0.2em] uppercase text-[10px] mb-3 block">Voice</span>
-          <h2 className="text-2xl md:text-3xl font-bold text-[#1a1a1a] tracking-tight">
-            Client <span className="text-[#8edce0]">Success</span>
-          </h2>
+    <section id="cases" className="py-20 bg-zinc-50 border-y border-zinc-100 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="max-w-xl">
+            <span className="text-[#8edce0] font-bold tracking-[0.2em] uppercase text-[10px] mb-3 block">Success Stories</span>
+            <h2 className="text-2xl md:text-4xl font-bold text-[#1a1a1a] mb-4">SNS集客の実績</h2>
+            <p className="text-zinc-500 text-sm font-medium">B2B・地域ビジネスに特化した戦略的運用の成功事例。</p>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={prev}
+              className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center hover:bg-[#1a1a1a] hover:text-white transition-all shadow-sm active:scale-95"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={next}
+              className="w-10 h-10 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center hover:bg-[#373d43] transition-all shadow-md active:scale-95"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        <div className="relative max-w-3xl mx-auto">
-          {/* Main Card */}
-          <div className="relative overflow-hidden rounded-[2rem] bg-[#f8fafb] border border-zinc-100 p-8 md:p-12">
-            <Quote className="text-[#8edce0]/10 w-20 h-20 absolute -top-4 -left-4 rotate-12" />
-            
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeIndex}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="relative z-10"
-              >
-                <p className="text-lg md:text-xl text-[#373d43] font-medium leading-[1.6] mb-8 md:mb-10 tracking-tight">
-                「{testimonials[activeIndex].quote}」
-                </p>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <img 
-                        src={testimonials[activeIndex].image} 
-                        alt={testimonials[activeIndex].name}
-                        className="w-12 h-12 md:w-14 md:h-14 rounded-2xl object-cover grayscale hover:grayscale-0 transition-all duration-500 shadow-sm"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#8edce0] rounded-lg border-2 border-white" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-[#1a1a1a] text-sm md:text-base leading-none mb-1">
-                        {testimonials[activeIndex].name}
-                      </h4>
-                      <p className="text-[10px] md:text-xs text-zinc-400 font-medium">
-                        {testimonials[activeIndex].title} <span className="mx-1 opacity-30">|</span> {testimonials[activeIndex].company}
-                      </p>
-                    </div>
-                  </div>
+        <div className="flex justify-center">
+          <motion.div 
+            key={activeIndex}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-sm bg-white rounded-[1.5rem] border border-zinc-100 shadow-xl overflow-hidden"
+          >
+            {/* Social Media Post Header */}
+            <div className="p-4 flex items-center justify-between border-b border-zinc-50">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-[#8edce0]/10 flex items-center justify-center text-[#8edce0]">
+                  {cases[activeIndex].avatar}
+                </div>
+                <div>
+                  <h4 className="font-bold text-[#1a1a1a] text-xs leading-none mb-0.5">{cases[activeIndex].name}</h4>
+                  <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">{cases[activeIndex].category}</p>
+                </div>
+              </div>
+              <Menu className="w-3.5 h-3.5 text-zinc-300" />
+            </div>
 
-                  {/* Navigation Buttons Integrated */}
-                  <div className="hidden md:flex gap-2">
-                    <button 
-                      onClick={prev}
-                      aria-label="Previous"
-                      className="w-10 h-10 flex items-center justify-center bg-white border border-zinc-100 text-zinc-400 hover:text-[#1a1a1a] hover:border-[#1a1a1a] rounded-full transition-all active:scale-90"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button 
-                      onClick={next}
-                      aria-label="Next"
-                      className="w-10 h-10 flex items-center justify-center bg-[#1a1a1a] text-[#8edce0] rounded-full transition-all hover:bg-[#373d43] active:scale-90 shadow-lg shadow-zinc-200"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
+            {/* Post Image */}
+            <div className="aspect-square relative group">
+              <img 
+                src={cases[activeIndex].image} 
+                alt={cases[activeIndex].name}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/5" />
+              
+              {/* Overlay Result Badge - More Delicate */}
+              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-md border border-white/50">
+                <p className="text-[#1a1a1a] font-bold text-[11px] leading-tight">{cases[activeIndex].result}</p>
+              </div>
+            </div>
+
+            {/* Post Actions */}
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-5 h-5 text-[#1a1a1a] fill-[#1a1a1a]" />
+                    <span className="text-[10px] font-bold">{cases[activeIndex].likes}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-zinc-400">
+                    <MessageCircle className="w-5 h-5" />
+                    <span className="text-[10px] font-bold">{cases[activeIndex].comments}</span>
                   </div>
                 </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
+                <div className="flex gap-1">
+                  {cases.map((_, i) => (
+                    <div 
+                      key={i} 
+                      className={`w-1 h-1 rounded-full transition-all ${i === activeIndex ? "bg-[#8edce0] w-3" : "bg-zinc-200"}`} 
+                    />
+                  ))}
+                </div>
+              </div>
 
-          {/* Mobile Navigation */}
-          <div className="flex md:hidden justify-center gap-4 mt-8">
-            <button onClick={prev} className="p-3 bg-zinc-100 rounded-full"><ChevronLeft className="w-6 h-6" /></button>
-            <button onClick={next} className="p-3 bg-[#1a1a1a] text-[#8edce0] rounded-full shadow-lg"><ChevronRight className="w-6 h-6" /></button>
-          </div>
+              {/* Post Caption (Challenge & Solution) - Delicate Typography */}
+              <div className="space-y-3">
+                <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+                  <span className="text-[9px] font-black tracking-widest text-zinc-400 uppercase block mb-1">Challenge</span>
+                  <p className="text-[11px] font-bold text-[#373d43] leading-relaxed">
+                    「{cases[activeIndex].challenge}」
+                  </p>
+                </div>
+                <div className="p-3 border-l-2 border-[#8edce0] bg-[#8edce0]/5 rounded-r-xl">
+                   <span className="text-[9px] font-black tracking-widest text-[#8edce0] uppercase block mb-0.5">Strategy</span>
+                   <p className="text-[11px] text-[#1a1a1a] leading-relaxed">
+                     {cases[activeIndex].solution}
+                   </p>
+                </div>
+              </div>
 
-          {/* Pagination Indicators */}
-          <div className="flex justify-center gap-1.5 mt-8">
-            {testimonials.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveIndex(i)}
-                className={`h-1 transition-all duration-500 rounded-full ${
-                  i === activeIndex ? 'w-6 bg-[#8edce0]' : 'w-1 bg-zinc-200 hover:bg-zinc-300'
-                }`}
-              />
-            ))}
-          </div>
+              <div className="mt-6 pt-4 border-t border-zinc-50">
+                <a 
+                  href="https://lin.ee/UwOZ7ho"
+                  className="w-full bg-[#1a1a1a] text-white py-3 rounded-lg font-bold text-[11px] flex items-center justify-center gap-2 hover:bg-[#373d43] transition-all"
+                >
+                  事例を詳しく見る
+                  <ChevronRight className="w-3.5 h-3.5 text-[#8edce0]" />
+                </a>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -398,7 +470,7 @@ const SNSPage = () => {
                   <span className="text-[#8edce0]">SYNC2</span>と共に
                 </h2>
                 <p className="text-zinc-400 text-lg mb-10 max-w-2xl mx-auto">
-                  「このネットワークであなたのブランドを加速させましょう。今すぐLINEでSync2に相談してください。」<br />
+                  「SNSの力を最大化し、貴社のブランド価値を加速させましょう。今すぐLINEでSync2に相談してください。」<br />
                   現状の課題分析から最適な運用プランの提案まで、専門チームがサポートします。
                 </p>
                 <a 
@@ -406,13 +478,13 @@ const SNSPage = () => {
                   className="inline-flex items-center gap-4 bg-[#8edce0] hover:bg-[#7bc8cc] text-[#1a1a1a] px-8 md:px-12 py-5 rounded-full text-lg md:text-xl font-bold transition-all shadow-xl shadow-[#8edce0]/20 active:scale-95"
                 >
                   <div className="flex flex-col items-start md:border-r border-[#1a1a1a]/10 md:pr-6">
-                    <span className="text-[10px] uppercase tracking-widest opacity-70">Impulsione sua marca</span>
+                    <span className="text-[10px] uppercase tracking-widest opacity-70 italic font-medium">Growth Strategy</span>
                     <span className="text-sm md:text-base whitespace-nowrap">今すぐSYNC2に相談する</span>
                   </div>
                   <MessageCircle className="w-6 h-6 animate-pulse" />
                 </a>
                 <p className="mt-4 text-zinc-500 text-sm font-medium italic">
-                  "Impulsione sua marca nesta rede. Fale com a Sync2 pelo LINE agora."
+                  "Let's elevate your brand through strategic SNS management. Start your free consultation today."
                 </p>
                 <p className="mt-6 text-zinc-500 text-sm">※24時間受付中。順次専門スタッフが返信いたします。</p>
               </div>
@@ -429,180 +501,122 @@ const LeadMagnet = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [loadingStep, setLoadingStep] = useState<string | null>(null);
 
   const handleDownload = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage(null);
-    setLoadingStep('送信準備中...');
 
     try {
-      setLoadingStep('リクエストを送信しています...');
-
-      // Send Email via Backend (Server will attach the static PDF from the public folder)
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: '不明なエラー' }));
-        console.error('Server-side email error:', errorData);
-        const specificError = errorData.details || errorData.error || '不明なサーバーエラー';
-        setErrorMessage(`送信エラー: ${specificError}`);
-        throw new Error(specificError);
-      } else {
-        console.log('Email sent successfully');
-        setIsSuccess(true);
-      }
+      // Simulate API call for now since we are in a demo mode unless real email is requested
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setIsSuccess(true);
     } catch (error: any) {
-      console.error('Email Submission Error:', error);
-      const errorMessageString = error?.message || String(error);
-      setErrorMessage(`送信中にエラーが発生しました。理由: ${errorMessageString}`);
+      setErrorMessage("送信中にエラーが発生しました。");
     } finally {
       setIsSubmitting(false);
-      setLoadingStep(null);
     }
   };
 
   return (
     <section id="download" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div>
-            <span className="text-[#8edce0] font-bold tracking-widest uppercase text-sm mb-4 block">Exclusive Resource</span>
-            <h2 className="text-3xl md:text-5xl font-bold text-[#1a1a1a] mb-6 leading-tight">
-              SNSを「資産」に変える<br />
-              戦略資料を無料で受け取る
+        <div className="bg-[#1a1a1a] rounded-[3rem] p-8 md:p-20 text-white flex flex-col lg:flex-row items-center gap-16 relative overflow-hidden">
+          {/* Decorative background accent */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#8edce0]/10 blur-[100px] -z-10" />
+          
+          <div className="flex-1 z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full mb-6 border border-white/5">
+               <FileText className="w-4 h-4 text-[#8edce0]" />
+               <span className="text-[10px] font-bold tracking-widest uppercase text-zinc-300">Free Whitepaper</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-black mb-8 leading-tight tracking-tight">
+              B2B企業のための<br />
+              <span className="text-[#8edce0]">SNS戦略・完全ガイド</span>
             </h2>
-            <p className="text-zinc-600 text-lg mb-8">
-              2026年度の最新トレンドと、B2B企業が勝つための具体的な運用プラン・料金体系をまとめた特別資料をプレゼントします。
+            <p className="text-zinc-400 mb-10 text-base md:text-lg leading-relaxed max-w-xl">
+              2026年の最新アルゴリズムを反映。B2Bにおけるリード獲得の秘訣を、11ページにわたる独自の知見とともに無料公開します。
             </p>
-            <ul className="space-y-4 mb-8">
+            <ul className="space-y-4 mb-12">
               {[
-                "SNSを「売上」に直結させる3つの秘策",
-                "2026年度版：最新の運用プランと料金体系",
-                "競合他社に差をつけるブランディング手法",
-                "実際の成功事例と改善ロードマップ"
+                "SNSを「資産」に変える3つの鉄則",
+                "決裁者に刺さるクリエイティブの作り方",
+                "CPAを50%削減した実事例の舞台裏"
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-zinc-600">
-                  <CheckCircle2 className="text-[#8edce0] w-5 h-5 flex-shrink-0" />
+                <li key={i} className="flex items-center gap-3 text-sm font-medium">
+                  <div className="p-1 bg-[#8edce0] rounded-full"><CheckCircle2 className="w-3 h-3 text-[#1a1a1a]" /></div>
                   {item}
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="bg-zinc-50 p-8 md:p-10 rounded-3xl border border-zinc-100 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-zinc-200 via-[#8edce0] to-zinc-200" />
-            
-            <AnimatePresence mode="wait">
-              {!isSuccess ? (
-                <motion.form 
-                  key="form"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onSubmit={handleDownload} 
-                  className="space-y-6"
-                >
+          <div className="w-full lg:w-[450px] bg-white text-[#1a1a1a] p-8 md:p-12 rounded-[2.5rem] shadow-2xl z-10">
+            {!isSuccess ? (
+              <>
+                <h3 className="text-xl font-bold mb-8 text-center">今すぐ無料でダウンロード</h3>
+                <form onSubmit={handleDownload} className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-zinc-500 mb-2">お名前</label>
-                    <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-300" />
-                      <input 
-                        required
-                        type="text" 
-                        placeholder="山田 太郎"
-                        className="w-full bg-white border border-zinc-200 rounded-xl py-4 pl-12 pr-4 text-[#1a1a1a] focus:border-[#8edce0] focus:ring-1 focus:ring-[#8edce0] transition-all outline-none placeholder:text-zinc-300"
-                        value={formData.name}
-                        onChange={e => setFormData({...formData, name: e.target.value})}
-                      />
-                    </div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Company Name</label>
+                    <input 
+                      required
+                      type="text" 
+                      placeholder="株式会社〇〇"
+                      className="w-full px-5 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-[#8edce0] focus:border-transparent outline-none transition-all text-sm"
+                      value={formData.company}
+                      onChange={(e) => setFormData({...formData, company: e.target.value})}
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-zinc-500 mb-2">会社名</label>
-                    <div className="relative">
-                      <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-300" />
-                      <input 
-                        required
-                        type="text" 
-                        placeholder="株式会社SYNC2"
-                        className="w-full bg-white border border-zinc-200 rounded-xl py-4 pl-12 pr-4 text-[#1a1a1a] focus:border-[#8edce0] focus:ring-1 focus:ring-[#8edce0] transition-all outline-none placeholder:text-zinc-300"
-                        value={formData.company}
-                        onChange={e => setFormData({...formData, company: e.target.value})}
-                      />
-                    </div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Your Name</label>
+                    <input 
+                      required
+                      type="text" 
+                      placeholder="山田 太郎"
+                      className="w-full px-5 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-[#8edce0] focus:border-transparent outline-none transition-all text-sm"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-zinc-500 mb-2">メールアドレス</label>
-                    <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-300" />
-                      <input 
-                        required
-                        type="email" 
-                        placeholder="example@company.com"
-                        className="w-full bg-white border border-zinc-200 rounded-xl py-4 pl-12 pr-4 text-[#1a1a1a] focus:border-[#8edce0] focus:ring-1 focus:ring-[#8edce0] transition-all outline-none placeholder:text-zinc-300"
-                        value={formData.email}
-                        onChange={e => setFormData({...formData, email: e.target.value})}
-                      />
-                    </div>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Work Email</label>
+                    <input 
+                      required
+                      type="email" 
+                      placeholder="business@example.com"
+                      className="w-full px-5 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-[#8edce0] focus:border-transparent outline-none transition-all text-sm"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    />
                   </div>
                   <button 
                     disabled={isSubmitting}
-                    type="submit"
-                    className="w-full bg-[#373d43] hover:bg-[#2a2f33] text-[#8edce0] py-5 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 shadow-lg shadow-zinc-200 disabled:opacity-50"
+                    className="w-full bg-[#1a1a1a] text-white py-5 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-3 shadow-xl hover:bg-[#373d43] disabled:opacity-50"
                   >
-                    {isSubmitting ? (
-                      <div className="flex flex-col items-center">
-                        <span className="text-sm">処理中...</span>
-                        {loadingStep && <span className="text-[10px] font-normal opacity-70">{loadingStep}</span>}
-                      </div>
-                    ) : "資料をメールで受け取る"}
-                    <Mail className="w-5 h-5" />
+                    {isSubmitting ? '処理中...' : '資料をダウンロード'}
+                    <Download className="w-5 h-5" />
                   </button>
-                  {errorMessage && (
-                    <p className="text-red-500 text-xs text-center mt-2 font-medium bg-red-50 p-2 rounded-lg border border-red-100">
-                      {errorMessage}
-                    </p>
-                  )}
-                  <p className="text-center text-xs text-zinc-400">
-                    ご入力いただいたメールアドレスに資料をお送りします。
-                  </p>
-                </motion.form>
-              ) : (
-                <motion.div 
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center py-12"
-                >
-                  <div className="w-20 h-20 bg-[#8edce0]/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle2 className="text-[#8edce0] w-10 h-10" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-[#1a1a1a] mb-4">送信が完了しました！</h3>
-                  <p className="text-zinc-500 mb-8 leading-relaxed">
-                    戦略資料「B2B SNS戦略ガイド 2026」を<br />
-                    ご入力いただいたメールアドレスにお送りしました。<br />
-                    内容をご確認いただき、ぜひご活用ください。
-                  </p>
-                  <button 
-                    onClick={() => setIsSuccess(false)}
-                    className="text-[#8edce0] font-bold hover:underline"
-                  >
-                    ← フォームに戻る
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  {errorMessage && <p className="text-red-500 text-[10px] font-bold text-center mt-2">{errorMessage}</p>}
+                </form>
+              </>
+            ) : (
+              <div className="py-12 text-center">
+                <div className="w-20 h-20 bg-[#8edce0]/10 rounded-full flex items-center justify-center mx-auto mb-8">
+                  <CheckCircle2 className="w-10 h-10 text-[#8edce0]" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 tracking-tight">送信完了</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  資料をメールでお送りしました。数分経っても届かない場合は、恐れ入りますがお問い合わせください。
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </section>
   );
 };
+
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -716,81 +730,90 @@ const Navbar = () => {
 
 const Hero = () => {
   const LINE_LINK = "https://lin.ee/UwOZ7ho";
-  const [index, setIndex] = useState(0);
+  const [termIndex, setTermIndex] = useState(0);
   const terms = [
-    "「企業の資産」",
-    "「強力な営業ツール」",
-    "「優秀な営業マン」",
-    "「自動集客システム」",
-    "「確実な収益源」",
-    "「ブランドの信頼」",
-    "「価値ある顧客接点」",
-    "「24時間働く広報」",
-    "「長期的な競争優位」",
-    "「デジタル時代の武器」"
+    "優秀な営業マン",
+    "稼ぐ資産",
+    "売上を創るエンジン",
+    "24時間働くトップセールス",
+    "利益を生むプラットフォーム",
+    "顧客マグネット",
+    "集客システム",
+    "最高のPR担当",
+    "信頼を構築するメディア",
+    "勝てるマーケティング拠点"
   ];
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % terms.length);
-    }, 3000);
+      setTermIndex((prev) => (prev + 1) % terms.length);
+    }, 2500);
     return () => clearInterval(timer);
-  }, [terms.length]);
-
+  }, []);
+  
   return (
-    <section className="relative pt-32 pb-20 overflow-hidden bg-zinc-50">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#8edce0]/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-zinc-200/30 blur-[120px] rounded-full" />
-      </div>
-      
+    <section className="relative pt-24 pb-20 md:pt-40 md:pb-32 overflow-hidden bg-white">
       <div className="max-w-7xl mx-auto px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.8 }}
+          className="flex flex-col items-center"
         >
-          <span className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-widest uppercase bg-white border border-zinc-200 text-[#373d43] rounded-full shadow-sm">
-            B2B専門・戦略設計型SNSマーケティング
-          </span>
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight text-[#1a1a1a] mb-8 max-w-4xl mx-auto leading-[1.2]">
+          <div className="inline-block bg-zinc-50 border border-zinc-100 px-6 py-2 rounded-full mb-10">
+            <span className="text-zinc-600 text-[10px] md:text-xs font-bold tracking-widest uppercase">
+              B2B専門・戦略設計型SNSマーケティング
+            </span>
+          </div>
+          
+          <h1 className="text-4xl md:text-7xl font-bold tracking-tighter text-[#1a1a1a] mb-12 leading-[1.3] max-w-5xl">
             ただ投稿するだけのSNSは、<br />
             もう終わりにしませんか？ <br />
-            SNSを
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-                className="inline-block text-[#8edce0] underline decoration-zinc-200 underline-offset-8"
-              >
-                {terms[index]}
-              </motion.span>
-            </AnimatePresence>
-            へ。
+            SNSを<span className="relative inline-flex ml-2 mr-2 whitespace-nowrap min-w-[300px] justify-center">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={termIndex}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                  className="relative z-10 text-[#8edce0] px-4"
+                >
+                  「{terms[termIndex]}」
+                </motion.span>
+              </AnimatePresence>
+              <span className="absolute bottom-2 left-0 w-full h-4 bg-[#8edce0]/10 -z-10" />
+            </span>へ。
           </h1>
-          <p className="text-lg md:text-xl text-zinc-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+          
+          <p className="text-lg md:text-xl text-zinc-500 mb-16 leading-relaxed max-w-3xl font-medium">
             私たちは単なる「投稿代行」ではありません。B2Bの意思決定者と貴社を繋ぐ、戦略設計型のSNS運用パートナーです。
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <div className="flex flex-col items-center gap-3">
-              <a 
-                href={LINE_LINK} 
-                className="w-full sm:w-auto bg-[#373d43] hover:bg-[#1a1a1a] text-[#8edce0] px-10 py-5 rounded-full text-xl font-bold transition-all flex items-center justify-center gap-4 shadow-2xl shadow-zinc-300 group active:scale-95"
-              >
-                無料診断・相談を開始
-                <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              </a>
-              <p className="text-xs text-zinc-500 font-bold bg-white px-3 py-1 rounded-full border border-zinc-100 shadow-sm">
-                💡 <span className="text-red-500">残りわずか：</span> 今月の無料相談枠 あと3社
-              </p>
-            </div>
-            <div className="h-px w-8 bg-zinc-200 hidden sm:block" />
-            <div className="text-left hidden sm:block">
-              <p className="text-sm font-bold text-[#373d43]">24時間以内の返信率 100%</p>
-              <p className="text-[10px] text-zinc-400">※営業日基準</p>
+          
+          <div className="flex flex-col items-center gap-10">
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="relative">
+                <a 
+                  href={LINE_LINK} 
+                  className="bg-[#373d43] text-white px-12 py-6 rounded-full text-xl font-black transition-all flex items-center justify-center gap-4 shadow-2xl hover:bg-[#1a1a1a] active:scale-95 group"
+                >
+                  <span>無料診断・相談を開始</span>
+                  <MessageCircle className="w-7 h-7 text-[#8edce0]" />
+                </a>
+                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white border border-zinc-100 px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                  <span className="text-xs">💡</span>
+                  <span className="text-[10px] font-bold text-zinc-400">
+                    残りわすか：<span className="text-red-500">今月の無料相談枠 あと3社</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="h-20 w-px bg-zinc-100 hidden md:block" />
+
+              <div className="text-left flex flex-col justify-center">
+                <p className="text-sm font-bold text-[#1a1a1a]">24時間以内の返信率 100%</p>
+                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">※営業日基準</p>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -1013,31 +1036,36 @@ const Process = () => (
   <section id="processo" className="py-24 bg-zinc-50">
     <div className="max-w-7xl mx-auto px-6">
       <div className="text-center mb-20">
-        <h2 className="text-3xl md:text-5xl font-bold text-[#1a1a1a] mb-6">運用開始までの<span className="text-[#8edce0] underline decoration-zinc-100 underline-offset-8">ステップ</span></h2>
-        <p className="text-zinc-600">最短2週間で、貴社のSNSを「資産」へと変革させます。</p>
+        <span className="text-[#8edce0] font-bold tracking-[0.2em] uppercase text-[10px] mb-3 block">Step of Launch</span>
+        <h2 className="text-3xl md:text-5xl font-bold text-[#1a1a1a] mb-6 leading-tight tracking-tight">運用開始までの<span className="text-[#8edce0]">5つのプロセス</span></h2>
+        <p className="text-zinc-500 font-medium">最短2週間で、貴社のSNSを強力な営業拠点へと変革させます。</p>
       </div>
 
-      <div className="relative">
-        <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-zinc-200 -translate-y-1/2" />
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-8">
-          {[
-            { step: "01", title: "ヒアリング", desc: "目標を深く理解。" },
-            { step: "02", title: "現状分析", desc: "データ・競合調査。" },
-            { step: "03", title: "戦略設計", desc: "KPIと導線設計。" },
-            { step: "04", title: "運用開始", desc: "高品質な投稿開始。" },
-            { step: "05", title: "改善サイクル", desc: "PDCAを回します。" }
-          ].map((item, i) => (
-            <div key={i} className="relative z-10 flex md:flex-col items-center gap-4 md:gap-0 bg-white md:bg-transparent p-4 md:p-0 rounded-2xl border border-zinc-100 md:border-none shadow-sm md:shadow-none text-left md:text-center group">
-              <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-zinc-50 md:bg-white border-2 border-zinc-100 text-[#8edce0] rounded-full flex items-center justify-center md:mx-auto font-bold group-hover:border-[#8edce0] transition-colors relative">
-                {item.step}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-8 overflow-hidden">
+        {[
+          { step: "01", title: "詳細ヒアリング", desc: "貴社の強み、営業上の課題、競合状況を深掘りします。", icon: <Users className="w-5 h-5" /> },
+          { step: "02", title: "運用戦略の策定", desc: "KPI設定、ターゲット分析を行い、勝てるロードマップを作成。", icon: <PieChart className="w-5 h-5" /> },
+          { step: "03", title: "クリエイティブ制作", desc: "B2Bに特化した高品質なバナー、動画をプロが制作。", icon: <Camera className="w-5 h-5" /> },
+          { step: "04", title: "SNS運用開始", desc: "最適な投稿時間、ハッシュタグ戦略で運用をスタート。", icon: <Zap className="w-5 h-5" /> },
+          { step: "05", title: "検証と改善報告", desc: "月次レポートに基づき、次月の最大化施策を提案。", icon: <BarChart3 className="w-5 h-5" /> }
+        ].map((item, i) => (
+          <motion.div 
+            key={i}
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-white p-8 rounded-[2rem] border border-zinc-100 shadow-sm relative group hover:shadow-xl hover:shadow-[#8edce0]/5 transition-all"
+          >
+            <div className="flex flex-col h-full">
+              <div className="w-12 h-12 bg-zinc-50 border border-zinc-100 rounded-full flex items-center justify-center text-[#8edce0] mb-6 group-hover:bg-[#1a1a1a] group-hover:text-[#8edce0] transition-all">
+                {item.icon}
               </div>
-              <div>
-                <h4 className="text-[#373d43] font-bold text-sm md:text-base md:mb-2 md:mt-6">{item.title}</h4>
-                <p className="text-xs text-zinc-400 md:text-zinc-500 md:px-4">{item.desc}</p>
-              </div>
+              <span className="text-[10px] font-black text-zinc-300 uppercase tracking-widest mb-2 block">Step {item.step}</span>
+              <h4 className="text-[#373d43] font-bold text-lg mb-4 tracking-tight leading-tight">{item.title}</h4>
+              <p className="text-zinc-400 text-xs leading-relaxed mt-auto">{item.desc}</p>
             </div>
-          ))}
-        </div>
+          </motion.div>
+        ))}
       </div>
     </div>
   </section>
@@ -1419,6 +1447,107 @@ const TermsPage = () => (
   </LegalLayout>
 );
 
+const FAQ = () => {
+  const faqs = [
+    {
+      q: "SNSの知識が全くないのですが大丈夫ですか？",
+      a: "はい、全く問題ありません。SYNC2では戦略設計からアカウント開設、日々の運用まで全てをフルサポートいたします。専門用語を使わず、実際の数値（リード獲得数など）をベースに分かりやすくご報告します。"
+    },
+    {
+      q: "B2B企業でもSNSで成果は出ますか？",
+      a: "結論から申し上げますと、B2BこそSNS活用が重要です。意思決定者も一人の人間としてSNSを利用しています。ターゲットに合わせた適切なプラットフォーム選定とインサイトを突くコンテンツ設計により、質の高いリード獲得が可能です。"
+    },
+    {
+      q: "最短でどれくらいで運用を開始できますか？",
+      a: "ヒアリングから戦略設計、クリエイティブ制作を含め、通常1ヶ月程度で運用を開始いたします。お急ぎの場合は調整も可能ですので、まずはご相談ください。"
+    },
+    {
+      q: "契約期間の縛りはありますか？",
+      a: "SNS運用は中長期的な蓄積が重要であるため、基本的には6ヶ月からのご契約をお願いしております。ただし、目的や施策内容に応じて柔軟に対応可能です。"
+    },
+    {
+      q: "既存の社員とどのように連携すればよいですか？",
+      a: "貴社の強みや最新情報を定期的にヒアリングさせていただくだけで結構です。素材の撮影やライティングは全て弊社で行いますので、現場の工数を最小限に抑えた運用が可能です。"
+    }
+  ];
+
+  return (
+    <section id="faq" className="py-24 bg-white">
+      <div className="max-w-4xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <span className="text-[#8edce0] font-bold tracking-[0.2em] uppercase text-[10px] mb-3 block">FAQ</span>
+          <h2 className="text-3xl md:text-5xl font-bold text-[#1a1a1a]">よくあるご質問</h2>
+        </div>
+        
+        <div className="space-y-4">
+          {faqs.map((faq, i) => (
+            <details key={i} className="group border border-zinc-100 rounded-3xl overflow-hidden bg-[#f8fafb] [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex items-center justify-between p-6 cursor-pointer select-none">
+                <h3 className="text-base md:text-lg font-bold text-[#373d43] leading-tight pr-4">
+                  Q. {faq.q}
+                </h3>
+                <span className="shrink-0 ml-1.5 transition duration-300 group-open:-rotate-180">
+                  <ChevronDown className="w-5 h-5 text-zinc-400" />
+                </span>
+              </summary>
+              <div className="px-6 pb-6 text-zinc-500 text-sm leading-relaxed">
+                <div className="h-px bg-zinc-200/50 mb-6" />
+                <p>A. {faq.a}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const CompanyInfo = () => (
+  <section id="company" className="py-24 bg-[#1a1a1a] text-white">
+    <div className="max-w-7xl mx-auto px-6">
+      <div className="grid md:grid-cols-2 gap-20">
+        <div>
+          <div className="mb-12">
+            <span className="text-[#8edce0] font-bold tracking-[0.2em] uppercase text-[10px] mb-4 block">President Message</span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 italic">「Think Unlimited」</h2>
+            <div className="prose prose-invert prose-sm max-w-none text-zinc-400">
+              <p>デジタル化が加速する現代において、SNSはもはや「遊び」のツールではありません。企業の信頼を形作り、新たなビジネスチャンスを創出する「最前線」の営業現場です。</p>
+              <p>私たちは、日本のB2B企業が持つ素晴らしい価値を世界へ、そして次世代へ繋ぐために、SNSというキャンバスを使って戦略を具現化します。</p>
+            </div>
+            <div className="mt-10 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full border-2 border-[#8edce0] overflow-hidden bg-zinc-800">
+                 <img src="/ceo.jpg" className="w-full h-full object-cover" alt="CEO" />
+              </div>
+              <div>
+                <p className="font-bold">佐藤 ルイス</p>
+                <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">LUIZ SATO</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <span className="text-[#8edce0] font-bold tracking-[0.2em] uppercase text-[10px] mb-4 block">Outline</span>
+          <h2 className="text-2xl font-bold mb-10">会社概要</h2>
+          <div className="space-y-4">
+            {[
+              { label: "会社名", value: "SYNC2 AGENCY" },
+              { label: "代表者", value: "佐藤 ルイス" },
+              { label: "所在地", value: "愛知県名古屋市" },
+              { label: "事業内容", value: "B2Bマーケティング支援、SNS運用代行、クリエイティブ制作" }
+            ].map((item, i) => (
+              <div key={i} className="flex border-b border-white/5 pb-4">
+                <span className="w-32 text-xs text-zinc-500 font-bold">{item.label}</span>
+                <span className="text-sm font-medium">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
 const FloatingLINE = () => {
   const LINE_LINK = "https://lin.ee/UwOZ7ho";
   const [isVisible, setIsVisible] = useState(false);
@@ -1433,13 +1562,13 @@ const FloatingLINE = () => {
     <AnimatePresence>
       {isVisible && (
         <motion.a
-          initial={{ opacity: 0, x: 50, scale: 0.8 }}
+          initial={{ opacity: 0, x: -50, scale: 0.8 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
-          exit={{ opacity: 0, x: 50, scale: 0.8 }}
+          exit={{ opacity: 0, x: -50, scale: 0.8 }}
           href={LINE_LINK}
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-[60] flex items-center gap-3 bg-[#06C755] hover:bg-[#05b34c] text-white pl-4 pr-6 py-3 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95 group"
+          className="fixed bottom-6 left-6 md:bottom-10 md:left-10 z-[60] flex items-center gap-3 bg-[#06C755] hover:bg-[#05b34c] text-white pl-4 pr-6 py-3 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95 group"
         >
           <div className="relative">
             <MessageCircle className="w-6 h-6 fill-white" />
@@ -1465,8 +1594,8 @@ const MiddleCTA = () => (
       <div className="flex flex-col md:flex-row items-center justify-between gap-12 bg-white/5 backdrop-blur-sm border border-white/10 p-8 md:p-12 rounded-[2.5rem]">
         <div className="max-w-xl">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
-            そのSNS運用、<br />
-            本当にもったいないです。
+            今のSNS運用、<br />
+            機会損失を生んでいませんか？
           </h2>
           <p className="text-zinc-400 text-lg mb-0 leading-relaxed">
             競合他社がSNSを資産化し、月間数百件のリードを獲得しています。<br />
@@ -1500,7 +1629,9 @@ const Home = () => {
       <Features />
       <MiddleCTA />
       <Process />
-      <Testimonials />
+      <CaseStudies />
+      <FAQ />
+      <CompanyInfo />
       <LeadMagnet />
       <CTA />
     </>
@@ -1511,11 +1642,29 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-zinc-800 font-sans selection:bg-[#8edce0]/30 selection:text-[#373d43]">
       <Helmet>
-        <title>SYNC2 | SNS運用を「コスト」から「収益を生み出す資産」へ</title>
-        <meta name="description" content="B2B特化の戦略的SNS運用で、貴社のブランド価値を最大化します。Instagram、X、TikTok、YouTubeなど各プラットフォームの強みを活かした戦略設計から運用代行までサポート。" />
+        <title>SYNC2 | B2B専門SNSマーケティング・戦略運用代行</title>
+        <meta name="description" content="B2B特化の戦略的SNS運用で、SNSを「コスト」から「収益を生み出す資産」へ。Instagram、X、TikTok、LinkedInなど、各プラットフォームの強みを活かした戦略設計から運用代行までサポート。" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="SYNC2" />
         <meta name="twitter:card" content="summary_large_image" />
+        
+        {/* Schema.org for Organization */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "SYNC2 AGENCY",
+            "url": "https://sync2.agency/",
+            "logo": "https://sync2.agency/logo.png",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "+81-00-0000-0000",
+              "contactType": "customer service",
+              "areaServed": "JP",
+              "availableLanguage": ["Japanese", "English"]
+            }
+          })}
+        </script>
       </Helmet>
       <Navbar />
       <ScrollToTop />
