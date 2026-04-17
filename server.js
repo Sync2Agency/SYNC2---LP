@@ -19,16 +19,21 @@ async function startServer() {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-  console.log("Environment:", process.env.NODE_ENV || 'development');
-  console.log("Port:", PORT);
+  const isProduction = process.env.NODE_ENV === "production" || fs.existsSync(path.join(__dirname, "dist"));
+  console.log("Mode:", isProduction ? "Production" : "Development");
 
   // --- API Routes ---
 
   app.get("/api/health", (req, res) => {
-    res.json({ status: "ok" });
+    res.json({ status: "ok", mode: isProduction ? "production" : "development" });
   });
 
-  // --- Gemini API Proxy (Moved from Backend) ---
+  // Health check for Cloud Run
+  app.get("/healthz", (req, res) => {
+    res.status(200).send("OK");
+  });
+
+  // --- Gemini API Proxy ---
   app.post("/api/chat", async (req, res) => {
     try {
       const { messages, userMessage } = req.body;
@@ -77,42 +82,25 @@ async function startServer() {
 
     const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
 
-    console.log("Checking SMTP Env Vars:");
-    console.log("- HOST:", SMTP_HOST);
-    console.log("- PORT:", SMTP_PORT);
-    console.log("- USER:", SMTP_USER);
-    console.log("- PASS:", SMTP_PASS ? "Set (length: " + SMTP_PASS.length + ")" : "NOT SET");
-    console.log("- FROM:", SMTP_FROM);
-
     if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
       console.error("SMTP configuration missing");
       return res.status(500).json({ error: "Email service not configured on server" });
     }
 
     try {
-      console.log(`Attempting to send email to ${email} via ${SMTP_HOST}:${SMTP_PORT}...`);
-      
       const transporter = nodemailer.createTransport({
         host: SMTP_HOST,
-        port: 465, 
-        secure: true, 
+        port: parseInt(SMTP_PORT), 
+        secure: SMTP_PORT === "465", 
         auth: {
           user: SMTP_USER,
           pass: SMTP_PASS,
         },
         tls: {
-          rejectUnauthorized: false, // Mantido para evitar erros de certificado em hospedagem compartilhada
+          rejectUnauthorized: false,
         },
         connectionTimeout: 20000,
-        greetingTimeout: 20000,
-        socketTimeout: 30000,
-        debug: true,
-        logger: true
       });
-
-      // Verify connection first
-      await transporter.verify();
-      console.log("SMTP Connection verified successfully.");
 
       const mailOptions = {
         from: SMTP_FROM || SMTP_USER,
@@ -124,12 +112,9 @@ async function startServer() {
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="color: #1a1c2e; font-size: 24px;">SYNC2</h1>
             </div>
-            
             <p style="font-size: 16px;">${name} 様</p>
-            
             <p>この度は戦略資料をご請求いただき、誠にありがとうございます。<br>
             ご請求いただいた<strong>「B2B SNS戦略ガイド」</strong>を本メールに添付いたしました。</p>
-            
             <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
               <p style="margin: 0;"><strong>お申し込み内容:</strong></p>
               <ul style="margin: 10px 0 0 0; padding-left: 20px;">
@@ -137,11 +122,8 @@ async function startServer() {
                 <li>会社名: ${company}</li>
               </ul>
             </div>
-            
             <p>SNSを「資産」に変える第一歩として、貴社のマーケティング活動にぜひお役立てください。</p>
-            
             <p>ご不明な点や、より具体的な運用についてのご相談がございましたら、お気軽に公式LINEまたは本メールへの返信にてお問い合わせください。</p>
-            
             <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
               <p>SYNC2 チーム一同</p>
               <p>URL: <a href="https://sync2.agency" style="color: #8edce0;">sync2.agency</a></p>
@@ -151,56 +133,58 @@ async function startServer() {
         attachments: [],
       };
 
-      // Tenta anexar o arquivo estático da pasta public
       const pdfPath = path.join(process.cwd(), 'public', 'guia-estrategico.pdf');
       if (fs.existsSync(pdfPath)) {
-        const stats = fs.statSync(pdfPath);
-        console.log(`PDF file found at ${pdfPath}. Size: ${stats.size} bytes`);
-        
         mailOptions.attachments.push({
           filename: 'SYNC2_B2B_Strategy_Guide_2026.pdf',
           path: pdfPath
         });
-        console.log("Static PDF attached.");
-      } else {
-        console.warn("Attachment file NOT FOUND at:", pdfPath);
       }
 
-      const info = await transporter.sendMail(mailOptions);
-      console.log("Email sent successfully:", info.messageId);
+      await transporter.sendMail(mailOptions);
       res.json({ success: true });
     } catch (error) {
-      console.error("DETAILED SMTP ERROR:", error);
-      res.status(500).json({ error: "Failed to send email", details: error instanceof Error ? error.message : String(error) });
+      console.error("SMTP ERROR:", error);
+      res.status(500).json({ error: "Failed to send email" });
     }
   });
 
-  // --- Vite Serving ---
+  // --- Vite / Static Serving ---
 
-  if (process.env.NODE_ENV !== "production") {
-    // Dynamic import to only load vite in development
-    const { createServer: createViteServer } = await import('vite');
+  if (!isProduction) {
+    console.log("Starting server in Development mode with Vite...");
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
   } else {
-    // Serve static files in production
-    const distPath = path.join(process.cwd(), "dist");
+    console.log("Starting server in Production mode...");
+    const distPath = path.resolve(__dirname, "dist");
+    
+    if (!fs.existsSync(distPath)) {
+      console.warn("WARNING: 'dist' directory not found. Static serving might fail.");
+    }
+    
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      const indexPath = path.join(distPath, "index.html");
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).send("Application build not found. Please run 'npm run build'.");
+      }
     });
   }
 
   // --- Start Listening ---
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server successfully started and listening on http://0.0.0.0:${PORT}`);
-    console.log("Health check available at /api/health");
+    console.log(`>>> Server listening on port ${PORT}`);
+    console.log(`>>> URL: http://0.0.0.0:${PORT}`);
   }).on('error', (err) => {
-    console.error("FAILED TO START SERVER:", err);
+    console.error("SERVER FATAL ERROR:", err);
     process.exit(1);
   });
 }
