@@ -713,8 +713,6 @@ const SUGGESTED_QUESTIONS = [
   "SYNC2に運用を任せるメリットは？"
 ];
 
-import { GoogleGenAI } from "@google/genai";
-
 const AIConsultant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'model', text: string }[]>([]);
@@ -747,24 +745,23 @@ const AIConsultant = () => {
     setIsLoading(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [
-          ...(messages || []).map((h: any) => ({
-            role: h.role === 'user' ? 'user' : 'model',
-            parts: [{ text: h.text }]
-          })),
-          { role: 'user', parts: [{ text: userMessage }] }
-        ],
-        config: {
-          systemInstruction: "あなたはSYNC2の専属AIコンサルタントです。高級感のある、丁寧で洗練された日本語で回答してください。回答は専門的ですが、要点を絞って簡潔に（シンプルに）まとめてください。読みやすさを重視し、適切な句読点と改行を使用してください。最後には必ず、より深い戦略相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への招待を優雅に添えてください。",
-          maxOutputTokens: 500,
-          temperature: 0.6,
-        }
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: messages.map(m => ({ role: m.role, text: m.text })),
+          userMessage: userMessage
+        })
       });
 
-      const text = response.text || "申し訳ありません。回答を生成できませんでした。";
+      if (!response.ok) {
+        throw new Error('Failed to fetch AI response');
+      }
+
+      const data = await response.json();
+      const text = data.text || "申し訳ありません。回答を生成できませんでした。";
       setMessages(prev => [...prev, { role: 'model', text }]);
     } catch (error) {
       console.error('Chat error:', error);

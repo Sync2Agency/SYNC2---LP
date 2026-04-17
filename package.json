@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx server.ts",
-    "build": "vite build && npx esbuild server.ts --platform=node --format=esm --outfile=dist/server.js --packages=external",
-    "start": "NODE_ENV=production node dist/server.js",
+    "dev": "node server.js",
+    "build": "vite build",
+    "start": "node server.js",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
