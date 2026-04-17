@@ -38,7 +38,6 @@ import {
   Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { GoogleGenAI } from "@google/genai";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -959,31 +958,24 @@ const AIConsultant = () => {
     setIsLoading(true);
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('API Key não configurada. Por favor, verifique os Segredos.');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
-      
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [
-          ...messages.map(m => ({
-            role: m.role as 'user' | 'model',
-            parts: [{ text: m.text }]
-          })),
-          { role: 'user', parts: [{ text: userMessage }] }
-        ],
-        config: {
-          systemInstruction: "あなたはSYNC2 AGENCYの専属AIコンサルタントです。高級感のある、丁寧で洗練された日本語で回答してください。回答は簡潔に2文以内にまとめ、最後には必ず、より深い戦略相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への招待を優雅に伝えてください。",
-          maxOutputTokens: 250,
-          temperature: 0.6,
-        }
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          history: messages,
+        }),
       });
 
-      const text = response.text || "申し訳ありません。回答を生成できませんでした。";
-      setMessages(prev => [...prev, { role: 'model', text: text }]);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Falha na resposta do servidor');
+      }
+
+      const data = await response.json();
+      setMessages(prev => [...prev, { role: 'model', text: data.text }]);
     } catch (error) {
       console.error('Chat error:', error);
       const msg = error instanceof Error ? error.message : 'エラーが発生しました。';

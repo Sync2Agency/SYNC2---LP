@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
@@ -78,6 +79,42 @@ async function startServer() {
     } catch (error) {
       console.error("DETAILED SMTP ERROR:", error);
       res.status(500).json({ error: "Failed to send email", details: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
+  // AI Consultant Chat Route
+  app.post("/api/chat", async (req, res) => {
+    const { message, history } = req.body;
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      console.error("GEMINI_API_KEY missing");
+      return res.status(500).json({ error: "Configuração de IA ausente no servidor" });
+    }
+
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: [
+          ...(history || []).map((h: any) => ({
+            role: h.role === 'user' ? 'user' : 'model',
+            parts: [{ text: h.text || h.parts?.[0]?.text }]
+          })),
+          { role: 'user', parts: [{ text: message }] }
+        ],
+        config: {
+          systemInstruction: "あなたはSYNC2 AGENCYの専属AIコンサルタントです。高級感のある、丁寧で洗練された日本語で回答してください。回答は簡潔に2文以内にまとめ、最後には必ず、より深い戦略相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への招待を優雅に伝えてください。",
+          maxOutputTokens: 250,
+          temperature: 0.6,
+        }
+      });
+
+      const text = response.text || "申し訳ありません。回答を生成できませんでした。";
+      res.json({ text });
+    } catch (error) {
+      console.error("AI Error:", error);
+      res.status(500).json({ error: "Falha na comunicação com a IA" });
     }
   });
 
