@@ -109,18 +109,19 @@ const Testimonials = () => {
   const prev = () => setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
 
   return (
-    <section id="testimonials" className="py-20 md:py-24 bg-zinc-50 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-12 md:mb-16">
-          <span className="text-[#8edce0] font-bold tracking-widest uppercase text-xs mb-4 block">Testimonials</span>
-          <h2 className="text-3xl md:text-5xl font-bold text-[#1a1a1a] mb-6 whitespace-pre-wrap">
-            導入企業様の<span className="text-[#8edce0] underline decoration-zinc-100 underline-offset-8">お声</span>
+    <section id="testimonials" className="py-16 md:py-20 bg-white overflow-hidden">
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="text-center mb-10 md:mb-12">
+          <span className="text-[#8edce0] font-bold tracking-[0.2em] uppercase text-[10px] mb-3 block">Voice</span>
+          <h2 className="text-2xl md:text-3xl font-bold text-[#1a1a1a] tracking-tight">
+            Client <span className="text-[#8edce0]">Success</span>
           </h2>
         </div>
 
-        <div className="relative max-w-4xl mx-auto">
-          <div className="overflow-hidden rounded-3xl bg-white border border-zinc-100 shadow-xl p-6 md:p-16">
-            <Quote className="text-[#8edce0]/20 w-12 h-12 md:w-16 md:h-16 absolute top-6 left-6 md:top-12 md:left-12 -z-0" />
+        <div className="relative max-w-3xl mx-auto">
+          {/* Main Card */}
+          <div className="relative overflow-hidden rounded-[2rem] bg-[#f8fafb] border border-zinc-100 p-8 md:p-12">
+            <Quote className="text-[#8edce0]/10 w-20 h-20 absolute -top-4 -left-4 rotate-12" />
             
             <AnimatePresence mode="wait">
               <motion.div
@@ -128,68 +129,70 @@ const Testimonials = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                transition={{ 
-                  duration: 0.5,
-                  ease: [0.22, 1, 0.36, 1] 
-                }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 className="relative z-10"
               >
-                <motion.p 
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-lg md:text-2xl text-[#1a1a1a] font-medium leading-relaxed mb-8 md:mb-10 italic"
-                >
-                  "{testimonials[activeIndex].quote}"
-                </motion.p>
+                <p className="text-lg md:text-xl text-[#373d43] font-medium leading-[1.6] mb-8 md:mb-10 tracking-tight">
+                「{testimonials[activeIndex].quote}」
+                </p>
                 
-                <motion.div 
-                  initial={{ opacity: 0, x: -5 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center gap-4"
-                >
-                  <img 
-                    src={testimonials[activeIndex].image} 
-                    alt={testimonials[activeIndex].name}
-                    className="w-12 h-12 md:w-16 md:h-16 rounded-full grayscale hover:grayscale-0 transition-all border-2 border-zinc-100 shadow-sm"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div>
-                    <h4 className="font-bold text-[#1a1a1a] text-base md:text-lg">{testimonials[activeIndex].name}</h4>
-                    <p className="text-xs md:text-sm text-zinc-500">
-                      {testimonials[activeIndex].title} | {testimonials[activeIndex].company}
-                    </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <img 
+                        src={testimonials[activeIndex].image} 
+                        alt={testimonials[activeIndex].name}
+                        className="w-12 h-12 md:w-14 md:h-14 rounded-2xl object-cover grayscale hover:grayscale-0 transition-all duration-500 shadow-sm"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#8edce0] rounded-lg border-2 border-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-[#1a1a1a] text-sm md:text-base leading-none mb-1">
+                        {testimonials[activeIndex].name}
+                      </h4>
+                      <p className="text-[10px] md:text-xs text-zinc-400 font-medium">
+                        {testimonials[activeIndex].title} <span className="mx-1 opacity-30">|</span> {testimonials[activeIndex].company}
+                      </p>
+                    </div>
                   </div>
-                </motion.div>
+
+                  {/* Navigation Buttons Integrated */}
+                  <div className="hidden md:flex gap-2">
+                    <button 
+                      onClick={prev}
+                      aria-label="Previous"
+                      className="w-10 h-10 flex items-center justify-center bg-white border border-zinc-100 text-zinc-400 hover:text-[#1a1a1a] hover:border-[#1a1a1a] rounded-full transition-all active:scale-90"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button 
+                      onClick={next}
+                      aria-label="Next"
+                      className="w-10 h-10 flex items-center justify-center bg-[#1a1a1a] text-[#8edce0] rounded-full transition-all hover:bg-[#373d43] active:scale-90 shadow-lg shadow-zinc-200"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             </AnimatePresence>
-
-            <div className="flex justify-end gap-3 mt-8">
-              <button 
-                onClick={prev}
-                aria-label="Previous testimonial"
-                className="p-4 bg-[#f8fafb] hover:bg-[#8edce0]/20 text-[#373d43] hover:text-[#1a1a1a] rounded-full transition-all border-2 border-[#8edce0]/10 hover:border-[#8edce0]/40 shadow-sm hover:shadow-md group active:scale-95"
-              >
-                <ChevronLeft className="w-7 h-7 transition-transform group-hover:-translate-x-0.5" />
-              </button>
-              <button 
-                onClick={next}
-                aria-label="Next testimonial"
-                className="p-4 bg-[#373d43] hover:bg-[#1a1a1a] text-[#8edce0] rounded-full transition-all shadow-xl hover:shadow-[#8edce0]/10 border-2 border-[#373d43] active:scale-95 group"
-              >
-                <ChevronRight className="w-7 h-7 transition-transform group-hover:translate-x-0.5" />
-              </button>
-            </div>
           </div>
 
-          <div className="flex justify-center gap-2 mt-8">
+          {/* Mobile Navigation */}
+          <div className="flex md:hidden justify-center gap-4 mt-8">
+            <button onClick={prev} className="p-3 bg-zinc-100 rounded-full"><ChevronLeft className="w-6 h-6" /></button>
+            <button onClick={next} className="p-3 bg-[#1a1a1a] text-[#8edce0] rounded-full shadow-lg"><ChevronRight className="w-6 h-6" /></button>
+          </div>
+
+          {/* Pagination Indicators */}
+          <div className="flex justify-center gap-1.5 mt-8">
             {testimonials.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
-                className={`h-1.5 transition-all rounded-full ${
-                  i === activeIndex ? 'w-8 bg-[#8edce0]' : 'w-2 bg-zinc-200 hover:bg-zinc-300'
+                className={`h-1 transition-all duration-500 rounded-full ${
+                  i === activeIndex ? 'w-6 bg-[#8edce0]' : 'w-1 bg-zinc-200 hover:bg-zinc-300'
                 }`}
               />
             ))}
@@ -644,10 +647,10 @@ const Navbar = () => {
           ))}
           <a 
             href={LINE_LINK} 
-            className="bg-[#373d43] hover:bg-[#2a2f33] text-[#8edce0] px-6 py-2.5 rounded-full text-sm font-bold transition-all flex items-center gap-2 shadow-lg shadow-zinc-200"
+            className="bg-[#1a1a1a] hover:bg-[#373d43] text-[#8edce0] px-6 py-2.5 rounded-full text-sm font-black transition-all flex items-center gap-2 shadow-lg shadow-zinc-200 active:scale-95 group"
           >
-            LINE公式アカウント
-            <MessageCircle className="w-4 h-4" />
+            <span>無料相談はこちら</span>
+            <MessageCircle className="w-4 h-4 group-hover:rotate-12 transition-transform" />
           </a>
         </div>
 
@@ -697,10 +700,10 @@ const Navbar = () => {
               ))}
               <a 
                 href={LINE_LINK}
-                className="bg-[#373d43] text-[#8edce0] py-4 rounded-xl font-bold text-center flex items-center justify-center gap-3"
+                className="bg-[#1a1a1a] text-[#8edce0] py-5 rounded-2xl font-black text-center flex items-center justify-center gap-4 shadow-xl active:scale-95"
               >
-                LINE公式アカウント
-                <MessageCircle className="w-5 h-5" />
+                <span>無料相談はこちら (LINE)</span>
+                <MessageCircle className="w-6 h-6" />
               </a>
             </div>
           </motion.div>
@@ -771,17 +774,24 @@ const Hero = () => {
           <p className="text-lg md:text-xl text-zinc-600 max-w-2xl mx-auto mb-10 leading-relaxed">
             私たちは単なる「投稿代行」ではありません。B2Bの意思決定者と貴社を繋ぐ、戦略設計型のSNS運用パートナーです。
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a 
-              href={LINE_LINK} 
-              className="w-full sm:w-auto bg-[#373d43] hover:bg-[#2a2f33] text-[#8edce0] px-8 py-4 rounded-full text-lg font-bold transition-all flex items-center justify-center gap-3 shadow-xl shadow-zinc-200 group"
-            >
-              無料診断・相談を申し込む
-              <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            </a>
-            <p className="text-sm text-zinc-400 font-medium">
-              LINEで24時間受付中
-            </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <div className="flex flex-col items-center gap-3">
+              <a 
+                href={LINE_LINK} 
+                className="w-full sm:w-auto bg-[#373d43] hover:bg-[#1a1a1a] text-[#8edce0] px-10 py-5 rounded-full text-xl font-bold transition-all flex items-center justify-center gap-4 shadow-2xl shadow-zinc-300 group active:scale-95"
+              >
+                無料診断・相談を開始
+                <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
+              </a>
+              <p className="text-xs text-zinc-500 font-bold bg-white px-3 py-1 rounded-full border border-zinc-100 shadow-sm">
+                💡 <span className="text-red-500">残りわずか：</span> 今月の無料相談枠 あと3社
+              </p>
+            </div>
+            <div className="h-px w-8 bg-zinc-200 hidden sm:block" />
+            <div className="text-left hidden sm:block">
+              <p className="text-sm font-bold text-[#373d43]">24時間以内の返信率 100%</p>
+              <p className="text-[10px] text-zinc-400">※営業日基準</p>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -1036,26 +1046,44 @@ const Process = () => (
 const CTA = () => {
   const LINE_LINK = "https://lin.ee/UwOZ7ho";
   return (
-    <section className="py-24 relative overflow-hidden bg-zinc-50">
-      <div className="absolute inset-0 bg-[#8edce0]/5 -z-10" />
-      <div className="max-w-4xl mx-auto px-6 text-center">
-        <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-[#1a1a1a] mb-8 tracking-tight leading-tight">
-          SNSを「コスト」ではなく<br />「資産」へ。
-        </h2>
-        <p className="text-lg sm:text-xl text-zinc-600 mb-12">
-          アルゴリズムの変化や競合の参入が激化する中、今、戦略的な運用を始める企業が、1年後の市場の主導権を握ります。
-        </p>
-        <a 
-          href={LINE_LINK} 
-          className="inline-flex items-center gap-4 bg-[#373d43] hover:bg-[#2a2f33] text-[#8edce0] px-8 sm:px-10 py-4 sm:py-5 rounded-full text-lg sm:text-xl font-bold transition-all shadow-2xl shadow-zinc-200 group"
-        >
-          LINEで無料相談・診断を申し込む
-          <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-        </a>
-        <div className="mt-12 flex items-center justify-center gap-8 opacity-30">
-          <span className="text-[#1a1a1a] font-bold text-sm tracking-widest uppercase">B2B Experts</span>
-          <span className="text-[#1a1a1a] font-bold text-sm tracking-widest uppercase">Global Reach</span>
-          <span className="text-[#1a1a1a] font-bold text-sm tracking-widest uppercase">Data Driven</span>
+    <section className="py-24 bg-zinc-50 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#8edce0]/10 blur-[120px] rounded-full -z-0" />
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="bg-[#1a1a1a] rounded-[3rem] p-12 md:p-20 text-center shadow-2xl border border-white/5">
+          <span className="text-[#8edce0] font-bold tracking-[0.3em] uppercase text-xs mb-8 block">Next Step</span>
+          <h2 className="text-3xl md:text-6xl font-bold text-white mb-8 leading-tight">
+            次は貴社のSNSを、<br />
+            <span className="text-[#8edce0]">最強の営業資産</span>へ。
+          </h2>
+          <p className="text-zinc-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
+            現状の課題分析、競合調査、そして売上に直結する戦略提案まで。<br />
+            SYNC2が貴社のパートナーとして並走します。
+          </p>
+          <div className="flex flex-col items-center gap-6">
+            <a 
+              href={LINE_LINK}
+              className="w-full md:w-auto bg-[#8edce0] hover:bg-[#7bc8cc] text-[#1a1a1a] px-12 py-6 rounded-full text-xl font-bold transition-all shadow-xl shadow-[#8edce0]/30 flex items-center justify-center gap-4 active:scale-95 group"
+            >
+              無料相談・診断（今すぐLINEで送信）
+              <MessageCircle className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+            </a>
+            <div className="flex items-center gap-8">
+              <div className="flex flex-col items-center">
+                <span className="text-white font-bold text-2xl">無料</span>
+                <span className="text-zinc-500 text-[10px]">相談費用</span>
+              </div>
+              <div className="w-px h-8 bg-white/10" />
+              <div className="flex flex-col items-center">
+                <span className="text-white font-bold text-2xl">24h</span>
+                <span className="text-zinc-500 text-[10px]">受付時間</span>
+              </div>
+              <div className="w-px h-8 bg-white/10" />
+              <div className="flex flex-col items-center">
+                <span className="text-white font-bold text-2xl">100+</span>
+                <span className="text-zinc-500 text-[10px]">支援実績</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1391,6 +1419,77 @@ const TermsPage = () => (
   </LegalLayout>
 );
 
+const FloatingLINE = () => {
+  const LINE_LINK = "https://lin.ee/UwOZ7ho";
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setIsVisible(window.scrollY > 500);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.a
+          initial={{ opacity: 0, x: 50, scale: 0.8 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: 50, scale: 0.8 }}
+          href={LINE_LINK}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-[60] flex items-center gap-3 bg-[#06C755] hover:bg-[#05b34c] text-white pl-4 pr-6 py-3 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95 group"
+        >
+          <div className="relative">
+            <MessageCircle className="w-6 h-6 fill-white" />
+            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold opacity-80 leading-none">FREE CONSULTATION</span>
+            <span className="text-sm font-black whitespace-nowrap">LINEで無料相談する</span>
+          </div>
+        </motion.a>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const MiddleCTA = () => (
+  <section className="py-20 bg-[#1a1a1a] relative overflow-hidden">
+    <div className="absolute top-0 right-0 w-64 h-64 bg-[#8edce0]/10 blur-[100px]" />
+    <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-12 bg-white/5 backdrop-blur-sm border border-white/10 p-8 md:p-12 rounded-[2.5rem]">
+        <div className="max-w-xl">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+            そのSNS運用、<br />
+            本当にもったいないです。
+          </h2>
+          <p className="text-zinc-400 text-lg mb-0 leading-relaxed">
+            競合他社がSNSを資産化し、月間数百件のリードを獲得しています。<br />
+            まずは貴社のアカウントを無料分析しませんか？
+          </p>
+        </div>
+        <div className="flex flex-col items-center gap-4 shrink-0">
+          <a 
+            href="https://lin.ee/UwOZ7ho"
+            className="w-full md:w-auto bg-[#8edce0] hover:bg-[#7bc8cc] text-[#1a1a1a] px-10 py-5 rounded-full text-xl font-bold transition-all shadow-xl shadow-[#8edce0]/20 flex items-center justify-center gap-3 active:scale-95 group"
+          >
+            LINEで無料診断を受ける
+            <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+          </a>
+          <p className="text-xs text-zinc-500 font-medium tracking-widest uppercase">
+            Limited slots available per month
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
 const Home = () => {
   return (
     <>
@@ -1399,6 +1498,7 @@ const Home = () => {
       <Problems />
       <Solution />
       <Features />
+      <MiddleCTA />
       <Process />
       <Testimonials />
       <LeadMagnet />
@@ -1429,6 +1529,7 @@ export default function App() {
       </main>
       <Footer />
       
+      <FloatingLINE />
       <ScrollToTopButton />
       <DigitalTipsWidget />
     </div>
