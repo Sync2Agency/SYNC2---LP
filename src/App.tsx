@@ -40,6 +40,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import PDFTemplate from './components/PDFTemplate';
 
 const LeadMagnet = () => {
   const [formData, setFormData] = useState({ name: '', email: '', company: '' });
@@ -55,25 +56,12 @@ const LeadMagnet = () => {
 
     // Generate Multi-page PDF
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageIds = ['pdf-page-1', 'pdf-page-2', 'pdf-page-3', 'pdf-page-4'];
+    const pageIds = [
+      'pdf-page-1', 'pdf-page-2', 'pdf-page-3', 'pdf-page-4', 'pdf-page-5', 
+      'pdf-page-6', 'pdf-page-7', 'pdf-page-8', 'pdf-page-9', 'pdf-page-10', 'pdf-page-11'
+    ];
     
     try {
-      // Send Email via Backend
-      fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-      .then(async response => {
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error('Server-side email error:', errorData);
-        } else {
-          console.log('Email request sent successfully');
-        }
-      })
-      .catch(err => console.error('Network error sending email:', err));
-
       for (let i = 0; i < pageIds.length; i++) {
         const element = document.getElementById(pageIds[i]);
         if (element) {
@@ -92,9 +80,30 @@ const LeadMagnet = () => {
           pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
         }
       }
-      pdf.save(`SYNC2_AGENCY_Proposal_${formData.name}.pdf`);
+
+      const pdfBase64 = pdf.output('datauristring');
+      const fileName = `SYNC2_AGENCY_Strategy_Guide_${formData.name}.pdf`;
+
+      // Send Email with PDF Attachment via Backend
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          pdfData: pdfBase64,
+          fileName: fileName
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Server-side email error:', errorData);
+        throw new Error('Failed to send email');
+      } else {
+        console.log('Email sent successfully with PDF attachment');
+      }
     } catch (error) {
-      console.error('PDF Generation Error:', error);
+      console.error('PDF/Email Error:', error);
     }
 
     setIsSubmitting(false);
@@ -189,8 +198,8 @@ const LeadMagnet = () => {
                     type="submit"
                     className="w-full bg-[#373d43] hover:bg-[#2a2f33] text-[#8edce0] py-5 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 shadow-lg shadow-zinc-200 disabled:opacity-50"
                   >
-                    {isSubmitting ? "送信中..." : "資料をダウンロードする"}
-                    <Download className="w-5 h-5" />
+                    {isSubmitting ? "送信中..." : "資料をメールで受け取る"}
+                    <Mail className="w-5 h-5" />
                   </button>
                   <p className="text-center text-xs text-zinc-400">
                     ご入力いただいたメールアドレスに資料をお送りします。
@@ -201,21 +210,22 @@ const LeadMagnet = () => {
                   key="success"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="text-center py-10"
+                  className="text-center py-12"
                 >
-                  <div className="w-20 h-20 bg-[#8edce0]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-20 h-20 bg-[#8edce0]/20 rounded-full flex items-center justify-center mx-auto mb-6">
                     <CheckCircle2 className="text-[#8edce0] w-10 h-10" />
                   </div>
-                  <h3 className="text-2xl font-bold text-[#1a1a1a] mb-4">ありがとうございます！</h3>
+                  <h3 className="text-2xl font-bold text-[#1a1a1a] mb-4">送信が完了しました！</h3>
                   <p className="text-zinc-500 mb-8 leading-relaxed">
-                    資料のタイトル「SNS戦略 2026」の送付が完了しました。<br />
-                    PDFダウンロードに加え、メールでもお届けしています。
+                    戦略資料「B2B SNS戦略ガイド 2026」を<br />
+                    ご入力いただいたメールアドレスにお送りしました。<br />
+                    内容をご確認いただき、ぜひご活用ください。
                   </p>
                   <button 
                     onClick={() => setIsSuccess(false)}
                     className="text-[#8edce0] font-bold hover:underline"
                   >
-                    フォームに戻る
+                    ← フォームに戻る
                   </button>
                 </motion.div>
               )}
@@ -224,254 +234,12 @@ const LeadMagnet = () => {
         </div>
       </div>
 
-      {/* Hidden PDF Content Template - 4 Pages */}
       <div className="fixed left-[-9999px] top-0">
-        {/* Page 1 */}
-        <div id="pdf-page-1" className="w-[210mm] h-[297mm] bg-white text-zinc-900 p-[20mm] font-sans flex flex-col">
-          <div className="border-b-2 border-zinc-900 pb-8 mb-12">
-            <h1 className="text-4xl font-bold mb-4">SNSマーケティング運用プランのご提案</h1>
-            <p className="text-xl text-zinc-600">〜認知拡大から集客まで、一貫した戦略設計〜</p>
-          </div>
-          <p className="text-sm font-bold mb-16">SYNC2 AGENCY 2026年4月</p>
-          
-          <div className="mb-12">
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-zinc-900" />
-              1. 現状のSNS運用における課題
-            </h2>
-            <p className="text-sm text-zinc-600 mb-6 leading-relaxed">
-              多くの企業様がSNSアカウントを開設しているものの、以下のような課題に直面し、ビジネスの成果に結びついていないケースが散見されます。
-            </p>
-            <ul className="space-y-4 text-sm">
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">投稿しているが集客に繋がらない</span>
-                  <p className="text-zinc-500 mt-1">フォロワー数やいいね数は増えても、実際の問い合わせや売上に直結する導線が欠如している。</p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">ブランドに一貫性がない</span>
-                  <p className="text-zinc-500 mt-1">発信内容やクリエイティブのトーン＆マナーが統一されておらず、企業価値を正しく伝えきれていない。</p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">競合との差別化ができていない</span>
-                  <p className="text-zinc-500 mt-1">他社と同様の発信に留まり、ユーザーに「なぜ貴社を選ぶべきか」という独自の強みが浸透していない。</p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">SNSが“作業”になっている</span>
-                  <p className="text-zinc-500 mt-1">目的が「投稿すること」自体になっており、戦略的な仮説検証やデータに基づく改善が行われていない。</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-zinc-900" />
-              2. SYNC2 AGENCYが提供する解決策
-            </h2>
-            <p className="text-sm text-zinc-600 mb-6 leading-relaxed">
-              私たちは単なる「投稿代行」ではなく、貴社のビジネス課題を解決するための戦略設計型SNS運用を提供いたします。
-            </p>
-            <ul className="space-y-4 text-sm">
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">戦略設計型SNS運用</span>
-                  <p className="text-zinc-500 mt-1">ターゲット層のインサイトを深く分析し、KGI/KPIに基づいたデータドリブンな運用を実施します。</p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">ブランディング＋集客導線の構築</span>
-                  <p className="text-zinc-500 mt-1">認知を獲得するだけでなく、ユーザーの興味を喚起し、最終的な購買や問い合わせへと導く確固たるファネルを構築します。</p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">日本市場に最適化されたクリエイティブ</span>
-                  <p className="text-zinc-500 mt-1">トレンドを捉えつつ、ブランドの信頼感を高める高品質なクリエイティブを制作し、ユーザーの心を動かします。</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Page 2 */}
-        <div id="pdf-page-2" className="w-[210mm] h-[297mm] bg-white text-zinc-900 p-[20mm] font-sans flex flex-col">
-          <div className="mb-12">
-            <h2 className="text-xl font-bold mb-8 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-zinc-900" />
-              3. SNS運用プラン（2026年4月改定）
-            </h2>
-            <p className="text-sm text-zinc-600 mb-6">貴社の事業フェーズや目的に合わせて、最適なプランをご選択いただけます。</p>
-            
-            <table className="w-full border-collapse text-xs mb-12">
-              <thead>
-                <tr className="bg-zinc-50 border-y border-zinc-200">
-                  <th className="p-4 text-left font-bold w-1/4">プラン名</th>
-                  <th className="p-4 text-left font-bold w-1/4">月額料金（税別）</th>
-                  <th className="p-4 text-left font-bold w-1/2">サービス内容</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-zinc-100">
-                  <td className="p-4 font-bold">Starter<br /><span className="text-[10px] font-normal text-zinc-500">（導入プラン）</span></td>
-                  <td className="p-4">¥90,000</td>
-                  <td className="p-4 leading-relaxed">・フィード投稿：4本／月<br />・リール動画：1本／月<br />・キャプション作成<br />・簡易企画</td>
-                </tr>
-                <tr className="border-b border-zinc-100">
-                  <td className="p-4 font-bold">Basic<br /><span className="text-[10px] font-normal text-zinc-500">（成長プラン）</span></td>
-                  <td className="p-4">¥180,000</td>
-                  <td className="p-4 leading-relaxed">・フィード投稿：10本／月<br />・リール動画：2本／月<br />・ストーリーズ：月4〜8本<br />・コンテンツ企画<br />・CTA設計</td>
-                </tr>
-                <tr className="border-b border-zinc-100">
-                  <td className="p-4 font-bold">Premium<br /><span className="text-[10px] font-normal text-zinc-500">（ブランディング強化プラン）</span></td>
-                  <td className="p-4">¥320,000</td>
-                  <td className="p-4 leading-relaxed">・フィード投稿：16本／月<br />・リール動画：4本／月<br />・ストーリーズ：定期更新<br />・戦略ミーティング（月1回）<br />・方向性設計</td>
-                </tr>
-                <tr className="border-b border-zinc-100">
-                  <td className="p-4 font-bold">Master<br /><span className="text-[10px] font-normal text-zinc-500">（市場確立プラン）</span></td>
-                  <td className="p-4">¥480,000〜<br />¥600,000</td>
-                  <td className="p-4 leading-relaxed">・フィード投稿：20本／月<br />・リール動画：8本／月<br />・ストーリーズ：高頻度<br />・キャンペーン企画<br />・市場分析・競合分析<br />・コンサルティング</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div>
-            <h2 className="text-xl font-bold mb-8 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-zinc-900" />
-              4. プラン設計のコンセプト
-            </h2>
-            <p className="text-sm text-zinc-600 mb-6 leading-relaxed">
-              SYNC2 AGENCYのプランは、単なる「投稿数の違い」ではありません。貴社の「成長フェーズ」に合わせた戦略的なステップアップを前提として設計されています。
-            </p>
-            <ul className="space-y-6 text-sm">
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">導入 → 成長 → 強化 → 確立 の流れ</span>
-                  <p className="text-zinc-500 mt-1">まずは基盤を作り（Starter）、エンゲージメントを高め（Basic）、ブランド価値を確固たるものにし（Premium）、最終的に市場での優位性を確立する（Master）という、段階的な成長ロードマップを描きます。</p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">ビジネス成果に直結する設計</span>
-                  <p className="text-zinc-500 mt-1">すべてのプランにおいて、最終的なコンバージョン（集客・売上）を見据えた導線設計を組み込んでおり、投資対効果（ROI）の最大化を追求します。</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Page 3 */}
-        <div id="pdf-page-3" className="w-[210mm] h-[297mm] bg-white text-zinc-900 p-[20mm] font-sans flex flex-col">
-          <div className="mb-12">
-            <h2 className="text-xl font-bold mb-8 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-zinc-900" />
-              5. SYNC2 AGENCYの強み
-            </h2>
-            <p className="text-sm text-zinc-600 mb-6">グローバルな視点とローカルな実行力を掛け合わせ、貴社のビジネスを加速させます。</p>
-            <ul className="space-y-6 text-sm">
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">日系×海外マーケティング対応</span>
-                  <p className="text-zinc-500 mt-1">日本国内のトレンドだけでなく、海外の最新マーケティング手法を取り入れた先進的なアプローチが可能です。</p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">多言語対応（日本語・ポルトガル語・英語）</span>
-                  <p className="text-zinc-500 mt-1">インバウンド需要の取り込みや海外展開を見据えた多言語でのアカウント運用・コンテンツ制作に強みを持っています。</p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">実績ベースの戦略設計</span>
-                  <p className="text-zinc-500 mt-1">多様な業界での成功事例に基づき、再現性の高い戦略を立案・実行します。</p>
-                </div>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold">•</span>
-                <div>
-                  <span className="font-bold">クリエイティブと戦略の両立</span>
-                  <p className="text-zinc-500 mt-1">目を引く美しいデザインと、数値を動かす緻密なマーケティング戦略を高い次元で融合させます。</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-
-          <div className="mb-12">
-            <h2 className="text-xl font-bold mb-8 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-zinc-900" />
-              6. 運用開始までのステップ
-            </h2>
-            <div className="space-y-4 text-sm">
-              <div className="flex gap-4">
-                <span className="font-bold text-zinc-400">1.</span>
-                <div><span className="font-bold">ヒアリング</span><p className="text-zinc-500">ビジネスモデル、課題、目標を深く理解するためのミーティングを実施します。</p></div>
-              </div>
-              <div className="flex gap-4">
-                <span className="font-bold text-zinc-400">2.</span>
-                <div><span className="font-bold">現状分析</span><p className="text-zinc-500">既存アカウントのデータ分析、競合他社のリサーチ、市場動向の調査を行います。</p></div>
-              </div>
-              <div className="flex gap-4">
-                <span className="font-bold text-zinc-400">3.</span>
-                <div><span className="font-bold">戦略設計</span><p className="text-zinc-500">コンセプトの策定、KPIの設定、コンテンツの方向性、集客導線の設計をまとめた戦略書を作成します。</p></div>
-              </div>
-              <div className="flex gap-4">
-                <span className="font-bold text-zinc-400">4.</span>
-                <div><span className="font-bold">運用開始</span><p className="text-zinc-500">戦略に基づき、高品質なクリエイティブ制作と計画的な投稿を開始します。</p></div>
-              </div>
-              <div className="flex gap-4">
-                <span className="font-bold text-zinc-400">5.</span>
-                <div><span className="font-bold">改善サイクル</span><p className="text-zinc-500">毎月のレポート提出と分析を通じ、PDCAサイクルを回して継続的なパフォーマンス向上を図ります。</p></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-auto pt-12 border-t border-zinc-100">
-            <h2 className="text-xl font-bold mb-4">7. 最後に</h2>
-            <p className="text-lg font-bold text-zinc-800">SNSを“コスト”ではなく“資産”へ。</p>
-          </div>
-        </div>
-
-        {/* Page 4 */}
-        <div id="pdf-page-4" className="w-[210mm] h-[297mm] bg-white text-zinc-900 p-[20mm] font-sans flex flex-col justify-center text-center">
-          <div className="max-w-lg mx-auto">
-            <p className="text-sm leading-relaxed text-zinc-600 mb-12 text-left">
-              現代のビジネスにおいて、SNSは単なる広告媒体ではなく、顧客との信頼関係を築き、長期的な利益を生み出す重要な「企業資産」です。アルゴリズムの変化や競合の参入が激化する中、今、戦略的な運用を始める企業が、1年後の市場の主導権を握ります。
-            </p>
-            <p className="text-sm leading-relaxed text-zinc-600 mb-16 text-left">
-              SYNC2 AGENCYは、貴社のビジョンに共鳴し、共に成長を目指す強力なパートナーとして尽力いたします。ぜひ、まずはお気軽にご相談ください。
-            </p>
-            <div className="pt-12 border-t border-zinc-100">
-              <p className="text-lg font-bold text-[#1a1a1a] mb-2">SYNC2 AGENCY</p>
-              <p className="text-sm text-zinc-400">Your Strategic SNS Partner</p>
-            </div>
-          </div>
-        </div>
+        <PDFTemplate />
       </div>
     </section>
   );
 };
-
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
