@@ -935,12 +935,73 @@ const Footer = () => (
   </footer>
 );
 
+const SUGGESTED_QUESTIONS = [
+  "SNSでフォロワーを増やす具体的な方法は？",
+  "売上を最大化するためのSNS戦略は？",
+  "ブランディングで最も重視すべきポイントは？",
+  "ショート動画（リール/TikTok）でバズるコツは？",
+  "LINE公式アカウントを効果的に活用するには？",
+  "ターゲット層に刺さるコンテンツの作り方は？",
+  "Instagramのアルゴリズムの最新動向は？",
+  "広告費を抑えながら集客を安定させるには？",
+  "競合他社と差別化するためのブランド構築術は？",
+  "SNSからECサイトへの送客を増やす方法は？",
+  "ファン化を促進するコミュニケーションの秘訣は？",
+  "投稿スケジュールと頻度の最適解は？",
+  "ハッシュタグ選定の落とし穴と正しい選び方は？",
+  "プロフィール欄で離脱を防ぐための改善案は？",
+  "インフルエンサーマーケティングの成功事例は？",
+  "UGC（ユーザー生成コンテンツ）を増やす施策は？",
+  "ストーリーズを活用した密な交流の仕方は？",
+  "SNS広告のクリック率（CTR）を改善するには？",
+  "B2B企業がSNSで成果を出すためのポイントは？",
+  "動画編集で視聴維持率を上げるためのテクニックは？",
+  "ブランドの信頼性を高めるビジュアル戦略は？",
+  "SNS運用のKPI設定と分析の仕方は？",
+  "最新のSNSトレンド（2026年）を教えて？",
+  "炎上を防ぐためのSNSリスク管理の心得は？",
+  "キャプション（本文）で読者の反応を引き出すには？",
+  "ライブ配信でエンゲージメントを高めるコツは？",
+  "SNSとSEOを連携させた集客の仕組みは？",
+  "小規模アカウントが最速で成長する戦略は？",
+  "魅力的なキャンペーンを企画する際の手順は？",
+  "SNS運用の外注と内製、どちらがおすすめ？",
+  "ブランドカラーとフォントの選び方の基準は？",
+  "DMを活用した成約率アップのテクニックは？",
+  "Twitter（X）での情報拡散力を高めるには？",
+  "YouTubeチャンネルを1万人登録まで導く方法は？",
+  "Facebook広告でCV（コンバージョン）を増やすには？",
+  "ピンタレストを活用したライフスタイル提案の仕方は？",
+  "SNS映えする写真撮影の基本ルールは？",
+  "AIをSNS運用にどう取り入れるのが効果的？",
+  "ユーザーインサイトを深く理解するためのリサーチ術は？",
+  "ブランドメッセージ（タグライン）の考え方は？",
+  "顧客体験（CX）をSNSで向上させる具体策は？",
+  "オウンドメディアとSNSの相乗効果を生むには？",
+  "クリエイティブ作成で意識すべき心理学の法則は？",
+  "SNSアカウントのヘルスチェック（診断）項目は？",
+  "長期的に愛されるブランドになるための哲学は？",
+  "SNSでのアンケート機能を活用した商品開発術は？",
+  "多言語展開を視野に入れたグローバルSNS戦略は？",
+  "ローカルビジネス（地域密着）のSNS集客術は？",
+  "SNSの各プラットフォームの使い分けの基準は？",
+  "SYNC2 AGENCYに運用を任せるメリットは？"
+];
+
 const AIConsultant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'model', text: string }[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [randomSuggestions, setRandomSuggestions] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const shuffled = [...SUGGESTED_QUESTIONS].sort(() => 0.5 - Math.random());
+      setRandomSuggestions(shuffled.slice(0, 4));
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -948,12 +1009,13 @@ const AIConsultant = () => {
     }
   }, [messages, isLoading]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (e?: React.FormEvent, customText?: string) => {
+    if (e) e.preventDefault();
+    const messageText = customText || input;
+    if (!messageText.trim() || isLoading) return;
 
-    const userMessage = input;
-    setInput('');
+    const userMessage = messageText;
+    if (!customText) setInput('');
     setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
     setIsLoading(true);
 
@@ -982,6 +1044,8 @@ const AIConsultant = () => {
       setMessages(prev => [...prev, { role: 'model', text: `申し訳ありません。${msg}` }]);
     } finally {
       setIsLoading(false);
+      const shuffled = [...SUGGESTED_QUESTIONS].sort(() => 0.5 - Math.random());
+      setRandomSuggestions(shuffled.slice(0, 4));
     }
   };
 
@@ -1033,6 +1097,21 @@ const AIConsultant = () => {
                   </div>
                 </div>
               ))}
+              
+              {!isLoading && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {randomSuggestions.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSend(undefined, q)}
+                      className="text-[11px] text-[#8edce0] bg-[#8edce0]/5 border border-[#8edce0]/20 hover:bg-[#8edce0]/10 px-3 py-1.5 rounded-full transition-all text-left"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {isLoading && (
                 <div className="flex justify-start">
                   <div className="bg-zinc-900 text-zinc-500 p-3 rounded-2xl text-sm animate-pulse">
