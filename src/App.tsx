@@ -348,6 +348,27 @@ const Navbar = () => {
 
 const Hero = () => {
   const LINE_LINK = "https://lin.ee/UwOZ7ho";
+  const [index, setIndex] = useState(0);
+  const terms = [
+    "「企業の資産」",
+    "「強力な営業ツール」",
+    "「優秀な営業マン」",
+    "「自動集客システム」",
+    "「確実な収益源」",
+    "「ブランドの信頼」",
+    "「価値ある顧客接点」",
+    "「24時間働く広報」",
+    "「長期的な競争優位」",
+    "「デジタル時代の武器」"
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prevIndex) => (prevIndex + 1) % terms.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [terms.length]);
+
   return (
     <section className="relative pt-32 pb-20 overflow-hidden bg-zinc-50">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
@@ -367,7 +388,20 @@ const Hero = () => {
           <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight text-[#1a1a1a] mb-8 max-w-4xl mx-auto leading-[1.2]">
             ただ投稿するだけのSNSは、<br />
             もう終わりにしませんか？ <br />
-            SNSを<span className="text-[#8edce0] underline decoration-zinc-200 underline-offset-8">「企業の資産」</span>へ。
+            SNSを
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+                className="inline-block text-[#8edce0] underline decoration-zinc-200 underline-offset-8"
+              >
+                {terms[index]}
+              </motion.span>
+            </AnimatePresence>
+            へ。
           </h1>
           <p className="text-lg md:text-xl text-zinc-600 max-w-2xl mx-auto mb-10 leading-relaxed">
             私たちは単なる「投稿代行」ではありません。B2Bの意思決定者と貴社を繋ぐ、戦略設計型のSNS運用パートナーです。
@@ -660,117 +694,16 @@ const Footer = () => (
   </footer>
 );
 
-const SUGGESTED_QUESTIONS = [
-  "SNSでフォロワーを増やす具体的な方法は？",
-  "売上を最大化するためのSNS戦略は？",
-  "ブランディングで最も重視すべきポイントは？",
-  "ショート動画（リール/TikTok）でバズるコツは？",
-  "LINE公式アカウントを効果的に活用するには？",
-  "ターゲット層に刺さるコンテンツの作り方は？",
-  "Instagramのアルゴリズムの最新動向は？",
-  "広告費を抑えながら集客を安定させるには？",
-  "競合他社と差別化するためのブランド構築術は？",
-  "SNSからECサイトへの送客を増やす方法は？",
-  "ファン化を促進するコミュニケーションの秘訣は？",
-  "投稿スケジュールと頻度の最適解は？",
-  "ハッシュタグ選定の落とし穴と正しい選び方は？",
-  "プロフィール欄で離脱を防ぐための改善案は？",
-  "インフルエンサーマーケティングの成功事例は？",
-  "UGC（ユーザー生成コンテンツ）を増やす施策は？",
-  "ストーリーズを活用した密な交流の仕方は？",
-  "SNS広告のクリック率（CTR）を改善するには？",
-  "B2B企業がSNSで成果を出すためのポイントは？",
-  "動画編集で視聴維持率を上げるためのテクニックは？",
-  "ブランドの信頼性を高めるビジュアル戦略は？",
-  "SNS運用のKPI設定と分析の仕方は？",
-  "最新のSNSトレンド（2026年）を教えて？",
-  "炎上を防ぐためのSNSリスク管理の心得は？",
-  "キャプション（本文）で読者の反応を引き出すには？",
-  "ライブ配信でエンゲージメントを高めるコツは？",
-  "SNSとSEOを連携させた集客の仕組みは？",
-  "小規模アカウントが最速で成長する戦略は？",
-  "魅力的なキャンペーンを企画する際の手順は？",
-  "SNS運用の外注と内製、どちらがおすすめ？",
-  "ブランドカラーとフォントの選び方の基準は？",
-  "DMを活用した成約率アップのテクニックは？",
-  "Twitter（X）での情報拡散力を高めるには？",
-  "YouTubeチャンネルを1万人登録まで導く方法は？",
-  "Facebook広告でCV（コンバージョン）を増やすには？",
-  "ピンタレストを活用したライフスタイル提案の仕方は？",
-  "SNS映えする写真撮影の基本ルールは？",
-  "AIをSNS運用にどう取り入れるのが効果的？",
-  "ユーザーインサイトを深く理解するためのリサーチ術は？",
-  "ブランドメッセージ（タグライン）の考え方は？",
-  "顧客体験（CX）をSNSで向上させる具体策は？",
-  "オウンドメディアとSNSの相乗効果を生むには？",
-  "クリエイティブ作成で意識すべき心理学の法則は？",
-  "SNSアカウントのヘルスチェック（診断）項目は？",
-  "長期的に愛されるブランドになるための哲学は？",
-  "SNSでのアンケート機能を活用した商品開発術は？",
-  "多言語展開を視野に入れたグローバルSNS戦略は？",
-  "ローカルビジネス（地域密着）のSNS集客術は？",
-  "SNSの各プラットフォームの使い分けの基準は？",
-  "SYNC2に運用を任せるメリットは？"
-];
+import { DIGITAL_TIPS } from './constants';
 
-const AIConsultant = () => {
+const DigitalTipsWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{ role: 'user' | 'model', text: string }[]>([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const scrollRef = React.useRef<HTMLDivElement>(null);
-  const [randomSuggestions, setRandomSuggestions] = useState<string[]>([]);
+  const [currentTip, setCurrentTip] = useState(DIGITAL_TIPS[0]);
 
-  useEffect(() => {
-    if (isOpen) {
-      const shuffled = [...SUGGESTED_QUESTIONS].sort(() => 0.5 - Math.random());
-      setRandomSuggestions(shuffled.slice(0, 4));
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isLoading]);
-
-  const handleSend = async (e?: React.FormEvent, customText?: string) => {
-    if (e) e.preventDefault();
-    const messageText = customText || input;
-    if (!messageText.trim() || isLoading) return;
-
-    const userMessage = messageText;
-    if (!customText) setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: messages.map(m => ({ role: m.role, text: m.text })),
-          userMessage: userMessage
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch AI response');
-      }
-
-      const data = await response.json();
-      const text = data.text || "申し訳ありません。回答を生成できませんでした。";
-      setMessages(prev => [...prev, { role: 'model', text }]);
-    } catch (error) {
-      console.error('Chat error:', error);
-      setMessages(prev => [...prev, { role: 'model', text: 'エラーが発生しました。しばらくしてから再度お試しください。' }]);
-    } finally {
-      setIsLoading(false);
-      const shuffled = [...SUGGESTED_QUESTIONS].sort(() => 0.5 - Math.random());
-      setRandomSuggestions(shuffled.slice(0, 4));
-    }
+  const showRandomTip = () => {
+    const randomIndex = Math.floor(Math.random() * DIGITAL_TIPS.length);
+    setCurrentTip(DIGITAL_TIPS[randomIndex]);
+    setIsOpen(true);
   };
 
   return (
@@ -778,111 +711,60 @@ const AIConsultant = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="absolute bottom-20 right-0 w-[350px] sm:w-[400px] h-[500px] bg-white border border-zinc-100 rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="absolute bottom-20 right-0 w-[320px] bg-white border border-zinc-100 rounded-3xl shadow-2xl p-6 overflow-hidden"
           >
-            <div className="p-5 bg-white border-b border-zinc-100 flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="w-12 h-12 bg-white border border-zinc-100 rounded-full flex items-center justify-center shadow-sm">
-                    <Zap className="text-[#8edce0] w-7 h-7" />
-                  </div>
-                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+            <div className="relative z-10">
+              <div className="flex justify-between items-start mb-4">
+                <div className="w-10 h-10 bg-[#8edce0]/10 rounded-full flex items-center justify-center">
+                  <Zap className="text-[#8edce0] w-5 h-5" />
                 </div>
-                <div>
-                  <div className="text-[#1a1a1a] font-serif text-lg leading-tight tracking-wide">SYNC2 Concierge</div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <div className="text-[10px] text-green-500 font-bold tracking-[0.1em]">ONLINE</div>
-                    <a 
-                      href="https://lin.ee/UwOZ7ho" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-[9px] bg-[#06c755] text-white px-2 py-0.5 rounded-full font-bold hover:brightness-110 transition-all flex items-center gap-1"
-                    >
-                      <MessageCircle className="w-2.5 h-2.5" />
-                      LINE公式
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <button onClick={() => setIsOpen(false)} className="text-zinc-400 hover:text-[#373d43] transition-colors p-2 bg-zinc-50 rounded-full">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-50/50">
-              {messages.length === 0 && (
-                <div className="text-center py-10">
-                  <p className="text-zinc-400 text-sm font-serif italic">
-                    お招きいただきありがとうございます。 SYNC2 Conciergeです。<br />
-                    SNS戦略、広告運用、ブランド構築についてのご相談を承ります。
-                  </p>
-                </div>
-              )}
-              {messages.map((m, i) => (
-                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] p-3 rounded-2xl text-sm whitespace-pre-wrap ${
-                    m.role === 'user' 
-                      ? 'bg-[#373d43] text-[#8edce0] rounded-tr-none shadow-sm' 
-                      : 'bg-white text-zinc-700 rounded-tl-none border border-zinc-100 shadow-sm'
-                  }`}>
-                    {m.text}
-                  </div>
-                </div>
-              ))}
-              
-              {!isLoading && (
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {randomSuggestions.map((q, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleSend(undefined, q)}
-                      className="text-[11px] text-[#373d43] bg-white border border-zinc-100 hover:bg-[#8edce0]/10 hover:border-[#8edce0]/30 px-3 py-1.5 rounded-full transition-all text-left shadow-sm"
-                    >
-                      {q}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-white text-zinc-400 p-3 rounded-2xl text-sm animate-pulse border border-zinc-100">
-                    メッセージを生成中...
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <form onSubmit={handleSend} className="p-4 border-t border-zinc-100 bg-white">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="質問を入力してください..."
-                  className="w-full bg-zinc-50 border border-zinc-100 rounded-xl py-3 pl-4 pr-12 text-[#1a1a1a] text-sm focus:border-[#8edce0] outline-none"
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                />
                 <button 
-                  type="submit"
-                  disabled={isLoading || !input.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#8edce0] disabled:opacity-50"
+                  onClick={() => setIsOpen(false)}
+                  className="text-zinc-400 hover:text-zinc-600 transition-colors"
                 >
-                  <ArrowRight className="w-5 h-5" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
-            </form>
+              
+              <h3 className="text-[#1a1a1a] font-bold text-lg mb-3">今日の成長ヒント</h3>
+              <p className="text-zinc-600 text-sm leading-relaxed mb-6 font-medium">
+                「{currentTip}」
+              </p>
+              
+              <button
+                onClick={() => {
+                  const otherTips = DIGITAL_TIPS.filter(t => t !== currentTip);
+                  setCurrentTip(otherTips[Math.floor(Math.random() * otherTips.length)]);
+                }}
+                className="w-full bg-[#8edce0] hover:bg-[#7bc8cc] text-[#1a1a1a] font-bold py-3 rounded-xl transition-all text-sm flex items-center justify-center gap-2"
+              >
+                <TrendingUp className="w-4 h-4" />
+                別のヒントを見る
+              </button>
+            </div>
+            
+            {/* Background Accent */}
+            <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-[#8edce0]/5 rounded-full blur-3xl" />
           </motion.div>
         )}
       </AnimatePresence>
 
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 bg-white border border-zinc-100 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform group"
+        onClick={showRandomTip}
+        className="w-16 h-16 bg-[#1a1a1a] hover:bg-[#373d43] text-[#8edce0] rounded-full flex flex-col items-center justify-center shadow-2xl transition-all hover:scale-110 group relative"
       >
-        {isOpen ? <X className="text-zinc-400 w-7 h-7" /> : <MessageCircle className="text-[#8edce0] w-7 h-7 group-hover:scale-110 transition-transform" />}
+        <Zap className="w-6 h-6 mb-1 group-hover:animate-pulse" />
+        <span className="text-[10px] font-bold tracking-tighter uppercase">Tips</span>
+        
+        {/* Tooltip */}
+        {!isOpen && (
+          <div className="absolute -top-12 right-0 bg-white border border-zinc-100 px-3 py-1.5 rounded-lg text-[10px] font-bold text-[#1a1a1a] shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            ビジネスのヒントを見る
+          </div>
+        )}
       </button>
     </div>
   );
@@ -903,7 +785,7 @@ export default function App() {
       </main>
       <Footer />
       
-      <AIConsultant />
+      <DigitalTipsWidget />
     </div>
   );
 }
