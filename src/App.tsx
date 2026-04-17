@@ -63,6 +63,8 @@ const LeadMagnet = () => {
       'pdf-page-6', 'pdf-page-7', 'pdf-page-8', 'pdf-page-9', 'pdf-page-10', 'pdf-page-11'
     ];
     
+    let currentError: string | null = null;
+
     try {
       for (let i = 0; i < pageIds.length; i++) {
         const element = document.getElementById(pageIds[i]);
@@ -100,17 +102,18 @@ const LeadMagnet = () => {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Server-side email error:', errorData);
-        const specificError = errorData.details || errorData.error;
-        setErrorMessage(`送信エラー: ${specificError}. SMTP設定（パスワードやポート）を確認してください。`);
-        throw new Error('Failed to send email');
+        const specificError = errorData.details || errorData.error || '不明なサーバーエラー';
+        currentError = `送信エラー: ${specificError}`;
+        setErrorMessage(currentError);
+        throw new Error(currentError);
       } else {
         console.log('Email sent successfully with PDF attachment');
         setIsSuccess(true);
       }
     } catch (error) {
       console.error('PDF/Email Error:', error);
-      if (!errorMessage) {
-        setErrorMessage('メールの送信に失敗しました。SMTPの設定を確認してください。');
+      if (!currentError) {
+        setErrorMessage('PDF生成または送信中にエラーが発生しました。インターネット接続やSMTP設定を確認してください。');
       }
     } finally {
       setIsSubmitting(false);
