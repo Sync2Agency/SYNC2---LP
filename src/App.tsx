@@ -996,14 +996,20 @@ const AIConsultant = () => {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className="absolute bottom-20 right-0 w-[350px] sm:w-[400px] h-[500px] bg-zinc-950 border border-zinc-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden"
           >
-            <div className="p-4 bg-[#373d43] border-b border-zinc-800 flex justify-between items-center">
+            <div className="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-[#8edce0] rounded-full flex items-center justify-center">
-                  <Zap className="text-[#373d43] w-5 h-5" />
+                <div className="relative">
+                  <div className="w-10 h-10 bg-[#8edce0] rounded-full flex items-center justify-center">
+                    <Zap className="text-[#373d43] w-6 h-6" />
+                  </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-zinc-950 rounded-full"></div>
                 </div>
-                <span className="text-white font-bold">AIコンサルタント</span>
+                <div>
+                  <div className="text-white font-bold leading-tight">AIコンサルタント</div>
+                  <div className="text-[10px] text-green-500 font-medium">ONLINE</div>
+                </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-zinc-400 hover:text-white">
+              <button onClick={() => setIsOpen(false)} className="text-zinc-400 hover:text-white p-2">
                 <X className="w-5 h-5" />
               </button>
             </div>

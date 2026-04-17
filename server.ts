@@ -4,7 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
@@ -92,23 +92,25 @@ async function startServer() {
     console.log("GEMINI_API_KEY is present, proceeding with request.");
 
     try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: "あなたはSYNC2 AGENCYのAIコンサルタントです。SNSマーケティングやブランディングに関する質問に答えてください。回答は簡潔に、最大2文程度にまとめてください。回答の最後には必ず、詳細な相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への登録を促すメッセージを含めてください。日本語で回答してください。"
+      const ai = new GoogleGenAI({ apiKey });
+      
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: [
+          ...(history || []).map((h: any) => ({
+            role: h.role === 'user' ? 'user' : 'model',
+            parts: [{ text: h.parts[0].text }]
+          })),
+          { role: 'user', parts: [{ text: message }] }
+        ],
+        config: {
+          systemInstruction: "あなたはSYNC2 AGENCYのAIコンサルタントです。回答は常に日本語で行い、簡潔に2文以内にまとめてください。回答の最後には必ず、詳細な相談のためにこちらのLINE公式アカウント（https://lin.ee/UwOZ7ho）への登録を促すメッセージを入れてください。",
+          maxOutputTokens: 250,
+          temperature: 0.7,
+        }
       });
 
-      const chat = model.startChat({
-        history: history || [],
-        generationConfig: {
-          maxOutputTokens: 500,
-        },
-      });
-
-      console.log("Sending message to Gemini:", message);
-      const result = await chat.sendMessage(message);
-      const response = await result.response;
-      const text = response.text();
+      const text = response.text || "申し訳ありません。回答を生成できませんでした。";
       console.log("Gemini response received successfully");
 
       res.json({ text });
