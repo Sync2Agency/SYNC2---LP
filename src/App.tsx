@@ -112,11 +112,10 @@ const LeadMagnet = () => {
         console.log('Email sent successfully with PDF attachment');
         setIsSuccess(true);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('PDF/Email Error:', error);
-      if (!currentError) {
-        setErrorMessage('PDF生成または送信中にエラーが発生しました。インターネット接続やSMTP設定を確認してください。');
-      }
+      const errorMessageString = error?.message || String(error);
+      setErrorMessage(`PDF生成または送信中にエラーが発生しました。理由: ${errorMessageString}`);
     } finally {
       setIsSubmitting(false);
     }

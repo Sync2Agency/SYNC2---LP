@@ -93,14 +93,13 @@ async function startServer() {
       
       const transporter = nodemailer.createTransport({
         host: SMTP_HOST,
-        port: Number(SMTP_PORT),
-        secure: Number(SMTP_PORT) === 465,
+        port: 587, // Alterado para 587 (TLS) para evitar bloqueios de SSL
+        secure: false, // Deve ser false para porta 587
         auth: {
           user: SMTP_USER,
           pass: SMTP_PASS,
         },
         tls: {
-          // Hostinger often needs this in some Node.js environments
           rejectUnauthorized: false,
           minVersion: "TLSv1.2"
         },
