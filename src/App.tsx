@@ -39,6 +39,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Quote
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -124,17 +125,30 @@ const Testimonials = () => {
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeIndex}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.4 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ 
+                  duration: 0.5,
+                  ease: [0.22, 1, 0.36, 1] 
+                }}
                 className="relative z-10"
               >
-                <p className="text-lg md:text-2xl text-[#1a1a1a] font-medium leading-relaxed mb-8 md:mb-10 italic">
+                <motion.p 
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-lg md:text-2xl text-[#1a1a1a] font-medium leading-relaxed mb-8 md:mb-10 italic"
+                >
                   "{testimonials[activeIndex].quote}"
-                </p>
+                </motion.p>
                 
-                <div className="flex items-center gap-4">
+                <motion.div 
+                  initial={{ opacity: 0, x: -5 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-center gap-4"
+                >
                   <img 
                     src={testimonials[activeIndex].image} 
                     alt={testimonials[activeIndex].name}
@@ -147,22 +161,24 @@ const Testimonials = () => {
                       {testimonials[activeIndex].title} | {testimonials[activeIndex].company}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               </motion.div>
             </AnimatePresence>
 
             <div className="flex justify-end gap-3 mt-8">
               <button 
                 onClick={prev}
-                className="p-3 bg-zinc-50 hover:bg-zinc-100 text-zinc-400 hover:text-[#373d43] rounded-full transition-all border border-zinc-100"
+                aria-label="Previous testimonial"
+                className="p-4 bg-[#f8fafb] hover:bg-[#8edce0]/20 text-[#373d43] hover:text-[#1a1a1a] rounded-full transition-all border-2 border-[#8edce0]/10 hover:border-[#8edce0]/40 shadow-sm hover:shadow-md group active:scale-95"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-7 h-7 transition-transform group-hover:-translate-x-0.5" />
               </button>
               <button 
                 onClick={next}
-                className="p-3 bg-[#373d43] hover:bg-[#2a2f33] text-[#8edce0] rounded-full transition-all shadow-lg"
+                aria-label="Next testimonial"
+                className="p-4 bg-[#373d43] hover:bg-[#1a1a1a] text-[#8edce0] rounded-full transition-all shadow-xl hover:shadow-[#8edce0]/10 border-2 border-[#373d43] active:scale-95 group"
               >
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight className="w-7 h-7 transition-transform group-hover:translate-x-0.5" />
               </button>
             </div>
           </div>
@@ -302,7 +318,6 @@ const SNSPage = () => {
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
       </Helmet>
-      <Navbar />
       <main className="pt-24 md:pt-32">
         <section className="py-8 border-b border-zinc-100 bg-white">
           <div className="max-w-7xl mx-auto px-6">
@@ -402,7 +417,6 @@ const SNSPage = () => {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 };
@@ -1123,8 +1137,8 @@ const Footer = () => (
           © 2026 SYNC2. All rights reserved.
         </p>
         <div className="flex gap-6">
-          <a href="#" className="text-zinc-400 hover:text-[#1a1a1a] text-[10px] font-medium transition-colors">利用規約</a>
-          <a href="#" className="text-zinc-400 hover:text-[#1a1a1a] text-[10px] font-medium transition-colors">プライバシー</a>
+          <Link to="/terms" className="text-zinc-400 hover:text-[#1a1a1a] text-[10px] font-medium transition-colors">利用規約</Link>
+          <Link to="/privacy" className="text-zinc-400 hover:text-[#1a1a1a] text-[10px] font-medium transition-colors">プライバシー</Link>
         </div>
       </div>
     </div>
@@ -1205,6 +1219,178 @@ const DigitalTipsWidget = () => {
   );
 };
 
+const ScrollToTopButton = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.scrollY > 300) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.5, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.5, y: 20 }}
+          onClick={scrollToTop}
+          className="fixed bottom-24 right-6 z-50 w-12 h-12 bg-white/80 backdrop-blur-md border border-zinc-100 shadow-xl rounded-full flex items-center justify-center text-[#373d43] hover:text-[#8edce0] hover:border-[#8edce0]/50 transition-all hover:scale-110 active:scale-95 group"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="w-6 h-6 transition-transform group-hover:-translate-y-0.5" />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const LegalLayout = ({ title, children }: { title: string, children: React.ReactNode }) => (
+  <div className="pt-32 pb-24 bg-white min-h-screen">
+    <div className="max-w-4xl mx-auto px-6">
+      <Link to="/" className="inline-flex items-center gap-2 text-zinc-400 hover:text-[#8edce0] transition-colors text-sm font-bold mb-12 group">
+        <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+        <span>トップページへ戻る</span>
+      </Link>
+      <h1 className="text-3xl md:text-4xl font-bold text-[#1a1a1a] mb-12">{title}</h1>
+      <div className="prose prose-zinc max-w-none prose-headings:text-[#1a1a1a] prose-headings:font-bold prose-p:text-zinc-600 prose-p:leading-relaxed prose-li:text-zinc-600">
+        {children}
+      </div>
+    </div>
+  </div>
+);
+
+const PrivacyPage = () => (
+  <LegalLayout title="プライバシーポリシー">
+    <p>SYNC2（以下、「当社」といいます。）は、当社の提供するサービス（https://sync2.agency/ におけるサービスを含み、以下「本サービス」といいます。）における、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」といいます。）を定めます。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第1条（個人情報の定義）</h2>
+    <p>「個人情報」とは、個人情報保護法にいう「個人情報」を指すものとし、生存する個人に関する情報であって、当該情報に含まれる氏名、生年月日、住所、電話番号、連絡先その他の記述等により特定の個人を識別できる情報、および容貌、指紋、声紋にかかるデータ、及び健康保険証の保険者番号などの当該情報単体から特定の個人を識別できる情報（個人識別符号）を指します。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第2条（個人情報の収集方法）</h2>
+    <p>当社は、ユーザーが本サービスを利用する際やお問い合わせをする際に、氏名、会社名、メールアドレス、電話番号などの個人情報をお尋ねすることがあります。また、ユーザーのアクセス履歴、IPアドレス、Cookie情報などを収集する場合があります。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第3条（個人情報を収集・利用する目的）</h2>
+    <p>当社が個人情報を収集・利用する目的は、以下のとおりです。</p>
+    <ul className="list-disc pl-6 space-y-2">
+      <li>本サービスの提供・運営のため</li>
+      <li>ユーザーからのお問い合わせに回答するため（本人確認を行うことを含む）</li>
+      <li>ユーザーが利用中のサービスの新機能、更新情報、キャンペーン等及び当社が提供する他のサービスの案内のメールを送付するため</li>
+      <li>メンテナンス、重要のお知らせなど必要に応じたご連絡のため</li>
+      <li>利用規約に違反したユーザーや、不正・不当な目的でサービスを利用しようとするユーザーの特定をし、ご利用をお断りするため</li>
+      <li>上記の利用目的に付随する目的</li>
+    </ul>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第4条（利用目的の変更）</h2>
+    <p>当社は、利用目的が変更前と関連性を有すると合理的に認められる場合に限り、個人情報の利用目的を変更するものとします。利用目的の変更を行った場合には、変更後の目的について、当社所定の方法により、ユーザーに通知し、または本ウェブサイト上に公表するものとします。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第5条（個人情報の第三者提供）</h2>
+    <p>当社は、次に掲げる場合を除いて、あらかじめユーザーの同意を得ることなく、第三者に個人情報を提供することはありません。ただし、個人情報保護法その他の法令で認められる場合を除きます。</p>
+    <ul className="list-disc pl-6 space-y-2">
+      <li>人の生命、身体または財産の保護のために必要がある場合であって、本人の同意を得ることが困難であるとき</li>
+      <li>公衆衛生の向上または児童の健全な育成の推進のために特に必要がある場合であって、本人の同意を得ることが困難であるとき</li>
+      <li>国の機関もしくは地方公共団体またはその委託を受けた者が法令の定める事務を遂行することに対して協力する必要がある場合であって、本人の同意を得ることにより当該事務の遂行に支障を及ぼすおそれがあるとき</li>
+    </ul>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第6条（アクセス解析ツール・Cookieの利用について）</h2>
+    <p>当サイトでは、サービスの向上や利用状況の分析のためにGoogleアナリティクスなどのアクセス解析ツールを利用しています。これらのツールはトラフィックデータの収集のためにCookie（クッキー）を使用しています。このデータは匿名で収集されており、個人を特定するものではありません。ブラウザの設定によりCookieを無効にすることで収集を拒否することが可能です。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第7条（個人情報の開示・訂正・利用停止等）</h2>
+    <p>当社は、本人から個人情報の開示、訂正、追加、削除、利用停止等を求められたときは、本人確認を行った上で、遅滞なくこれに対応します。ただし、法令に基づき対応の義務を負わない場合は、この限りではありません。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第8条（お問い合わせ窓口）</h2>
+    <p>本ポリシーに関するお問い合わせは、下記の窓口までお願いいたします。</p>
+    <p className="mt-2">
+      会社名：SYNC2<br />
+      担当部署：プライバシーポリシー管理担当<br />
+      Eメールアドレス：contact@sync2.agency
+    </p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第9条（プライバシーポリシーの変更）</h2>
+    <p>本ポリシーの内容は、法令その他本ポリシーに別段の定めのある事項を除いて、ユーザーに通知することなく、変更することができるものとします。当社が別途定める場合を除いて、変更後のプライバシーポリシーは、本ウェブサイトに掲載したときから効力を生じるものとします。</p>
+
+    <p className="mt-12 text-zinc-400 text-sm">【制定日・改定日】<br />制定日：2026年4月15日</p>
+  </LegalLayout>
+);
+
+const TermsPage = () => (
+  <LegalLayout title="利用規約">
+    <p>この利用規約（以下、「本規約」といいます。）は、SYNC2（以下、「当社」といいます。）がウェブサイト（https://sync2.agency/）上で提供するサービス（以下、「本サービス」といいます。）の利用条件を定めるものです。本サービスをご利用になる方（以下、「ユーザー」といいます。）には、本規約に従って、本サービスをご利用いただきます。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第1条（適用）</h2>
+    <p>本規約は、ユーザーと当社との間の本サービスの利用に関わる一切の関係に適用されるものとします。当社は本サービスに関し、本規約のほか、ご利用にあたってのルール等、各種の定め（以下、「個別規定」といいます。）をすることがあります。これら個別規定はその名称のいかんに関わらず、本規約の一部を構成するものとします。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第2条（禁止事項）</h2>
+    <p>ユーザーは、本サービスの利用にあたり、以下の行為をしてはなりません。</p>
+    <ul className="list-disc pl-6 space-y-2">
+      <li>法令または公序良俗に違反する行為</li>
+      <li>犯罪行為に関連する行為</li>
+      <li>当社、本サービスの他のユーザー、または第三者のサーバーまたはネットワークの機能を破壊したり、妨害したりする行為</li>
+      <li>当社のサービスの運営を妨害するおそれのある行為</li>
+      <li>他のユーザーに関する個人情報等を収集または蓄積する行為</li>
+      <li>不正アクセスをし、またはこれを試みる行為</li>
+      <li>他のユーザーに成りすます行為</li>
+      <li>当社のサービスに関連して、反社会的勢力に対して直接または間接に利益を供与する行為</li>
+      <li>当社、本サービスの他のユーザーまたは第三者の知的財産権、肖像権、プライバシー、名誉その他の権利または利益を侵害する行為</li>
+      <li>その他、当社が不適切と判断する行為</li>
+    </ul>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第3条（本サービスの提供の停止等）</h2>
+    <p>当社は、以下のいずれかの事由があると判断した場合、ユーザーに事前に通知することなく本サービスの全部または一部の提供を停止または中断することができるものとします。</p>
+    <ul className="list-disc pl-6 space-y-2">
+      <li>本サービスにかかるコンピュータシステムの保守点検または更新を行う場合</li>
+      <li>地震、落雷、火災、停電または天災などの不可抗力により、本サービスの提供が困難となった場合</li>
+      <li>コンピュータまたは通信回線等が事故により停止した場合</li>
+      <li>その他、当社が本サービスの提供が困難と判断した場合</li>
+    </ul>
+    <p className="mt-4">当社は、本サービスの提供の停止または中断により、ユーザーまたは第三者が被ったいかなる不利益または損害についても、一切の責任を負わないものとします。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第4条（著作権等の知的財産権）</h2>
+    <ol className="list-decimal pl-6 space-y-2">
+      <li>本サービスおよび本サービスに関連する一切の情報についての著作権およびその他の知的財産権は、すべて当社または当社にその利用を許諾した権利者に帰属します。</li>
+      <li>ユーザーは、無断で複製、譲渡、貸与、翻訳、改変、転載、公衆送信、配布、出版、営業使用等をしてはならないものとします。</li>
+    </ol>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第5条（免責事項）</h2>
+    <ol className="list-decimal pl-6 space-y-2">
+      <li>当社は、本サービスに事実上または法律上の瑕疵（安全性、信頼性、正確性、完全性、有効性、特定の目的への適合性、セキュリティなどに関する欠陥、エラーやバグ、権利侵害などを含みます。）がないことを明示的にも黙示的にも保証しておりません。</li>
+      <li>当社は、本サービスに起因してユーザーに生じたあらゆる損害について一切の責任を負いません。ただし、本サービスに関する当社とユーザーとの間の契約（本規約を含みます。）が消費者契約法に定める消費者契約となる場合、この免責規定は適用されません。</li>
+      <li>前項ただし書に定める場合であっても、当社は、当社の過失（重過失を除きます。）による債務不履行または不法行為によりユーザーに生じた損害のうち特別な事情から生じた損害（当社またはユーザーが損害発生につき予見し、または予見し得た場合を含みます。）について一切の責任を負いません。</li>
+    </ol>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第6条（サービス内容の変更等）</h2>
+    <p>当社は、ユーザーに通知することなく、本サービスの内容を変更しまたは本サービスの提供を中止することができるものとし、これによってユーザーに生じた損害について一切の責任を負いません。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第7条（利用規約の変更）</h2>
+    <p>当社は、必要と判断した場合には、ユーザーに通知することなくいつでも本規約を変更することができるものとします。なお、本規約の変更後、本サービスの利用を開始した場合には、当該ユーザーは変更後の規約に同意したものとみなします。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第8条（個人情報の取扱い）</h2>
+    <p>当社は、本サービスの利用によって取得する個人情報については、当社「プライバシーポリシー」に従い適切に取り扱うものとします。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第9条（準拠法・裁判管轄）</h2>
+    <ol className="list-decimal pl-6 space-y-2">
+      <li>本規約の解釈にあたっては、日本法を準拠法とします。</li>
+      <li>本サービスに関して紛争が生じた場合には、当社の本店所在地を管轄する裁判所を専属的合意管轄とします。</li>
+    </ol>
+
+    <p className="mt-12 text-zinc-400 text-sm">【制定日・改定日】<br />制定日：2026年4月15日</p>
+  </LegalLayout>
+);
+
 const Home = () => {
   return (
     <>
@@ -1237,10 +1423,13 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/sns/:slug" element={<SNSPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
         </Routes>
       </main>
       <Footer />
       
+      <ScrollToTopButton />
       <DigitalTipsWidget />
     </div>
   );
