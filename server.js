@@ -94,18 +94,17 @@ async function startServer() {
       
       const transporter = nodemailer.createTransport({
         host: SMTP_HOST,
-        port: 587, // Alterado para 587 (TLS) para evitar bloqueios de SSL
-        secure: false, // Deve ser false para porta 587
+        port: 465, 
+        secure: true, 
         auth: {
           user: SMTP_USER,
           pass: SMTP_PASS,
         },
         tls: {
-          rejectUnauthorized: false,
-          minVersion: "TLSv1.2"
+          rejectUnauthorized: false, // Mantido para evitar erros de certificado em hospedagem compartilhada
         },
-        connectionTimeout: 15000,
-        greetingTimeout: 15000,
+        connectionTimeout: 20000,
+        greetingTimeout: 20000,
         socketTimeout: 30000,
         debug: true,
         logger: true
@@ -155,11 +154,14 @@ async function startServer() {
       // Tenta anexar o arquivo estático da pasta public
       const pdfPath = path.join(process.cwd(), 'public', 'guia-estrategico.pdf');
       if (fs.existsSync(pdfPath)) {
+        const stats = fs.statSync(pdfPath);
+        console.log(`PDF file found at ${pdfPath}. Size: ${stats.size} bytes`);
+        
         mailOptions.attachments.push({
           filename: 'SYNC2_B2B_Strategy_Guide_2026.pdf',
           path: pdfPath
         });
-        console.log("Static PDF attached from:", pdfPath);
+        console.log("Static PDF attached.");
       } else {
         console.warn("Attachment file NOT FOUND at:", pdfPath);
       }
