@@ -105,7 +105,7 @@ async function startServer() {
           { role: 'user', parts: [{ text: message }] }
         ],
         config: {
-          systemInstruction: "あなたはSYNC2 AGENCYの専属AIコンサルタントです。高級感のある、丁寧で洗練された日本語で回答してください。回答は簡潔にまとめ、最後には必ず、より深い戦略相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への招待を優雅に伝えてください。",
+          systemInstruction: "あなたはSYNC2 AGENCYの専属AIコンサルタントです。高級感のある、丁寧で洗練された日本語で回答してください。回答は読みやすさを最優先し、適切な句読点を使用し、段落間には必ず1行の空行（改行2つ）を入れて構成してください。最後には必ず、より深い戦略相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への招待を優雅に伝えてください。",
           maxOutputTokens: 1000,
           temperature: 0.6,
         }

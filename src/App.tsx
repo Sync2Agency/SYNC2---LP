@@ -1069,7 +1069,18 @@ const AIConsultant = () => {
                 </div>
                 <div>
                   <div className="text-white font-serif text-lg leading-tight tracking-wide">SYNC2 Concierge</div>
-                  <div className="text-[10px] text-green-500 font-bold tracking-[0.1em] mt-0.5">ONLINE</div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <div className="text-[10px] text-green-500 font-bold tracking-[0.1em]">ONLINE</div>
+                    <a 
+                      href="https://lin.ee/UwOZ7ho" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-[9px] bg-[#06c755] text-white px-2 py-0.5 rounded-full font-bold hover:brightness-110 transition-all flex items-center gap-1"
+                    >
+                      <MessageCircle className="w-2.5 h-2.5" />
+                      LINE公式
+                    </a>
+                  </div>
                 </div>
               </div>
               <button onClick={() => setIsOpen(false)} className="text-zinc-500 hover:text-white transition-colors p-2 bg-zinc-800/50 rounded-full">
@@ -1088,7 +1099,7 @@ const AIConsultant = () => {
               )}
               {messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
+                  <div className={`max-w-[80%] p-3 rounded-2xl text-sm whitespace-pre-wrap ${
                     m.role === 'user' 
                       ? 'bg-[#8edce0] text-[#373d43] rounded-tr-none' 
                       : 'bg-zinc-900 text-zinc-300 rounded-tl-none border border-zinc-800'
