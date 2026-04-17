@@ -95,7 +95,7 @@ async function startServer() {
     try {
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-1.5-flash",
         contents: [
           ...(history || []).map((h: any) => ({
             role: h.role === 'user' ? 'user' : 'model',
@@ -104,8 +104,8 @@ async function startServer() {
           { role: 'user', parts: [{ text: message }] }
         ],
         config: {
-          systemInstruction: "あなたはSYNC2 AGENCYの専属AIコンサルタントです。高級感のある、丁寧で洗練された日本語で回答してください。回答は簡潔に2文以内にまとめ、最後には必ず、より深い戦略相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への招待を優雅に伝えてください。",
-          maxOutputTokens: 250,
+          systemInstruction: "あなたはSYNC2 AGENCYの専属AIコンサルタントです。高級感のある、丁寧で洗練された日本語で回答してください。回答は簡潔にまとめ、最後には必ず、より深い戦略相談のためにLINE公式アカウント（https://lin.ee/UwOZ7ho）への招待を優雅に伝えてください。",
+          maxOutputTokens: 1000,
           temperature: 0.6,
         }
       });
