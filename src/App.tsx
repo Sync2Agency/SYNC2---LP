@@ -145,7 +145,7 @@ const CaseStudies = () => {
     {
       category: "飲食店・レストラン",
       name: "Gourmet & Restaurant",
-      challenge: "認知度が低く、閑散期の集客を安定させたい。",
+      challenge: "認知度が低く、閑散期の集客を安定ませたい。",
       solution: "シズル感溢れるリール動画と地域限定のキャンペーン。Instagramをデジタルメニューとして活用。",
       result: "予約数 4.2倍 / 週末満席率 100%継続",
       image: "https://picsum.photos/seed/food/800/800",
@@ -159,116 +159,148 @@ const CaseStudies = () => {
   const prev = () => setActiveIndex((prev) => (prev - 1 + cases.length) % cases.length);
 
   return (
-    <section id="cases" className="py-20 bg-zinc-50 border-y border-zinc-100 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+    <section id="cases" className="py-24 bg-white border-y border-zinc-100 overflow-hidden relative">
+      <div className="max-w-7xl mx-auto px-6 mb-16 relative z-10 text-center md:text-left">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="max-w-xl">
             <span className="text-[#8edce0] font-bold tracking-[0.2em] uppercase text-[10px] mb-3 block">Success Stories</span>
-            <h2 className="text-2xl md:text-4xl font-bold text-[#1a1a1a] mb-4">SNS集客の実績</h2>
-            <p className="text-zinc-500 text-sm font-medium">B2B・地域ビジネスに特化した戦略的運用の成功事例。</p>
+            <h2 className="text-3xl md:text-5xl font-bold text-[#1a1a1a] mb-6">SNS集客の実績</h2>
+            <p className="text-zinc-500 text-base font-medium">B2B・地域ビジネスに特化した戦略的運用の成功事例。</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3 justify-center">
             <button 
               onClick={prev}
-              className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center hover:bg-[#1a1a1a] hover:text-white transition-all shadow-sm active:scale-95"
+              className="w-12 h-12 rounded-full border border-zinc-200 flex items-center justify-center hover:bg-[#1a1a1a] hover:text-white transition-all shadow-sm active:scale-95 bg-white/50 backdrop-blur-sm"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-6 h-6" />
             </button>
             <button 
               onClick={next}
-              className="w-10 h-10 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center hover:bg-[#373d43] transition-all shadow-md active:scale-95"
+              className="w-12 h-12 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center hover:bg-[#373d43] transition-all shadow-lg active:scale-95"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-6 h-6" />
             </button>
           </div>
         </div>
+      </div>
 
-        <div className="flex justify-center">
-          <motion.div 
-            key={activeIndex}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-sm bg-white rounded-[1.5rem] border border-zinc-100 shadow-xl overflow-hidden"
-          >
-            {/* Social Media Post Header */}
-            <div className="p-4 flex items-center justify-between border-b border-zinc-50">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#8edce0]/10 flex items-center justify-center text-[#8edce0]">
-                  {cases[activeIndex].avatar}
-                </div>
-                <div>
-                  <h4 className="font-bold text-[#1a1a1a] text-xs leading-none mb-0.5">{cases[activeIndex].name}</h4>
-                  <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">{cases[activeIndex].category}</p>
-                </div>
-              </div>
-              <Menu className="w-3.5 h-3.5 text-zinc-300" />
-            </div>
+      <div className="relative h-[650px] w-full flex items-center justify-center">
+        {/* Carousel Container */}
+        <div className="absolute w-full flex items-center justify-center overflow-visible">
+          <AnimatePresence mode="popLayout" initial={false}>
+            {cases.map((_case, i) => {
+              // Calculate relative position to active index
+              let position = i - activeIndex;
+              // Handle loop wrapping
+              if (position > cases.length / 2) position -= cases.length;
+              if (position < -cases.length / 2) position += cases.length;
 
-            {/* Post Image */}
-            <div className="aspect-square relative group">
-              <img 
-                src={cases[activeIndex].image} 
-                alt={cases[activeIndex].name}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/5" />
-              
-              {/* Overlay Result Badge - More Delicate */}
-              <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-md border border-white/50">
-                <p className="text-[#1a1a1a] font-bold text-[11px] leading-tight">{cases[activeIndex].result}</p>
-              </div>
-            </div>
+              const isCenter = position === 0;
+              const isVisible = Math.abs(position) <= 2; // Show 2 neighbors on each side
 
-            {/* Post Actions */}
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1">
-                    <Zap className="w-5 h-5 text-[#1a1a1a] fill-[#1a1a1a]" />
-                    <span className="text-[10px] font-bold">{cases[activeIndex].likes}</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-zinc-400">
-                    <MessageCircle className="w-5 h-5" />
-                    <span className="text-[10px] font-bold">{cases[activeIndex].comments}</span>
-                  </div>
-                </div>
-                <div className="flex gap-1">
-                  {cases.map((_, i) => (
-                    <div 
-                      key={i} 
-                      className={`w-1 h-1 rounded-full transition-all ${i === activeIndex ? "bg-[#8edce0] w-3" : "bg-zinc-200"}`} 
-                    />
-                  ))}
-                </div>
-              </div>
+              if (!isVisible) return null;
 
-              {/* Post Caption (Challenge & Solution) - Delicate Typography */}
-              <div className="space-y-3">
-                <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
-                  <span className="text-[9px] font-black tracking-widest text-zinc-400 uppercase block mb-1">Challenge</span>
-                  <p className="text-[11px] font-bold text-[#373d43] leading-relaxed">
-                    「{cases[activeIndex].challenge}」
-                  </p>
-                </div>
-                <div className="p-3 border-l-2 border-[#8edce0] bg-[#8edce0]/5 rounded-r-xl">
-                   <span className="text-[9px] font-black tracking-widest text-[#8edce0] uppercase block mb-0.5">Strategy</span>
-                   <p className="text-[11px] text-[#1a1a1a] leading-relaxed">
-                     {cases[activeIndex].solution}
-                   </p>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-zinc-50">
-                <a 
-                  href="https://lin.ee/UwOZ7ho"
-                  className="w-full bg-[#1a1a1a] text-white py-3 rounded-lg font-bold text-[11px] flex items-center justify-center gap-2 hover:bg-[#373d43] transition-all"
+              return (
+                <motion.div
+                  key={i}
+                  initial={false}
+                  animate={{
+                    x: `${position * 360}px`, // 320px width + 40px gap
+                    scale: isCenter ? 1 : 0.85,
+                    opacity: isCenter ? 1 : 0.4,
+                    zIndex: 10 - Math.abs(position),
+                    filter: isCenter ? "blur(0px)" : "blur(2px)",
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30,
+                  }}
+                  className="absolute w-full max-w-[320px] bg-white rounded-[2rem] border border-zinc-100 shadow-2xl overflow-hidden cursor-pointer touch-none"
+                  onClick={() => setActiveIndex(i)}
                 >
-                  事例を詳しく見る
-                  <ChevronRight className="w-3.5 h-3.5 text-[#8edce0]" />
-                </a>
-              </div>
-            </div>
-          </motion.div>
+                  {/* Social Media Post Header */}
+                  <div className="p-4 flex items-center justify-between border-b border-zinc-50">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full bg-[#8edce0]/10 flex items-center justify-center text-[#8edce0]">
+                        {_case.avatar}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-[#1a1a1a] text-xs leading-none mb-1">{_case.name}</h4>
+                        <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest">{_case.category}</p>
+                      </div>
+                    </div>
+                    <Menu className="w-4 h-4 text-zinc-300" />
+                  </div>
+
+                  {/* Post Image */}
+                  <div className="aspect-square relative group">
+                    <img 
+                      src={_case.image} 
+                      alt={_case.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/5" />
+                    
+                    {/* Overlay Result Badge */}
+                    <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-lg border border-white/50">
+                      <p className="text-[#1a1a1a] font-black text-[11px] leading-tight text-center">{_case.result}</p>
+                    </div>
+                  </div>
+
+                  {/* Post Actions */}
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1">
+                          <Zap className="w-5 h-5 text-[#1a1a1a] fill-[#1a1a1a]" />
+                          <span className="text-[10px] font-bold tracking-tighter">{_case.likes}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-zinc-400">
+                          <MessageCircle className="w-5 h-5" />
+                          <span className="text-[10px] font-bold tracking-tighter">{_case.comments}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5">
+                        {cases.map((_, dotIndex) => (
+                          <div 
+                            key={dotIndex} 
+                            className={`w-1 h-1 rounded-full transition-all duration-300 ${dotIndex === i ? "bg-[#8edce0] scale-125" : "bg-zinc-200"}`} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Post Caption (Challenge & Solution) */}
+                    <div className="space-y-3">
+                      <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+                        <span className="text-[9px] font-black tracking-widest text-zinc-400 uppercase block mb-1">Challenge</span>
+                        <p className="text-[10px] font-bold text-[#373d43] leading-relaxed">
+                          「{_case.challenge}」
+                        </p>
+                      </div>
+                      <div className="p-3 border-l-2 border-[#8edce0] bg-[#8edce0]/5 rounded-r-xl">
+                         <span className="text-[9px] font-black tracking-widest text-[#8edce0] uppercase block mb-0.5">Strategy</span>
+                         <p className="text-[10px] text-[#1a1a1a] leading-relaxed font-medium">
+                           {_case.solution}
+                         </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 pt-4 border-t border-zinc-50">
+                      <a 
+                        href="https://lin.ee/UwOZ7ho"
+                        className="w-full bg-[#1a1a1a] text-white py-3.5 rounded-xl font-bold text-[10px] flex items-center justify-center gap-2 hover:bg-[#373d43] transition-all transform active:scale-[0.98]"
+                      >
+                        事例を詳しく見る
+                        <ChevronRight className="w-3.5 h-3.5 text-[#8edce0]" />
+                      </a>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
       </div>
     </section>
@@ -766,10 +798,10 @@ const Hero = () => {
             </span>
           </div>
           
-          <h1 className="text-4xl md:text-7xl font-bold tracking-tighter text-[#1a1a1a] mb-12 leading-[1.3] max-w-5xl">
+          <h1 className="text-4xl md:text-7xl font-bold tracking-tighter text-[#1a1a1a] mb-8 md:mb-12 leading-[1.3] max-w-5xl">
             ただ投稿するだけのSNSは、<br />
             もう終わりにしませんか？ <br />
-            SNSを<span className="relative inline-flex ml-2 mr-2 whitespace-nowrap min-w-[300px] justify-center">
+            SNSを<span className="relative inline-flex ml-2 mr-2 whitespace-nowrap min-w-[200px] md:min-w-[300px] justify-center">
               <AnimatePresence mode="wait">
                 <motion.span
                   key={termIndex}
@@ -777,30 +809,30 @@ const Hero = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5 }}
-                  className="relative z-10 text-[#8edce0] px-4"
+                  className="relative z-10 text-[#8edce0] px-2 md:px-4"
                 >
                   「{terms[termIndex]}」
                 </motion.span>
               </AnimatePresence>
-              <span className="absolute bottom-2 left-0 w-full h-4 bg-[#8edce0]/10 -z-10" />
+              <span className="absolute bottom-1 md:bottom-2 left-0 w-full h-3 md:h-4 bg-[#8edce0]/10 -z-10" />
             </span>へ。
           </h1>
           
-          <p className="text-lg md:text-xl text-zinc-500 mb-16 leading-relaxed max-w-3xl font-medium">
+          <p className="text-base md:text-xl text-zinc-500 mb-12 md:mb-16 leading-relaxed max-w-3xl font-medium px-4 md:px-0">
             私たちは単なる「投稿代行」ではありません。B2Bの意思決定者と貴社を繋ぐ、戦略設計型のSNS運用パートナーです。
           </p>
           
-          <div className="flex flex-col items-center gap-10">
-            <div className="flex flex-col md:flex-row items-center gap-8">
+          <div className="flex flex-col items-center gap-16 md:gap-10">
+            <div className="flex flex-col md:flex-row items-center gap-24 md:gap-8">
               <div className="relative">
                 <a 
                   href={LINE_LINK} 
-                  className="bg-[#373d43] text-white px-12 py-6 rounded-full text-xl font-black transition-all flex items-center justify-center gap-4 shadow-2xl hover:bg-[#1a1a1a] active:scale-95 group"
+                  className="bg-[#373d43] text-white px-8 md:px-12 py-5 md:py-6 rounded-full text-lg md:text-xl font-black transition-all flex items-center justify-center gap-4 shadow-2xl hover:bg-[#1a1a1a] active:scale-95 group"
                 >
-                  <span>無料診断・相談を開始</span>
-                  <MessageCircle className="w-7 h-7 text-[#8edce0]" />
+                  <span className="whitespace-nowrap">無料診断・相談を開始</span>
+                  <MessageCircle className="w-6 h-6 md:w-7 md:h-7 text-[#8edce0]" />
                 </a>
-                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white border border-zinc-100 px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white border border-zinc-100 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 z-20">
                   <span className="text-xs">💡</span>
                   <span className="text-[10px] font-bold text-zinc-400">
                     残りわすか：<span className="text-red-500">今月の無料相談枠 あと3社</span>
@@ -810,7 +842,7 @@ const Hero = () => {
 
               <div className="h-20 w-px bg-zinc-100 hidden md:block" />
 
-              <div className="text-left flex flex-col justify-center">
+              <div className="text-center md:text-left flex flex-col justify-center">
                 <p className="text-sm font-bold text-[#1a1a1a]">24時間以内の返信率 100%</p>
                 <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">※営業日基準</p>
               </div>
@@ -1219,7 +1251,7 @@ const DigitalTipsWidget = () => {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="absolute bottom-20 right-0 w-[320px] bg-white border border-zinc-100 rounded-3xl shadow-2xl p-6 overflow-hidden"
+            className="absolute bottom-20 right-0 w-[calc(100vw-3rem)] max-w-[320px] bg-white border border-zinc-100 rounded-3xl shadow-2xl p-6 overflow-hidden md:w-[320px]"
           >
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-4">
@@ -1568,18 +1600,18 @@ const FloatingLINE = () => {
           href={LINE_LINK}
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-6 left-6 md:bottom-10 md:left-10 z-[60] flex items-center gap-3 bg-[#06C755] hover:bg-[#05b34c] text-white pl-4 pr-6 py-3 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95 group"
+          className="fixed bottom-6 left-6 md:bottom-10 md:left-10 z-[60] flex items-center gap-2 md:gap-3 bg-[#06C755] hover:bg-[#05b34c] text-white px-4 md:pl-4 md:pr-6 py-2.5 md:py-3 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95 group"
         >
           <div className="relative">
-            <MessageCircle className="w-6 h-6 fill-white" />
-            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+            <MessageCircle className="w-5 h-5 md:w-6 md:h-6 fill-white" />
+            <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5 md:h-3 md:w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 md:h-3 md:w-3 bg-red-500"></span>
             </span>
           </div>
           <div className="flex flex-col">
-            <span className="text-[10px] font-bold opacity-80 leading-none">FREE CONSULTATION</span>
-            <span className="text-sm font-black whitespace-nowrap">LINEで無料相談する</span>
+            <span className="text-[8px] md:text-[10px] font-bold opacity-80 leading-none uppercase">Free Consultation</span>
+            <span className="text-xs md:text-sm font-black whitespace-nowrap">LINEで無料相談</span>
           </div>
         </motion.a>
       )}
