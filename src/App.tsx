@@ -47,14 +47,13 @@ const LeadMagnet = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loadingStep, setLoadingStep] = useState<string | null>(null);
 
   const handleDownload = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage(null);
-
-    // Simulate processing
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    setLoadingStep('PDFを生成しています...');
 
     // Generate Multi-page PDF
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -67,6 +66,7 @@ const LeadMagnet = () => {
 
     try {
       for (let i = 0; i < pageIds.length; i++) {
+        setLoadingStep(`PDFページを生成中: ${i + 1}/11`);
         const element = document.getElementById(pageIds[i]);
         if (element) {
           const canvas = await html2canvas(element, {
@@ -87,6 +87,8 @@ const LeadMagnet = () => {
 
       const pdfBase64 = pdf.output('datauristring');
       const fileName = `SYNC2_AGENCY_Strategy_Guide_${formData.name}.pdf`;
+
+      setLoadingStep('メールを送信しています...');
 
       // Send Email with PDF Attachment via Backend
       const response = await fetch('/api/send-email', {
@@ -208,7 +210,12 @@ const LeadMagnet = () => {
                     type="submit"
                     className="w-full bg-[#373d43] hover:bg-[#2a2f33] text-[#8edce0] py-5 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 shadow-lg shadow-zinc-200 disabled:opacity-50"
                   >
-                    {isSubmitting ? "送信中..." : "資料をメールで受け取る"}
+                    {isSubmitting ? (
+                      <div className="flex flex-col items-center">
+                        <span className="text-sm">処理中...</span>
+                        {loadingStep && <span className="text-[10px] font-normal opacity-70">{loadingStep}</span>}
+                      </div>
+                    ) : "資料をメールで受け取る"}
                     <Mail className="w-5 h-5" />
                   </button>
                   {errorMessage && (
