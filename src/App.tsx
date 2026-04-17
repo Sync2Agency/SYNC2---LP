@@ -38,9 +38,7 @@ import {
   Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import PDFTemplate from './components/PDFTemplate';
+import { DIGITAL_TIPS } from './constants';
 
 const LeadMagnet = () => {
   const [formData, setFormData] = useState({ name: '', email: '', company: '' });
@@ -53,71 +51,35 @@ const LeadMagnet = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage(null);
-    setLoadingStep('PDFを生成しています...');
-
-    // Generate Multi-page PDF
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageIds = [
-      'pdf-page-1', 'pdf-page-2', 'pdf-page-3', 'pdf-page-4', 'pdf-page-5', 
-      'pdf-page-6', 'pdf-page-7', 'pdf-page-8', 'pdf-page-9', 'pdf-page-10', 'pdf-page-11'
-    ];
-    
-    let currentError: string | null = null;
+    setLoadingStep('送信準備中...');
 
     try {
-      for (let i = 0; i < pageIds.length; i++) {
-        setLoadingStep(`PDFページを生成中: ${i + 1}/11`);
-        const element = document.getElementById(pageIds[i]);
-        if (element) {
-          const canvas = await html2canvas(element, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false
-          });
-          
-          const imgData = canvas.toDataURL('image/png');
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = pdf.internal.pageSize.getHeight();
-          
-          if (i > 0) pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        }
-      }
+      setLoadingStep('リクエストを送信しています...');
 
-      const pdfBase64 = pdf.output('datauristring');
-      const fileName = `SYNC2_AGENCY_Strategy_Guide_${formData.name}.pdf`;
-
-      setLoadingStep('メールを送信しています...');
-
-      // Send Email with PDF Attachment via Backend
+      // Send Email via Backend (Server will attach the static PDF from the public folder)
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          pdfData: pdfBase64,
-          fileName: fileName
-        })
+        body: JSON.stringify(formData)
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ error: '不明なエラー' }));
         console.error('Server-side email error:', errorData);
         const specificError = errorData.details || errorData.error || '不明なサーバーエラー';
-        currentError = `送信エラー: ${specificError}`;
-        setErrorMessage(currentError);
-        throw new Error(currentError);
+        setErrorMessage(`送信エラー: ${specificError}`);
+        throw new Error(specificError);
       } else {
-        console.log('Email sent successfully with PDF attachment');
+        console.log('Email sent successfully');
         setIsSuccess(true);
       }
     } catch (error: any) {
-      console.error('PDF/Email Error:', error);
+      console.error('Email Submission Error:', error);
       const errorMessageString = error?.message || String(error);
-      setErrorMessage(`PDF生成または送信中にエラーが発生しました。理由: ${errorMessageString}`);
+      setErrorMessage(`送信中にエラーが発生しました。理由: ${errorMessageString}`);
     } finally {
       setIsSubmitting(false);
+      setLoadingStep(null);
     }
   };
 
@@ -253,10 +215,6 @@ const LeadMagnet = () => {
             </AnimatePresence>
           </div>
         </div>
-      </div>
-
-      <div className="fixed left-[-9999px] top-0">
-        <PDFTemplate />
       </div>
     </section>
   );
@@ -703,8 +661,6 @@ const Footer = () => (
     </div>
   </footer>
 );
-
-import { DIGITAL_TIPS } from './constants';
 
 const DigitalTipsWidget = () => {
   const [isOpen, setIsOpen] = useState(false);

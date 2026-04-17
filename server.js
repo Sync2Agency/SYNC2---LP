@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import fs from "fs";
 import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
@@ -68,7 +69,7 @@ async function startServer() {
 
   // --- Email Sending Route ---
   app.post("/api/send-email", async (req, res) => {
-    const { name, email, company, pdfData, fileName } = req.body;
+    const { name, email, company } = req.body;
 
     if (!name || !email) {
       return res.status(400).json({ error: "Name and email are required" });
@@ -148,14 +149,20 @@ async function startServer() {
             </div>
           </div>
         `,
-        attachments: pdfData ? [
-          {
-            filename: fileName || "SYNC2_Strategy_Guide.pdf",
-            content: pdfData.split('base64,')[1],
-            encoding: 'base64'
-          }
-        ] : []
+        attachments: [],
       };
+
+      // Tenta anexar o arquivo estático da pasta public
+      const pdfPath = path.join(process.cwd(), 'public', 'guia-estrategico.pdf');
+      if (fs.existsSync(pdfPath)) {
+        mailOptions.attachments.push({
+          filename: 'SYNC2_B2B_Strategy_Guide_2026.pdf',
+          path: pdfPath
+        });
+        console.log("Static PDF attached from:", pdfPath);
+      } else {
+        console.warn("Attachment file NOT FOUND at:", pdfPath);
+      }
 
       const info = await transporter.sendMail(mailOptions);
       console.log("Email sent successfully:", info.messageId);
