@@ -100,7 +100,8 @@ const LeadMagnet = () => {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Server-side email error:', errorData);
-        setErrorMessage(errorData.details || 'Failed to send email. Please check SMTP configuration.');
+        const specificError = errorData.details || errorData.error;
+        setErrorMessage(`送信エラー: ${specificError}. SMTP設定（パスワードやポート）を確認してください。`);
         throw new Error('Failed to send email');
       } else {
         console.log('Email sent successfully with PDF attachment');

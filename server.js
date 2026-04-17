@@ -83,6 +83,7 @@ async function startServer() {
 
     try {
       console.log(`Attempting to send email to ${email} via ${SMTP_HOST}:${SMTP_PORT}...`);
+      
       const transporter = nodemailer.createTransport({
         host: SMTP_HOST,
         port: Number(SMTP_PORT),
@@ -91,9 +92,21 @@ async function startServer() {
           user: SMTP_USER,
           pass: SMTP_PASS,
         },
+        tls: {
+          // Hostinger often needs this in some Node.js environments
+          rejectUnauthorized: false,
+          minVersion: "TLSv1.2"
+        },
+        connectionTimeout: 15000,
+        greetingTimeout: 15000,
+        socketTimeout: 30000,
         debug: true,
         logger: true
       });
+
+      // Verify connection first
+      await transporter.verify();
+      console.log("SMTP Connection verified successfully.");
 
       const mailOptions = {
         from: SMTP_FROM || SMTP_USER,
