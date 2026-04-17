@@ -1,10 +1,8 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
@@ -60,7 +58,7 @@ async function startServer() {
           <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
             <p>${name} 様</p>
             <p>この度は資料をダウンロードいただき、誠にありがとうございます。<br>
-            株式会社SYNC2の運用プラン資料をお送りいたします。</p>
+            株式会社SYNC2 de 運用プラン資料をお送りいたします。</p>
             <p><strong>会社名:</strong> ${company}</p>
             <hr>
             <p>SNSを「資産」に変える第一歩として、ぜひご活用ください。</p>
@@ -80,61 +78,9 @@ async function startServer() {
     }
   });
 
-  // Gemini API Chat Route
-  app.post("/api/chat", async (req, res) => {
-    const { message, history } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (!apiKey) {
-      console.error("CRITICAL: GEMINI_API_KEY is missing in environment variables.");
-      return res.status(500).json({ error: "Gemini API Key not configured on server" });
-    }
-    console.log("GEMINI_API_KEY is present, proceeding with request.");
-
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [
-          ...(history || []).map((h: any) => ({
-            role: h.role === 'user' ? 'user' : 'model',
-            parts: [{ text: h.parts[0].text }]
-          })),
-          { role: 'user', parts: [{ text: message }] }
-        ],
-        config: {
-          systemInstruction: "あなたはSYNC2 AGENCYのAIコンサルタントです。回答は常に日本語で行い、簡潔に2文以内にまとめてください。回答の最後には必ず、詳細な相談のためにこちらのLINE公式アカウント（https://lin.ee/UwOZ7ho）への登録を促すメッセージを入れてください。",
-          maxOutputTokens: 250,
-          temperature: 0.7,
-        }
-      });
-
-      const text = response.text || "申し訳ありません。回答を生成できませんでした。";
-      console.log("Gemini response received successfully");
-
-      res.json({ text });
-    } catch (error) {
-      console.error("Gemini API Error Details:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      res.status(500).json({ error: "Failed to get response from AI", details: errorMessage });
-    }
-  });
-
-  // Example Gemini API Proxy (Security: Key stays on server)
-  app.post("/api/gemini", async (req, res) => {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "Gemini API Key not configured on server" });
-    }
-    
-    // Here you would implement the call to @google/genai
-    // For now, just a placeholder to demonstrate the structure
-    res.json({ message: "Gemini API endpoint ready. Implement logic in server.ts" });
-  });
-
-  // Vite middleware for development
+  // Vite middleware for development (dynamic import to avoid production issues)
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
