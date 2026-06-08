@@ -44,9 +44,16 @@ async function startServer() {
         return res.status(500).json({ error: "Gemini API key not configured on server." });
       }
 
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({ 
+        apiKey,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          }
+        }
+      });
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-3.5-flash",
         contents: [
           ...(messages || []).map((h) => ({
             role: h.role === 'user' ? 'user' : 'model',

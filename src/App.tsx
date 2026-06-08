@@ -652,6 +652,7 @@ const LeadMagnet = () => {
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { pathname } = useLocation();
   const LINE_LINK = "https://lin.ee/UwOZ7ho";
 
   useEffect(() => {
@@ -660,9 +661,15 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const menuItems = [
+    { name: "総合ホーム", path: "/" },
+    { name: "SNSマーケティング", path: "/sns" },
+    { name: "アプリ・AI・システム開発", path: "/development" }
+  ];
+
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled || isMobileMenuOpen ? 'bg-white shadow-lg border-b border-zinc-100 py-3' : 'bg-transparent py-5'
+      isScrolled || isMobileMenuOpen ? 'bg-white shadow-lg border-b border-zinc-100 py-3' : 'bg-white/80 backdrop-blur-md py-5'
     }`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2 group cursor-pointer">
@@ -677,25 +684,24 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          {[
-            { name: "課題", id: "problemas" },
-            { name: "解決策", id: "solucao" },
-            { name: "特徴", id: "diferenciais" },
-            { name: "プロセス", id: "processo" }
-          ].map((item) => (
-            <a 
-              key={item.id} 
-              href={`#${item.id}`} 
-              className="text-sm font-bold text-zinc-600 hover:text-[#8edce0] transition-colors"
+          {menuItems.map((item) => (
+            <Link 
+              key={item.path} 
+              to={item.path} 
+              className={`text-xs font-black uppercase tracking-wider transition-all duration-300 ${
+                pathname === item.path 
+                  ? 'text-[#8edce0] border-b-2 border-[#8edce0] pb-1' 
+                  : 'text-zinc-650 hover:text-[#8edce0] hover:translate-y-[-1px]'
+              }`}
             >
               {item.name}
-            </a>
+            </Link>
           ))}
           <a 
             href={LINE_LINK} 
-            className="bg-[#1a1a1a] hover:bg-[#373d43] text-[#8edce0] px-6 py-2.5 rounded-full text-sm font-black transition-all flex items-center gap-2 shadow-lg shadow-zinc-200 active:scale-95 group"
+            className="bg-[#1a1a1a] hover:bg-[#373d43] text-[#8edce0] px-6 py-2.5 rounded-full text-xs font-black transition-all flex items-center gap-2 shadow-lg shadow-zinc-200 active:scale-95 group"
           >
-            <span>無料相談はこちら</span>
+            <span>LINEで無料相談</span>
             <MessageCircle className="w-4 h-4 group-hover:rotate-12 transition-transform" />
           </a>
         </div>
@@ -728,31 +734,28 @@ const Navbar = () => {
               exit={{ opacity: 0, height: 0 }}
               className="md:hidden bg-white border-t border-zinc-100 overflow-hidden shadow-xl"
             >
-            <div className="px-6 py-8 flex flex-col gap-6">
-              {[
-                { name: "課題", id: "problemas" },
-                { name: "解決策", id: "solucao" },
-                { name: "特徴", id: "diferenciais" },
-                { name: "プロセス", id: "processo" }
-              ].map((item) => (
+              <div className="px-6 py-8 flex flex-col gap-6">
+                {menuItems.map((item) => (
+                  <Link 
+                    key={item.path} 
+                    to={item.path} 
+                    className={`text-base font-black ${
+                      pathname === item.path ? 'text-[#8edce0]' : 'text-zinc-700'
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
                 <a 
-                  key={item.id} 
-                  href={`#${item.id}`} 
-                  className="text-lg font-bold text-zinc-600"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  href={LINE_LINK}
+                  className="bg-[#1a1a1a] text-[#8edce0] py-5 rounded-2xl font-black text-center flex items-center justify-center gap-4 shadow-xl active:scale-95"
                 >
-                  {item.name}
+                  <span>無料相談はこちら (LINE)</span>
+                  <MessageCircle className="w-6 h-6" />
                 </a>
-              ))}
-              <a 
-                href={LINE_LINK}
-                className="bg-[#1a1a1a] text-[#8edce0] py-5 rounded-2xl font-black text-center flex items-center justify-center gap-4 shadow-xl active:scale-95"
-              >
-                <span>無料相談はこちら (LINE)</span>
-                <MessageCircle className="w-6 h-6" />
-              </a>
-            </div>
-          </motion.div>
+              </div>
+            </motion.div>
           </React.Fragment>
         )}
       </AnimatePresence>
@@ -1546,15 +1549,6 @@ const CompanyInfo = () => (
               <p>デジタル化が加速する現代において、SNSはもはや「遊び」のツールではありません。企業の信頼を形作り、新たなビジネスチャンスを創出する「最前線」の営業現場です。</p>
               <p>私たちは、日本のB2B企業が持つ素晴らしい価値を世界へ、そして次世代へ繋ぐために、SNSというキャンバスを使って戦略を具現化します。</p>
             </div>
-            <div className="mt-10 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full border-2 border-[#8edce0] overflow-hidden bg-zinc-800">
-                 <img src="/ceo.jpg" className="w-full h-full object-cover" alt="CEO" />
-              </div>
-              <div>
-                <p className="font-bold">佐藤 ルイス</p>
-                <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">LUIZ SATO</p>
-              </div>
-            </div>
           </div>
         </div>
         
@@ -1651,7 +1645,7 @@ const MiddleCTA = () => (
   </section>
 );
 
-const Home = () => {
+const SNSLandingPage = () => {
   return (
     <>
       <Hero />
@@ -1670,12 +1664,705 @@ const Home = () => {
   );
 };
 
+// --- New Universal SYNC2 Agency Home Page ---
+const Home = () => {
+  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant', text: string }>>([
+    { role: 'assistant', text: "はじめまして、SYNC2 AIコンサルタントです。マーケティング、ブランディング、またはアプリ・AI・システム開発について何でもお気軽にご質問ください。" }
+  ]);
+  const [userInput, setUserInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+
+  const suggestedQuestions = [
+    "SYNC2の総合的な強みは何ですか？",
+    "新規アプリ開発やシステム構築の実績・流れを教えてください",
+    "自社の業務自動化にAIをどう活用できますか？"
+  ];
+
+  const handleSendMessage = async (textToSend: string) => {
+    if (!textToSend.trim() || isTyping) return;
+    
+    const userMsg = textToSend.trim();
+    setUserInput("");
+    setChatMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setIsTyping(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messages: chatMessages,
+          userMessage: userMsg
+        })
+      });
+
+      if (!response.ok) throw new Error("Server error");
+      const data = await response.json();
+      
+      setChatMessages(prev => [...prev, { role: 'assistant', text: data.text }]);
+    } catch (err) {
+      console.error(err);
+      setChatMessages(prev => [...prev, { role: 'assistant', text: "申し訳ありません。一時的に通信が混雑しております。詳細な戦略相談は公式LINE（https://lin.ee/UwOZ7ho）でも24時間承っております。" }]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  return (
+    <div className="bg-white">
+      <Helmet>
+        <title>SYNC2 | ブランディング・マーケティング・AIシステム開発</title>
+        <meta name="description" content="SYNC2はブランド設計、SNSマーケティング、そして最高峰のアプリ・システム開発・AI実装を一気通貫で提供するクリエイティブテクノロジーエージェンシーです。貴社のビジネスを自動化し、資産化します。" />
+      </Helmet>
+
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-24 md:pt-48 md:pb-36 overflow-hidden bg-gradient-to-b from-zinc-50 to-white border-b border-zinc-100">
+        <div className="absolute inset-0 bg-[grid-linear-line] opacity-30 select-none pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-left"
+            >
+              <div className="inline-flex items-center gap-2 bg-[#8edce0]/10 border border-[#8edce0]/30 px-5 py-2 rounded-full mb-8">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#8edce0] animate-pulse" />
+                <span className="text-[#1a1a1a] text-xs font-black tracking-widest uppercase">
+                  Creative & Technology Agency
+                </span>
+              </div>
+              <h1 className="text-4xl md:text-6xl font-black text-[#1a1a1a] leading-[1.25] tracking-tight mb-8">
+                ブランドの感情を動かし、<br />
+                <span className="text-[#8edce0]">システムで自動化する。</span>
+              </h1>
+              <p className="text-base md:text-lg text-zinc-500 leading-relaxed max-w-xl mb-12">
+                SYNC2は、企業のビジョンを確固たるブランド価値（ブランディング＆SNS）へと昇華させると同時に、高度なソフトウェア工学（アプリ開発、カスタムシステム、高集約型AI実装）によって、完全自動化された持続可能な価値資産を構築します。
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  to="/sns"
+                  className="bg-[#1a1a1a] text-white px-8 py-5 rounded-full text-base font-black transition-all flex items-center justify-center gap-3 shadow-xl hover:bg-[#373d43] active:scale-95 group"
+                >
+                  <span>SNSマーケティング事業</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  to="/development"
+                  className="bg-transparent text-zinc-800 border-2 border-zinc-200 px-8 py-5 rounded-full text-base font-black transition-all flex items-center justify-center gap-3 hover:border-zinc-800 hover:bg-zinc-50 active:scale-95 text-center"
+                >
+                  <span>アプリ・AI・システム開発</span>
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Aesthetic Illustration */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative bg-zinc-50 border border-zinc-100 rounded-[2.5rem] p-8 shadow-2xl overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#8edce0]/15 blur-[100px]" />
+              <div className="flex justify-between items-center pb-6 border-b border-zinc-200/60 mb-6">
+                <div className="flex gap-1.5">
+                  <span className="w-3 h-3 rounded-full bg-red-400" />
+                  <span className="w-3 h-3 rounded-full bg-yellow-400" />
+                  <span className="w-3 h-3 rounded-full bg-green-400" />
+                </div>
+                <span className="text-xs font-mono font-bold text-zinc-400 tracking-widest uppercase">SYNC2 CORE MODULES</span>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="bg-white p-5 rounded-2xl border border-zinc-100 shadow-sm flex items-center gap-4 hover:border-[#8edce0]/40 transition-colors">
+                  <div className="p-3 bg-zinc-50 text-[#8edce0] rounded-xl border border-zinc-100">
+                    <Target className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-zinc-900 mb-1">ブランディング & ポジショニング</h3>
+                    <p className="text-xs text-zinc-500">競合と圧倒的な差をつける精緻な市場差別化と言語化。</p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-2xl border border-zinc-100 shadow-sm flex items-center gap-4 hover:border-[#8edce0]/40 transition-colors">
+                  <div className="p-3 bg-zinc-50 text-[#8edce0] rounded-xl border border-zinc-100">
+                    <MessageCircle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-zinc-900 mb-1">戦略的SNS運用によるリード獲得</h3>
+                    <p className="text-xs text-zinc-500">アカウントをただ運用するだけでなく、半自動のリード創出エンジンに。</p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-2xl border border-zinc-100 shadow-sm flex items-center gap-4 hover:border-[#8edce0]/40 transition-colors">
+                  <div className="p-3 bg-zinc-50 text-[#8edce0] rounded-xl border border-zinc-100">
+                    <Settings className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-zinc-900 mb-1">アプリ・業務システム & AI実装</h3>
+                    <p className="text-xs text-zinc-500">高度なシステム構築と生成AIを用いたインテリジェントな業務自動化。</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Core Philosophies (Overview Grid) */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <p className="text-[10px] font-black tracking-[0.3em] text-[#8edce0] uppercase mb-4">SYNC2 VALUES</p>
+            <h2 className="text-3xl md:text-5xl font-bold text-[#1a1a1a] tracking-tight mb-6">
+              企業の存在価値を最大化する「2つのシンクロ」
+            </h2>
+            <p className="text-zinc-500 text-sm md:text-base leading-relaxed">
+              私たちは、感情を動かす「認知とブランド（ART）」と、効率化を極める「システムとAI（CODE）」を完璧にシンクロさせることで、真の優位性と絶対的な収益性を生み出すエージェンシーです。
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Box 1 */}
+            <div className="bg-zinc-50 border border-zinc-100 rounded-[2rem] p-8 hover:shadow-xl hover:shadow-zinc-200 transition-all group">
+              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#8edce0] shadow-sm mb-6 border border-zinc-100 transition-transform group-hover:scale-110">
+                <Target className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 mb-4">Branding & Positioning</h3>
+              <p className="text-zinc-500 text-sm leading-relaxed mb-6">
+                ただ綺麗なロゴを作るのではなく、企業の核となる強みと哲学を言語化。競合を排除し、「貴社だから選ばれる」ための唯一無二の市場優位ポジションを構築します。
+              </p>
+              <Link to="/sns" className="text-sm font-black text-[#8edce0] hover:underline flex items-center gap-1.5">
+                <span>詳細をみる</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {/* Box 2 */}
+            <div className="bg-zinc-50 border border-zinc-100 rounded-[2rem] p-8 hover:shadow-xl hover:shadow-zinc-200 transition-all group">
+              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#8edce0] shadow-sm mb-6 border border-zinc-100 transition-transform group-hover:scale-110">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 mb-4">Digital Marketing & SNS</h3>
+              <p className="text-zinc-500 text-sm leading-relaxed mb-6">
+                B2Bの意思決定者に響く緻密な戦略設計。自慢のソーシャルメディア運用構築力により、SNSを無駄なコストから、毎日リード客を引き寄せる「半自動資産」へと転換します。
+              </p>
+              <Link to="/sns" className="text-sm font-black text-[#8edce0] hover:underline flex items-center gap-1.5">
+                <span>詳細をみる</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {/* Box 3 */}
+            <div className="bg-zinc-50 border border-zinc-100 rounded-[2rem] p-8 hover:shadow-xl hover:shadow-zinc-200 transition-all group md:col-span-2 lg:col-span-1">
+              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#8edce0] shadow-sm mb-6 border border-zinc-100 transition-transform group-hover:scale-110">
+                <Settings className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 mb-4">Engineering & AI Integration</h3>
+              <p className="text-zinc-500 text-sm leading-relaxed mb-6">
+                高性能スマホアプリ、独自業務Webシステム開発に加え、LLMを活用したインテリジェントな自社AIモジュール。ルーティンワークを全自動化し、本質的な業務成長へ。
+              </p>
+              <Link to="/development" className="text-sm font-black text-[#8edce0] hover:underline flex items-center gap-1.5">
+                <span>詳細をみる</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive AI Chat Scout Demo */}
+      <section className="py-20 bg-zinc-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <p className="text-[10px] font-black tracking-[0.3em] text-[#8edce0] uppercase mb-4">EXPERIENCE ARTIFICIAL INTELLIGENCE</p>
+              <h2 className="text-3xl md:text-5xl font-bold text-[#1a1a1a] tracking-tight mb-8">
+                SYNC2のAI技術を、<br />ここですぐに体験。
+              </h2>
+              <p className="text-zinc-500 text-sm md:text-base leading-relaxed mb-10">
+                私たちの高度なシステム・AI開発チームが設計した、インタラクティブコンサルティングモジュールのプロトタイプです。貴社の課題や開発したい内容を入力して、SYNC2 AIのアシスタント力をぜひその場で体感してください。
+              </p>
+              
+              <div className="space-y-4">
+                <p className="text-xs font-bold text-zinc-400">クイック質問（回答を即座に生成）:</p>
+                <div className="flex flex-col gap-2">
+                  {suggestedQuestions.map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => handleSendMessage(q)}
+                      className="text-left text-xs bg-white border border-zinc-100 hover:border-[#8edce0]/40 transition-colors p-3.5 rounded-xl font-bold text-zinc-700 shadow-sm block active:scale-98"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Simulated Chat Interface */}
+            <div className="bg-white border border-zinc-100 rounded-[2.5rem] shadow-2xl p-6 md:p-8 flex flex-col h-[500px]">
+              <div className="flex items-center gap-3 pb-4 border-b border-zinc-100 mb-4">
+                <div className="relative w-10 h-10 bg-zinc-50 rounded-full border border-zinc-100 flex items-center justify-center text-[#8edce0]">
+                  <MessageSquare className="w-5 h-5" />
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-900 leading-none">SYNC2 AI Advisor</h3>
+                  <span className="text-[9px] font-bold text-zinc-400 tracking-wider uppercase">Active Live Agent</span>
+                </div>
+              </div>
+
+              {/* Chat History Frame */}
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1 scrollbar-thin">
+                {chatMessages.map((msg, i) => (
+                  <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`p-4 rounded-2xl text-xs leading-relaxed max-w-[85%] ${
+                      msg.role === 'user' 
+                        ? 'bg-[#1a1a1a] text-white rounded-tr-none' 
+                        : 'bg-zinc-50 border border-zinc-100 text-zinc-700 rounded-tl-none'
+                    }`}>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="bg-zinc-50 border border-zinc-100 p-4 rounded-2xl rounded-tl-none flex gap-1">
+                      <span className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce" />
+                      <span className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce [animation-delay:0.2s]" />
+                      <span className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce [animation-delay:0.4s]" />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Chat Input */}
+              <div className="pt-4 border-t border-zinc-100 mt-4 flex gap-2">
+                <input
+                  type="text"
+                  placeholder="質問を入力してください（例：アプリを作りたい）..."
+                  className="flex-1 px-4 py-3 bg-zinc-50 border border-zinc-100 rounded-xl text-xs focus:ring-1 focus:ring-[#8edce0] focus:border-transparent outline-none transition-all"
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSendMessage(userInput);
+                  }}
+                />
+                <button
+                  onClick={() => handleSendMessage(userInput)}
+                  className="bg-[#1a1a1a] hover:bg-[#373d43] text-[#8edce0] px-4 py-3 rounded-xl text-xs font-black transition-all active:scale-95 shrink-0"
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Corporate Overview & Representative Message */}
+      <section className="py-24 bg-white" id="company-info">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <p className="text-[10px] font-black tracking-[0.3em] text-[#8edce0] uppercase mb-4">CORPORATE PROFILE</p>
+              <h2 className="text-3xl md:text-5xl font-bold text-[#1a1a1a] tracking-tight mb-8">
+                企業価値を革新する、<br />SYNC2の戦略コア設計。
+              </h2>
+              
+              <div className="space-y-6 text-zinc-500 text-sm md:text-base leading-relaxed mb-10">
+                <p>
+                  SYNC2は、SNSを活用した戦略的マーケティング手法と、高度なソフトウェア・AI工学技術を一体化したクリエイティブ・パートナーです。
+                </p>
+                <p>
+                  私たちの使命は、日々変化するデジタルの波の中で、お客様の会社ビジネスモデルに最適な「動的資産（成果の出るチャネル、自動化されたシステム、AIモデル）」を構築し、長期的な競合優位性と永続するキャッシュフローを創造することです。
+                </p>
+              </div>
+
+              <div className="bg-zinc-50 border border-zinc-150 p-6 rounded-2xl">
+                <table className="w-full text-xs md:text-sm">
+                  <tbody>
+                    <tr className="border-b border-zinc-200">
+                      <td className="py-3 font-bold text-zinc-900 w-1/3">エージェンシー名</td>
+                      <td className="py-3 text-zinc-600">SYNC2 AGENCY</td>
+                    </tr>
+                    <tr className="border-b border-zinc-200">
+                      <td className="py-3 font-bold text-zinc-900">代表責任者</td>
+                      <td className="py-3 text-zinc-600">佐藤 ルイス (LUIZ SATO)</td>
+                    </tr>
+                    <tr className="border-b border-zinc-200">
+                      <td className="py-3 font-bold text-zinc-900">本店所在地</td>
+                      <td className="py-3 text-zinc-600">愛知県名古屋市</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 font-bold text-zinc-900">事業領域</td>
+                      <td className="py-3 text-zinc-600">B2B戦略ブランディング、各種SNS集客マーケティング運用代行、Web・Nativeアプリケーション開発、業務自動化システム・各種AIモジュールの受託開発</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="border border-zinc-150 rounded-2xl p-6 bg-gradient-to-br from-zinc-50 to-white shadow-sm hover:shadow-md transition-all">
+                <span className="text-xs font-mono text-[#8edce0] font-bold block mb-1">PILLAR 01</span>
+                <h3 className="font-bold text-[#1a1a1a] mb-2 text-sm md:text-base">持続価値の資産化（Sustainability）</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">
+                  一過性のアクセス増加ではなく、貴社のSNSやデジタル接点を「優良な顧客獲得チャネル」という動的資産へと変貌させ、中長期的に集客・売上を生み出し続ける強固な仕組みを設計します。
+                </p>
+              </div>
+
+              <div className="border border-zinc-150 rounded-2xl p-6 bg-gradient-to-br from-zinc-50 to-white shadow-sm hover:shadow-md transition-all">
+                <span className="text-xs font-mono text-[#8edce0] font-bold block mb-1">PILLAR 02</span>
+                <h3 className="font-bold text-[#1a1a1a] mb-2 text-sm md:text-base">最先端のテクノロジー統合（Integration）</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">
+                  運用ノウハウの提供にとどまらず、高度な自動化システムやAIアシスタントを業務プロセスにシームレスに結合。運用オペレーションの効率化を極限まで追求します。
+                </p>
+              </div>
+
+              <div className="border border-zinc-150 rounded-2xl p-6 bg-gradient-to-br from-zinc-50 to-white shadow-sm hover:shadow-md transition-all">
+                <span className="text-xs font-mono text-[#8edce0] font-bold block mb-1">PILLAR 03</span>
+                <h3 className="font-bold text-[#1a1a1a] mb-2 text-sm md:text-base">戦略的ブランド設計（Brand Value）</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">
+                  単なる情報発信ではなく、ターゲット像の購買行動を科学した一貫性のあるメッセージ。日本が誇るB2B企業の真の価値を世界、そして未来へ正しく伝えます。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Group Lead Magnet */}
+      <LeadMagnet />
+    </div>
+  );
+};
+
+// --- New Technology & Custom AI Systems Development Page ---
+const TechPage = () => {
+  type SystemType = 'app' | 'saas' | 'crm' | 'ai';
+  type CloudType = 'standard' | 'scaling' | 'ai_pipeline';
+
+  const [wizardSystem, setWizardSystem] = useState<SystemType>('app');
+  const [wizardCloud, setWizardCloud] = useState<CloudType>('standard');
+
+  const getSystemLabel = (sys: SystemType) => {
+    switch (sys) {
+      case 'app': return "Mobile Native App (iOS/Android)";
+      case 'saas': return "Enterprise Custom SaaS Dashboard";
+      case 'crm': return "Custom relational database custom ERP";
+      case 'ai': return "AI Automated Intelligent Agent Pipeline";
+    }
+  };
+
+  const getCloudLabel = (cloud: CloudType) => {
+    switch (cloud) {
+      case 'standard': return "Database Cloud Sync (PostgreSQL)";
+      case 'scaling': return "Full-scale Serverless Auto-scale REST API";
+      case 'ai_pipeline': return "Google Gemini LLM Agent Cognitive Logic Core";
+    }
+  };
+
+  // Modern blueprint chart mock generator
+  const renderFlowDiagram = () => {
+    return (
+      <div className="p-6 md:p-8 bg-zinc-950 rounded-[2rem] text-[#8edce0] border border-[#8edce0]/20 font-mono text-xs space-y-4 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-[#8edce0]/5 blur-[70px]" />
+        <div className="flex justify-between items-center border-b border-[#8edce0]/10 pb-4 text-[10px] tracking-widest text-zinc-400">
+          <span>DYNAMIC APP SYSTEM BLUEPRINT</span>
+          <span className="text-[#8edce0] animate-pulse">● LIVE SCHEMA GENERATOR</span>
+        </div>
+
+        <div className="space-y-6 py-4">
+          <div className="flex items-center gap-2">
+            <span className="text-zinc-500">[1] User UI:</span>
+            <span className="bg-white/10 text-white px-2.5 py-1 rounded border border-[#8edce0]/20 font-bold">
+              {wizardSystem === 'app' ? 'React Native Mobile App' : wizardSystem === 'saas' ? 'Vite + React Dashboard' : wizardSystem === 'crm' ? 'Enterprise ERP client' : 'Prompt Interface Console'}
+            </span>
+          </div>
+
+          <div className="text-zinc-600 px-4">↓ (JSON Web Token Encrypted secure SSL / API gateway Route)</div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-zinc-500">[2] Server:</span>
+            <span className="bg-white/10 text-white px-2.5 py-1 rounded border border-[#8edce0]/20 font-bold">
+              Node Express API with validation / Secure TS
+            </span>
+          </div>
+
+          <div className="text-zinc-600 px-4">↓ (Cloud orchestration processing schema)</div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-zinc-500">[3] Database:</span>
+            <span className="bg-[#8edce0]/10 text-[#8edce0] px-2.5 py-1 rounded border border-[#8edce0]/30 font-bold">
+              {wizardCloud === 'standard' ? 'PostgreSQL database backend' : 'Scaling Cloud-SQL database node'}
+            </span>
+          </div>
+
+          {wizardCloud === 'ai_pipeline' && (
+            <>
+              <div className="text-zinc-600 px-4">↓ (Semantic Embedding Pipeline / Agentic feedback)</div>
+              <div className="flex items-center gap-2">
+                <span className="text-zinc-500">[4] AI logic:</span>
+                <span className="bg-purple-950/40 text-purple-300 px-2.5 py-1 rounded border border-purple-500/30 font-bold">
+                  Google Gemini Cognitive NLP parser
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="border-t border-[#8edce0]/10 pt-4 text-center text-zinc-500 text-[10px] tracking-wide">
+          SYNC2 Engineered Framework Node • Architecture fully generated based on selections.
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="bg-white min-h-screen">
+      <Helmet>
+        <title>アプリ・AI・カスタムシステム開発 - SYNC2 Tech Division</title>
+        <meta name="description" content="SYNC2の最高技術部門。モバイルアプリ開発、高負荷業務システム、そしてGeminiを用いた最先端の生成AIシステムの実装により、社内業務を完全に自動化し、他社を圧倒するデジタル資産を構築します。" />
+      </Helmet>
+
+      {/* Tech Hero */}
+      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 bg-zinc-950 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-[grid-linear-line] opacity-10 select-none pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#8edce0]/10 blur-[150px] select-none pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex flex-col items-center"
+          >
+            <div className="inline-block bg-[#8edce0]/10 border border-[#8edce0]/30 px-6 py-2 rounded-full mb-8">
+              <span className="text-[#8edce0] text-xs font-mono font-bold tracking-widest uppercase">
+                ENGINEERING / SYSTEMS / AI INTEGRATION
+              </span>
+            </div>
+
+            <h1 className="text-4xl md:text-7xl font-black tracking-tight text-white mb-8 leading-[1.25] max-w-5xl">
+              最高峰のシステムエンジニアリングで、<br />
+              <span className="text-[#8edce0]">競争優位を完全自動化する。</span>
+            </h1>
+
+            <p className="text-zinc-400 text-base md:text-xl leading-relaxed max-w-2xl mb-12">
+              SYNC2は、最新のプログラミングを駆使したスマホアプリ開発、堅牢なB2B基幹カスタムシステム構築、そしてGoogle Geminiを活用したインテリジェントな自働処理AIモジュールを一括提供します。
+            </p>
+
+            <a
+              href="https://lin.ee/UwOZ7ho"
+              className="bg-[#8edce0] hover:bg-[#7bc8cc] text-[#1a1a1a] px-12 py-5 rounded-full text-lg font-black transition-all shadow-xl shadow-[#8edce0]/20 flex items-center justify-center gap-3 active:scale-95 group"
+            >
+              <span>LINEでシステム開発の無料相談</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </a>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Tech Pillars Section */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <p className="text-[10px] font-black tracking-[0.3em] text-[#8edce0] uppercase mb-4">DEV SERVICES</p>
+            <h2 className="text-3xl md:text-5xl font-bold text-[#1a1a1a] tracking-tight mb-6">
+              我々が誇る3つの開発テクノロジー領域
+            </h2>
+            <p className="text-zinc-500 text-sm md:text-base leading-relaxed">
+              最先端のフレームワークおよびクラウドAPIを用いて、動作スピード、データの安全性、長期メンテナンス性すべてに徹底的にこだわった最高品質のシステムを受託開発いたします。
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {/* App Development */}
+            <div className="space-y-6">
+              <div className="w-14 h-14 bg-zinc-50 border border-zinc-100 shadow-sm rounded-2xl flex items-center justify-center text-[#8edce0]">
+                <Layout className="w-7 h-7" />
+              </div>
+              <h3 className="text-2xl font-bold text-zinc-900">アプリ開発 (App Development)</h3>
+              <p className="text-zinc-500 text-sm md:text-base leading-relaxed">
+                iOSおよびAndroidの両輪で滑らかに動作する高品質モバイルネイティブアプリやWebアプリを開発します。React Nativeを軸にしたアジャイルな開発体制により、工数を最小に抑えつつネイティブ並みの描画レスポンスと美麗なUI、直感的UXを実現。
+              </p>
+              <ul className="space-y-2.5 text-xs text-zinc-700 font-bold">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#8edce0]" />
+                  iOS/Android クロスプラットフォーム開発
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#8edce0]" />
+                  アニメーションを重視した高いデザイン水準
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#8edce0]" />
+                  オフライン動作やプッシュ通知の完全サポート
+                </li>
+              </ul>
+            </div>
+
+            {/* Custom Systems */}
+            <div className="space-y-6">
+              <div className="w-14 h-14 bg-zinc-50 border border-zinc-100 shadow-sm rounded-2xl flex items-center justify-center text-[#8edce0]">
+                <Settings className="w-7 h-7" />
+              </div>
+              <h3 className="text-2xl font-bold text-zinc-900">システム開発 (System Development)</h3>
+              <p className="text-zinc-500 text-sm md:text-base leading-relaxed">
+                単なる管理画面の作成にとどまらず、B2B業務フローそのものを完全自動化する強固な自社データベース/ERPシステムを設計します。Drizzle ORMやPostgreSQLをベースとしたリレーショナル・データスキーマ設計により、データの整合性と高速クエリ、拡張性に優れたAPI環境をご用意。
+              </p>
+              <ul className="space-y-2.5 text-xs text-zinc-700 font-bold">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#8edce0]" />
+                  超高速リレーショナル PostgreSQL データベース構築
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#8edce0]" />
+                  社内基幹システム（ERP / CRM）の完全オーダーメイド
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#8edce0]" />
+                  安全なJWT認証、SSLセキュリティによる鉄壁の実装
+                </li>
+              </ul>
+            </div>
+
+            {/* AI Solutions */}
+            <div className="space-y-6">
+              <div className="w-14 h-14 bg-zinc-50 border border-zinc-100 shadow-sm rounded-2xl flex items-center justify-center text-[#8edce0]">
+                <Zap className="w-7 h-7" />
+              </div>
+              <h3 className="text-2xl font-bold text-zinc-900">人工知能 & AI実装 (AI Integration)</h3>
+              <p className="text-zinc-500 text-sm md:text-base leading-relaxed">
+                最新のGoogle Gemini SDKをサーバーサイドに組み込み、PDFなどのドキュメントを読み込んで自動でデータ分析や要約報告書を生成するセマンティックAIワークフローを構築。業務にかかる時間から何千時間もの単純労働を削減し、貴社の「AIブレイン」を誕生させます。
+              </p>
+              <ul className="space-y-2.5 text-xs text-zinc-700 font-bold">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#8edce0]" />
+                  Google Gemini APIをサーバーサイドに標準実装
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#8edce0]" />
+                  Cognitive Agents（自動思考AIエージェント）設計
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#8edce0]" />
+                  自社社内文章を活用したベクトル検索、QAシステムの搭載
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tech Blueprint Configurator */}
+      <section className="py-20 bg-zinc-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <p className="text-[10px] font-black tracking-[0.3em] text-[#8edce0] uppercase mb-4">FLOW VISUALIZER</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 tracking-tight mb-4">
+              システム設計スキーマを瞬時にシミュレーション
+            </h2>
+            <p className="text-zinc-500 text-xs md:text-sm">
+              開発を希望するアプリジャンルおよびデータ保存・AI連携の構成プランを選択してみてください。SYNC2が誇るシステム結合図のシミュレーターが動的に設計を導きます。
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left selector */}
+            <div className="lg:col-span-5 bg-white border border-zinc-100 rounded-[2rem] p-6 md:p-8 shadow-xl flex flex-col justify-between h-[450px]">
+              <div>
+                <span className="block text-[9px] font-bold text-zinc-400 tracking-widest uppercase mb-4">System Type Selection</span>
+                <div className="space-y-3 mb-6">
+                  {(['app', 'saas', 'crm'] as SystemType[]).map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setWizardSystem(type)}
+                      className={`w-full text-left p-4 rounded-xl border transition-all text-xs font-bold flex justify-between items-center ${
+                        wizardSystem === type 
+                          ? 'border-[#8edce0] bg-[#8edce0]/10 text-zinc-900' 
+                          : 'border-zinc-100 bg-zinc-50 hover:bg-zinc-100 text-zinc-650'
+                      }`}
+                    >
+                      <span>{getSystemLabel(type)}</span>
+                      <ChevronRight className="w-4 h-4 text-zinc-400" />
+                    </button>
+                  ))}
+                </div>
+
+                <span className="block text-[9px] font-bold text-zinc-400 tracking-widest uppercase mb-4">Data Database / AI Layer</span>
+                <div className="space-y-3">
+                  {(['standard', 'ai_pipeline'] as CloudType[]).map((cloud) => (
+                    <button
+                      key={cloud}
+                      onClick={() => setWizardCloud(cloud)}
+                      className={`w-full text-left p-4 rounded-xl border transition-all text-xs font-bold flex justify-between items-center ${
+                        wizardCloud === cloud 
+                          ? 'border-[#8edce0] bg-[#8edce0]/10 text-zinc-900' 
+                          : 'border-zinc-100 bg-zinc-50 hover:bg-zinc-100 text-zinc-650'
+                      }`}
+                    >
+                      <span>{getCloudLabel(cloud)}</span>
+                      <ChevronRight className="w-4 h-4 text-zinc-400" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right generator diagram */}
+            <div className="lg:col-span-12 xl:col-span-7">
+              {renderFlowDiagram()}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tech Stack Banner */}
+      <section className="py-20 bg-zinc-950 text-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <p className="text-[10px] font-black tracking-[0.3em] text-[#8edce0] uppercase mb-8">OUR TECHNOLOGY STACK</p>
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-60">
+            <span className="text-lg md:text-xl font-black font-mono">React / Next.js</span>
+            <span className="text-lg md:text-xl font-black font-mono">TypeScript</span>
+            <span className="text-lg md:text-xl font-black font-mono">Node.js Express</span>
+            <span className="text-lg md:text-xl font-black font-mono">Python / PyTorch</span>
+            <span className="text-lg md:text-xl font-black font-mono">PostgreSQL</span>
+            <span className="text-lg md:text-xl font-black font-mono">Google Gemini API</span>
+            <span className="text-lg md:text-xl font-black font-mono">Docker / GCP</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Deep CTA */}
+      <section className="py-24 bg-white border-t border-zinc-100">
+        <div className="max-w-5xl mx-auto px-6 text-center">
+          <h2 className="text-3xl md:text-5xl font-black text-[#1a1a1a] mb-6">貴社のシステム構想を、現実の資産へ。</h2>
+          <p className="text-zinc-500 max-w-2xl mx-auto mb-12 text-sm md:text-base leading-relaxed">
+            まずは「こういう仕組みを自動化したい」「モバイルアプリを作りたい」といった抽象的なアイデアをプロの技術顧問（佐藤ルイスほかコアチーム）へお聞かせください。公式LINEにて無料の技術要件設計相談・仮お見積り作成を行っています。
+          </p>
+          <a
+            href="https://lin.ee/UwOZ7ho"
+            className="inline-flex bg-[#1a1a1a] hover:bg-[#373d43] text-[#8edce0] px-12 py-5 rounded-full text-lg font-black transition-all shadow-xl shadow-zinc-200 active:scale-95 items-center gap-3"
+          >
+            <span>LINEで技術相談を受ける</span>
+            <MessageCircle className="w-5 h-5" />
+          </a>
+        </div>
+      </section>
+    </div>
+  );
+};
+
 export default function App() {
   return (
     <div className="min-h-screen bg-white text-zinc-800 font-sans selection:bg-[#8edce0]/30 selection:text-[#373d43]">
       <Helmet>
-        <title>SYNC2 | B2B専門SNSマーケティング・戦略運用代行</title>
-        <meta name="description" content="B2B特化の戦略的SNS運用で、SNSを「コスト」から「収益を生み出す資産」へ。Instagram、X、TikTok、LinkedInなど、各プラットフォームの強みを活かした戦略設計から運用代行までサポート。" />
+        <title>SYNC2 | クリエイティブ・マーケティング・AIシステム開発</title>
+        <meta name="description" content="SYNC2はブランド設計、SNSマーケティング、そして最高峰のアプリ・システム開発・AI実装を一気通貫で提供するクリエイティブテクノロジーエージェンシーです。貴社のビジネスを自動化し、資産化します。" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="SYNC2" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -1703,7 +2390,9 @@ export default function App() {
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/sns" element={<SNSLandingPage />} />
           <Route path="/sns/:slug" element={<SNSPage />} />
+          <Route path="/development" element={<TechPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
         </Routes>

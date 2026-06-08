@@ -1,5 +1,8 @@
 {
   "name": "SYNC2",
   "description": "SNSを「コスト」から「資産」へ。日本市場に特化したB2B戦略設計型SNS運用で、貴社のビジネス成長を加速させます。",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
