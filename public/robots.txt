@@ -1,0 +1,7 @@
+# SYNC2 Agency - robots.txt
+User-agent: *
+Allow: /
+Disallow: /blackbox-access
+Disallow: /api/
+
+Sitemap: https://sync2.agency/sitemap.xml
