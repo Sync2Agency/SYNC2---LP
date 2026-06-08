@@ -584,8 +584,8 @@ const LeadMagnet = () => {
   const [progressText, setProgressText] = useState('リクエストを準備中...');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const triggerPdfDownload = () => {
-    const customPdfData = localStorage.getItem('sync2_pdf_data');
+  const triggerPdfDownload = async () => {
+    const customPdfData = await idbStore.get('sync2_pdf_data');
     const customPdfName = localStorage.getItem('sync2_pdf_name') || 'SYNC2_B2B_SNS_Strategy_Guide_2026.pdf';
     
     let blob: Blob;
@@ -681,7 +681,7 @@ startxref
 
     // Trigger PDF download automatically
     try {
-      triggerPdfDownload();
+      await triggerPdfDownload();
     } catch (e) {
       console.error("Automatic download blocked or failed", e);
     }
@@ -1776,6 +1776,73 @@ const TermsPage = () => (
   </LegalLayout>
 );
 
+// A highly robust Promise-based IndexedDB key-value store to bypass localStorage 5MB quota limitations
+export const idbStore = {
+  get: async (key: string): Promise<any> => {
+    return new Promise((resolve) => {
+      const req = indexedDB.open("sync2_assets_db", 1);
+      req.onupgradeneeded = () => {
+        req.result.createObjectStore("kv");
+      };
+      req.onsuccess = () => {
+        const db = req.result;
+        try {
+          const tx = db.transaction("kv", "readonly");
+          const store = tx.objectStore("kv");
+          const getReq = store.get(key);
+          getReq.onsuccess = () => resolve(getReq.result || null);
+          getReq.onerror = () => resolve(null);
+        } catch {
+          resolve(null);
+        }
+      };
+      req.onerror = () => resolve(null);
+    });
+  },
+  set: async (key: string, val: any): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const req = indexedDB.open("sync2_assets_db", 1);
+      req.onupgradeneeded = () => {
+        req.result.createObjectStore("kv");
+      };
+      req.onsuccess = () => {
+        const db = req.result;
+        try {
+          const tx = db.transaction("kv", "readwrite");
+          const store = tx.objectStore("kv");
+          store.put(val, key);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        } catch {
+          resolve(false);
+        }
+      };
+      req.onerror = () => resolve(false);
+    });
+  },
+  delete: async (key: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const req = indexedDB.open("sync2_assets_db", 1);
+      req.onupgradeneeded = () => {
+        req.result.createObjectStore("kv");
+      };
+      req.onsuccess = () => {
+        const db = req.result;
+        try {
+          const tx = db.transaction("kv", "readwrite");
+          const store = tx.objectStore("kv");
+          const delReq = store.delete(key);
+          delReq.onsuccess = () => resolve(true);
+          delReq.onerror = () => resolve(false);
+        } catch {
+          resolve(false);
+        }
+      };
+      req.onerror = () => resolve(false);
+    });
+  }
+};
+
 const BlackboxAccessPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passcode, setPasscode] = useState("");
@@ -1900,19 +1967,43 @@ const BlackboxAccessPage = () => {
     }
   });
 
-  // Load state values from LocalStorage inside useEffect on mounted node
+  // Load state values from IndexedDB/LocalStorage inside useEffect on mounted node
   useEffect(() => {
-    // Load blog posts from local storage
-    const loadedPosts = localStorage.getItem('sync2_blog_posts');
-    if (loadedPosts) {
-      try {
-        setBlogPosts(JSON.parse(loadedPosts));
-      } catch (e) {
-        setBlogPosts(BLOG_POSTS);
+    const initAssetDb = async () => {
+      // 1. Load blog posts from IndexedDB
+      const loadedPosts = await idbStore.get('sync2_blog_posts');
+      if (loadedPosts) {
+        try {
+          if (Array.isArray(loadedPosts)) {
+            setBlogPosts(loadedPosts);
+          } else {
+            const parsed = JSON.parse(loadedPosts);
+            if (Array.isArray(parsed)) {
+              setBlogPosts(parsed);
+            } else {
+              setBlogPosts(BLOG_POSTS);
+            }
+          }
+        } catch (e) {
+          setBlogPosts(BLOG_POSTS);
+        }
+      } else {
+        // Fallback to old localStorage just in case
+        const oldLoadedPosts = localStorage.getItem('sync2_blog_posts');
+        if (oldLoadedPosts) {
+          try {
+            const parsed = JSON.parse(oldLoadedPosts);
+            setBlogPosts(parsed);
+            await idbStore.set('sync2_blog_posts', parsed);
+          } catch {
+            setBlogPosts(BLOG_POSTS);
+          }
+        } else {
+          setBlogPosts(BLOG_POSTS);
+        }
       }
-    } else {
-      setBlogPosts(BLOG_POSTS);
-    }
+    };
+    initAssetDb();
 
     // Load leads
     const loadedLeads = localStorage.getItem('sync2_leads');
@@ -1951,6 +2042,65 @@ const BlackboxAccessPage = () => {
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
   const netProfit = totalIncome - totalExpense;
+
+  // Media helpers for Section Uploads
+  const handleSectionMediaUpload = (sIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+
+    if (!isImage && !isVideo) {
+      alert("画像（PNG/JPG/WEBP）または動画（MP4/WEBM）ファイルを選択してください。");
+      return;
+    }
+
+    // Check size to assist browser performance (warning if > 25MB but let the user decide)
+    if (file.size > 25 * 1024 * 1024) {
+      alert("ファイルが大きすぎます。25MB以下の画像・動画を使用してください。");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      const content = [...(newPost.content || [])];
+      content[sIdx] = {
+        ...content[sIdx],
+        mediaUrl: base64,
+        mediaType: isImage ? 'image' : 'video'
+      };
+      setNewPost({ ...newPost, content });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveSectionMedia = (sIdx: number) => {
+    const content = [...(newPost.content || [])];
+    content[sIdx] = {
+      ...content[sIdx],
+      mediaUrl: undefined,
+      mediaType: undefined
+    };
+    setNewPost({ ...newPost, content });
+  };
+
+  const handleFeaturedImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert("画像ファイル（PNG/JPG/WEBPなど）を選択してください。");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setNewPost({ ...newPost, image: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
@@ -2086,15 +2236,17 @@ const BlackboxAccessPage = () => {
     }
   };
 
-  const handleDeleteBlog = (id: string) => {
+  const handleDeleteBlog = async (id: string) => {
     if (window.confirm("このブログ記事を完全に削除してよろしいですか？")) {
       const updated = blogPosts.filter(p => p.id !== id);
       setBlogPosts(updated);
-      localStorage.setItem('sync2_blog_posts', JSON.stringify(updated));
+      await idbStore.set('sync2_blog_posts', updated);
+      // Synchronize back to localStorage for lightweight backups
+      localStorage.setItem('sync2_blog_posts_backup', JSON.stringify(updated));
     }
   };
 
-  const handleAddNewPost = (e: React.FormEvent) => {
+  const handleAddNewPost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPost.title || !newPost.id) {
        alert("記事ID(Slug)と記事タイトルは必須入力です。");
@@ -2130,7 +2282,8 @@ const BlackboxAccessPage = () => {
     }
 
     setBlogPosts(updatedPosts);
-    localStorage.setItem('sync2_blog_posts', JSON.stringify(updatedPosts));
+    await idbStore.set('sync2_blog_posts', updatedPosts);
+    localStorage.setItem('sync2_blog_posts_backup', JSON.stringify(updatedPosts));
     setShowBlogForm(false);
     setEditingPost(null);
     setNewPost({
@@ -2143,9 +2296,9 @@ const BlackboxAccessPage = () => {
       summary: "",
       image: "https://picsum.photos/seed/sync2-blog/800/500",
       content: [
-         { emoji: "🚀", sectionTitle: "導入・背景", paragraphs: [] },
-         { emoji: "🔥", sectionTitle: "本質と実践メカニズム", paragraphs: [] },
-         { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: [] }
+         { emoji: "🚀", sectionTitle: "導入・背景", paragraphs: [], mediaUrl: undefined, mediaType: undefined },
+         { emoji: "🔥", sectionTitle: "本質と実践メカニズム", paragraphs: [], mediaUrl: undefined, mediaType: undefined },
+         { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: [], mediaUrl: undefined, mediaType: undefined }
       ],
       seoTitle: "",
       seoDescription: "",
@@ -2165,13 +2318,19 @@ const BlackboxAccessPage = () => {
     }
 
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const result = reader.result as string;
       const base64Data = result.split(',')[1];
       const sizeStr = (file.size / (1024 * 1024)).toFixed(2) + " MB";
       const dateStr = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/-/g, '.');
 
-      localStorage.setItem('sync2_pdf_data', base64Data);
+      // Save PDF bytes securely to IndexedDB
+      const success = await idbStore.set('sync2_pdf_data', base64Data);
+      if (!success) {
+        alert("ファイルの保存中にエラーが発生しました。");
+        return;
+      }
+      
       localStorage.setItem('sync2_pdf_name', file.name);
       localStorage.setItem('sync2_pdf_size', sizeStr);
       localStorage.setItem('sync2_pdf_date', dateStr);
@@ -2182,9 +2341,9 @@ const BlackboxAccessPage = () => {
     reader.readAsDataURL(file);
   };
 
-  const handlePdfDelete = () => {
+  const handlePdfDelete = async () => {
     if (window.confirm("独自アップロードしたPDFを削除し、システム内蔵のデフォルトPDFに戻しますか？")) {
-      localStorage.removeItem('sync2_pdf_data');
+      await idbStore.delete('sync2_pdf_data');
       localStorage.removeItem('sync2_pdf_name');
       localStorage.removeItem('sync2_pdf_size');
       localStorage.removeItem('sync2_pdf_date');
@@ -2477,15 +2636,36 @@ const BlackboxAccessPage = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">アイキャッチ画像URL</label>
-                    <input 
-                      type="text"
-                      placeholder="https://picsum.photos/seed/sync2-blog/800/500"
-                      className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-650 font-mono"
-                      value={newPost.image}
-                      onChange={(e) => setNewPost({ ...newPost, image: e.target.value })}
-                    />
+                  {/* Eye-Catch Featured Image Selector & Field */}
+                  <div className="space-y-2 bg-zinc-50 p-4 border border-zinc-200 rounded-xl">
+                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono block">🖼️ アイキャッチ画像の設定 (Cover Photo)</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border border-dashed border-zinc-200 rounded-lg p-3 text-center flex flex-col items-center justify-center space-y-1 bg-white hover:border-[#8edce0]/45 hover:bg-[#8edce0]/5 cursor-pointer relative min-h-24">
+                        <Upload className="w-4 h-4 text-zinc-400" />
+                        <span className="text-[10px] font-bold text-zinc-600">アイキャッチ画像をアップロード</span>
+                        <span className="text-[8px] text-zinc-400">※推奨: Horizontal (16:9) PNG/JPG</span>
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={handleFeaturedImageUpload}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                      </div>
+                      
+                      <div className="space-y-1.5">
+                        <span className="text-[8px] text-zinc-400 uppercase font-mono block">プレビュー または 直リンクURL指定</span>
+                        <input 
+                          type="text"
+                          placeholder="https://picsum.photos/seed/sync2-blog/800/500"
+                          className="w-full h-9 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-[10px] text-zinc-600 font-mono"
+                          value={newPost.image}
+                          onChange={(e) => setNewPost({ ...newPost, image: e.target.value })}
+                        />
+                        <div className="aspect-[16/10] bg-zinc-100 rounded-md overflow-hidden border border-zinc-200 h-16">
+                          <img src={newPost.image} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-1.5">
@@ -2499,11 +2679,88 @@ const BlackboxAccessPage = () => {
                     />
                   </div>
 
+                  {/* Delivery Schedule & Statuses */}
+                  <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-4">
+                    <h4 className="text-[10px] font-black text-[#307c80] uppercase tracking-widest font-mono flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>⏱️ 配信スケジュール & 公開ステータス設定 (Post Scheduling)</span>
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-semibold text-zinc-500 block">予約投稿日（空欄なら即時公開）</label>
+                        <input 
+                          type="date"
+                          className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-700 font-bold font-mono"
+                          value={newPost.scheduledDate}
+                          onChange={(e) => setNewPost({ ...newPost, scheduledDate: e.target.value })}
+                        />
+                        <p className="text-[8px] text-zinc-400">※未来の日付を設定すると、フロントブログ一覧からその日になるまで自動で非表示化されます。</p>
+                      </div>
+
+                      <div className="space-y-1.5 flex flex-col justify-center">
+                        <label className="text-[9px] font-semibold text-zinc-500 block mb-1">公開ステータス</label>
+                        <label className="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                          <input 
+                            type="checkbox"
+                            checked={newPost.isPublished}
+                            onChange={(e) => setNewPost({ ...newPost, isPublished: e.target.checked })}
+                            className="rounded text-[#307c80] focus:ring-[#8edce0] bg-white border-zinc-200 w-4 h-4 cursor-pointer"
+                          />
+                          <span className="text-xs font-bold text-zinc-700">
+                            {newPost.isPublished ? "「公開する」に設定中" : "「下書き（非推奨）」保存"}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SEO Configuration Block */}
+                  <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-4">
+                    <h4 className="text-[10px] font-black text-[#307c80] uppercase tracking-widest font-mono flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#307c80]" />
+                      <span>🔍 SEO メタデータ & 検索順位最適化 (Google Search Engine Optimization)</span>
+                    </h4>
+                    <div className="space-y-3.5">
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-semibold text-zinc-500 block">検索一覧用メタタイトル (SEO Title)</label>
+                        <input 
+                          type="text"
+                          placeholder="記事固有の狙いワード。英語表記やブランド表記の追加など。空欄なら自動構成されます。"
+                          className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-900 font-bold"
+                          value={newPost.seoTitle}
+                          onChange={(e) => setNewPost({ ...newPost, seoTitle: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-semibold text-zinc-500 block">メタ説明文 (Meta Description)</label>
+                        <textarea 
+                          rows={2}
+                          placeholder="検索された際にタイトルの下部に表示される、読者を魅了する100文字程度の要約文。"
+                          className="w-full p-2.5 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] text-xs text-zinc-700 leading-relaxed resize-none"
+                          value={newPost.seoDescription}
+                          onChange={(e) => setNewPost({ ...newPost, seoDescription: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-semibold text-zinc-500 block">狙い検索語（カンマ区切り） (Meta Keywords)</label>
+                        <input 
+                          type="text"
+                          placeholder="SNSマーケティング, B2B営業, LINE連携, DX"
+                          className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-700 font-mono"
+                          value={newPost.seoKeywords}
+                          onChange={(e) => setNewPost({ ...newPost, seoKeywords: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Sections list */}
                   <div className="space-y-3.5 border-t border-zinc-200 pt-4">
-                    <h4 className="text-[10px] font-black text-[#307c80] uppercase tracking-widest font-mono">📖 本文セクション構成（3章構成）</h4>
+                    <h4 className="text-[10px] font-black text-[#307c80] uppercase tracking-widest font-mono">📖 本文セクション構成（各章の写真・動画アップロードも可能）</h4>
                     {newPost.content?.map((sec, sIdx) => (
-                      <div key={sIdx} className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-3">
+                      <div key={sIdx} className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-3.5">
                         <div className="flex gap-2">
                           <input 
                             type="text" 
@@ -2528,6 +2785,7 @@ const BlackboxAccessPage = () => {
                             }}
                           />
                         </div>
+                        
                         <textarea 
                           rows={4}
                           placeholder="段落文章を入力（改行でパラグラフが追加されます）"
@@ -2539,6 +2797,46 @@ const BlackboxAccessPage = () => {
                             setNewPost({ ...newPost, content });
                           }}
                         />
+
+                        {/* Drag and drop / local multimedia file uploader */}
+                        <div className="space-y-1.5 bg-white border border-dashed border-zinc-200 rounded-lg p-3">
+                          <span className="text-[9px] font-black text-[#307c80] uppercase tracking-widest font-mono block">章内メディア（画像/動画のアップロード）</span>
+                          {sec.mediaUrl ? (
+                            <div className="space-y-2">
+                              <div className="relative aspect-video max-w-sm mx-auto rounded-lg overflow-hidden border border-zinc-200 bg-zinc-50 flex items-center justify-center">
+                                {sec.mediaType === 'video' ? (
+                                  <video src={sec.mediaUrl} controls className="w-full h-full object-contain" />
+                                ) : (
+                                  <img src={sec.mediaUrl} alt="" className="w-full h-full object-cover" />
+                                )}
+                                <button 
+                                  type="button"
+                                  onClick={() => handleRemoveSectionMedia(sIdx)}
+                                  className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-[#307c80] duration-200 cursor-pointer shadow-md flex items-center justify-center"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                              <p className="text-[9px] text-[#307c80] font-black tracking-widest uppercase font-mono text-center">
+                                ✨ {sec.mediaType === 'video' ? 'VIDEO' : 'IMAGE'} がバインドされました (IndexedDB保存対応)
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-4">
+                              <label className="flex-1 border border-zinc-150 hover:border-[#8edce0]/45 hover:bg-[#8edce0]/5 rounded-md p-3 text-center cursor-pointer transition-all flex flex-col items-center justify-center space-y-1">
+                                <Upload className="w-4 h-4 text-zinc-400" />
+                                <span className="text-[10px] font-bold text-zinc-650">ローカルファイルを選択 (画像または動画)</span>
+                                <span className="text-[8px] text-zinc-450">※PNG/JPG/WEBP/MP4など</span>
+                                <input 
+                                  type="file" 
+                                  accept="image/*,video/*"
+                                  onChange={(e) => handleSectionMediaUpload(sIdx, e)}
+                                  className="hidden" 
+                                />
+                              </label>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -2586,9 +2884,26 @@ const BlackboxAccessPage = () => {
                                   {post.category}
                                 </span>
                                 <span className="text-[10px] text-zinc-450 font-mono">{post.date}</span>
+                                
+                                {/* Live vs Draft vs Scheduled reservation indicator */}
+                                {post.isPublished === false ? (
+                                  <span className="px-2 py-0.5 bg-zinc-100 text-zinc-550 border border-zinc-200 rounded text-[8px] font-bold font-mono">
+                                    下書き (Draft)
+                                  </span>
+                                ) : post.scheduledDate && new Date(post.scheduledDate).getTime() > new Date().getTime() ? (
+                                  <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded text-[8px] font-extrabold font-mono flex items-center gap-1 animate-pulse">
+                                    <Clock className="w-2.5 h-2.5 text-amber-500" />
+                                    <span>予約投稿中 ({post.scheduledDate})</span>
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[8px] font-extrabold font-mono flex items-center gap-1">
+                                    <span className="w-1 h-1 bg-emerald-500 rounded-full" />
+                                    <span>公開中 (Live)</span>
+                                  </span>
+                                )}
                               </div>
                               <h4 className="text-xs sm:text-sm font-extrabold text-zinc-900">{post.title}</h4>
-                              <p className="text-[10px] text-zinc-400 font-mono">slug: /blog/{post.id}</p>
+                              <p className="text-[10px] text-zinc-450 font-mono">slug: /blog/{post.id}</p>
                             </div>
                           </div>
 
@@ -4349,7 +4664,13 @@ export interface BlogPost {
   readTime: string;
   summary: string;
   image: string;
-  content: { emoji: string; sectionTitle: string; paragraphs: string[] }[];
+  content: { 
+    emoji: string; 
+    sectionTitle: string; 
+    paragraphs: string[]; 
+    mediaUrl?: string; 
+    mediaType?: 'image' | 'video'; 
+  }[];
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string;
@@ -4585,6 +4906,18 @@ const BlogPage = () => {
                   <span className="w-8 h-8 rounded-lg bg-[#8edce0]/10 text-lg flex items-center justify-center">{sec.emoji || "💡"}</span>
                   <span>{sec.sectionTitle}</span>
                 </h2>
+
+                {/* Dynamic Multimedia Chapter Layout */}
+                {sec.mediaUrl && (
+                  <div className="aspect-[16/10] sm:aspect-[16/9] bg-zinc-50 rounded-2xl overflow-hidden border border-zinc-150 shadow-inner max-w-2xl mx-auto flex items-center justify-center">
+                    {sec.mediaType === 'video' ? (
+                      <video src={sec.mediaUrl} controls className="w-full h-full object-contain" referrerPolicy="no-referrer" />
+                    ) : (
+                      <img src={sec.mediaUrl} alt={sec.sectionTitle} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    )}
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   {sec.paragraphs?.map((pStr, pIdx) => (
                     <p key={pIdx} className="font-semibold text-zinc-650 leading-relaxed">
@@ -4630,6 +4963,18 @@ const BlogPage = () => {
 
   // Render blog listings mode
   const filtered = posts.filter(post => {
+    // 1. Hide drafts from public listing
+    if (post.isPublished === false) return false;
+
+    // 2. Hide posts scheduled for a future date
+    if (post.scheduledDate) {
+      const scheduledTime = new Date(post.scheduledDate).getTime();
+      const currentTime = new Date().getTime();
+      if (scheduledTime > currentTime) {
+        return false;
+      }
+    }
+
     const matchCat = selectedCategory === "すべて" || post.category === selectedCategory;
     const matchSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                         post.summary.toLowerCase().includes(searchQuery.toLowerCase());
