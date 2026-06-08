@@ -1643,7 +1643,68 @@ const PrivacyPage = () => (
     <h2 className="text-xl font-bold mt-8 mb-4">第1条（個人情報の定義）</h2>
     <p>「個人情報」とは、個人情報保護法にいう「個人情報」を指すものとし、生存する個人に関する情報であって、当該情報に含まれる氏名、生年月日、住所、電話番号、連絡先その他の記述等により特定の個人を識別できる情報、および容貌、指紋、声紋にかかるデータ、及び健康保険証の保険者番号などの当該情報単体から特定の個人を識別できる情報（個人識別符号）を指します。</p>
 
-    <h2 className="text-xl font-bolconst useSeoMeta = (pageKey: string, defaultTitle: string, defaultDesc: string) => {
+    <h2 className="text-xl font-bold mt-8 mb-4">第2条（個人情報の収集方法）</h2>
+    <p>当社は、ユーザーが利用登録をする際に氏名、生年月日、住所、電話番号、メールアドレスなどの個人情報をお尋ねすることがあります。また、ユーザーと提携先などとの間でなされたユーザーの個人情報を含む取引記録や決済に関する情報を、当社の提携先（情報提供元、広告主、広告配信先などを含みます。）などから収集することがあります。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第3条（個人情報を収集・利用する目的）</h2>
+    <p>当社が個人情報を収集・利用する目的は、以下のとおりです。</p>
+    <ol className="list-decimal pl-6 space-y-2">
+      <li>当社サービスの提供・運営のため</li>
+      <li>ユーザーからのお問い合わせに回答するため（本人確認を行うことを含む）</li>
+      <li>ユーザーが利用中のサービスの新機能、更新情報、キャンペーン等及び当社が提供する他のサービスの案内のメールを送付するため</li>
+      <li>メンテナンス、重要なお知らせなど必要に応じたご連絡のため</li>
+      <li>利用規約に違反したユーザーや、不正・不当な目的でサービスを利用しようとするユーザーの特定をし、ご利用をお断りするため</li>
+      <li>ユーザーにご自身の登録情報の閲覧や変更、削除、ご利用状況の閲覧を行っていただくため</li>
+      <li>上記の利用目的に付随する目的</li>
+    </ol>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第4条（利用目的の変更）</h2>
+    <ol className="list-decimal pl-6 space-y-2">
+      <li>当社は、利用目的が変更前と関連性を有すると合理的に認められる場合に限り、個人情報の利用目的を変更するものとします。</li>
+      <li>利用目的の変更を行った場合には、変更後の目的について、当社所定の方法により、ユーザーに通知し、または本ウェブサイト上に公表するものとします。</li>
+    </ol>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第5条（個人情報の第三者提供）</h2>
+    <ol className="list-decimal pl-6 space-y-2">
+      <li>当社は、次に掲げる場合を除いて、あらかじめユーザーの同意を得ることなく、第三者に個人情報を提供することはありません。ただし、個人情報保護法その他の法令で認められる場合を除きます。
+        <ul className="list-disc pl-6 mt-2 space-y-1">
+          <li>人の生命、身体または財産の保護のために必要がある場合であって、本人の同意を得ることが困難であるとき</li>
+          <li>公衆衛生の向上または児童の健全な育成の推進のために特に必要がある場合であって、本人の同意を得ることが困難であるとき</li>
+          <li>国の機関もしくは地方公共団体またはその委託を受けた者が法令の定める事務を遂行することに対して協力する必要がある場合であって、本人の同意を得ることにより当該事務の遂行に支障を及ぼすおそれがあるとき</li>
+          <li>予め次の事項を告知あるいは公表し、かつ当社が個人情報保護委員会に届出をしたとき</li>
+        </ul>
+      </li>
+      <li>前項の定めにかかわらず、次に掲げる場合には、当該情報の提供先は第三者に該当しないものとします。
+        <ul className="list-disc pl-6 mt-2 space-y-1">
+          <li>当社が利用目的の達成に必要な範囲内において個人情報の取扱いの全部または一部を委託する場合</li>
+          <li>合併その他の事由による事業の承継に伴って個人情報が提供される場合</li>
+          <li>個人情報を特定の者との間で共同して利用する場合であって、その旨並びに共同して利用される個人情報の項目、共同して利用する者の範囲、利用する者の利用目的および当該個人情報の管理について責任を有する者の氏名または名称について、あらかじめ本人に通知し、または本人が容易に知り得る状態に置いているとき</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第6条（Cookie（クッキー）等の使用）</h2>
+    <p>当社は、サービスの向上や、広告の配信、および行動履歴・属性情報の収集のためにCookie（クッキー）を使用しています。このデータは匿名で収集されており、個人を特定するものではありません。ブラウザの設定によりCookieを無効にすることで収集を拒否することが可能です。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第7条（個人情報の開示・訂正・利用停止等）</h2>
+    <p>当社は、本人から個人情報の開示、訂正、追加、削除、利用停止等を求められたときは、本人確認を行った上で、遅滞なくこれに対応します。ただし、法令に基づき対応の義務を負わない場合は、この限りではありません。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第8条（お問い合わせ窓口）</h2>
+    <p>本ポリシーに関するお問い合わせは、下記の窓口までお願いいたします。</p>
+    <p className="mt-2 text-zinc-650">
+      会社名：SYNC2<br />
+      担当部署：プライバシーポリシー管理担当<br />
+      Eメールアドレス：contact@sync2.agency
+    </p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第9条（プライバシーポリシーの変更）</h2>
+    <p>本ポリシーの内容は、法令その他本ポリシーに別段の定めのある事項を除いて、ユーザーに通知することなく、変更することができるものとします。当社が別途定める場合を除いて、変更後のプライバシーポリシーは、本ウェブサイトに掲載したときから効力を生じるものとします。</p>
+
+    <p className="mt-12 text-zinc-400 text-sm">【制定日・改定日】<br />制定日：2026年4月15日</p>
+  </LegalLayout>
+);
+
+const useSeoMeta = (pageKey: string, defaultTitle: string, defaultDesc: string) => {
   const [seo, setSeo] = useState({ title: defaultTitle, description: defaultDesc, keywords: "" });
 
   useEffect(() => {
@@ -1665,6 +1726,201 @@ const PrivacyPage = () => (
   return seo;
 };
 
+const TermsPage = () => (
+  <LegalLayout title="利用規約">
+    <p>この利用規約（以下、「本規約」といいます。）は、SYNC2（以下、「当社」といいます。）がウェブサイト（https://sync2.agency/）上で提供するサービス（以下、「本サービス」といいます。）の利用条件を定めるものです。本サービスをご利用になる方（以下、「ユーザー」といいます。）には、本規約に従って、本サービスをご利用いただきます。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第1条（適用）</h2>
+    <p>本規約は、ユーザーと当社との間の本サービスの利用に関わる一切の関係に適用されるものとします。当社は本サービスに関し、本規約のほか、ご利用にあたってのルール等、各種の定め（以下、「個別規定」といいます。）をすることがあります。これら個別規定はその名称のいかんに関わらず、本規約の一部を構成するものとします。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第2条（禁止事項）</h2>
+    <p>ユーザーは、本サービスの利用にあたり、以下の行為をしてはなりません。</p>
+    <ul className="list-disc pl-6 space-y-2">
+      <li>法令または公序良俗に違反する行為</li>
+      <li>犯罪行為に関連する行為</li>
+      <li>当社、本サービスの他のユーザー、または第三者のサーバーまたはネットワークの機能を破壊したり、妨害したりする行為</li>
+      <li>当社のサービスの運営を妨害するおそれのある行為</li>
+      <li>他のユーザーに関する個人情報等を収集または蓄積する行為</li>
+      <li>不正アクセスをし、またはこれを試みる行為</li>
+      <li>他のユーザーに成りすます行為</li>
+      <li>当社のサービスに関連して、反社会的勢力に対して直接または間接に利益を供与する行為</li>
+      <li>当社、本サービスの他のユーザーまたは第三者の知的財産権、肖像権、プライバシー、名誉その他の権利または利益を侵害する行為</li>
+      <li>その他、当社が不適切と判断する行為</li>
+    </ul>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第3条（本サービスの提供の停止等）</h2>
+    <p>当社は、以下のいずれかの事由があると判断した場合、ユーザーに事前に通知することなく本サービスの全部または一部の提供を停止または中断することができるものとします。</p>
+    <ul className="list-disc pl-6 space-y-2">
+      <li>本サービスにかかるコンピュータシステムの保守点検または更新を行う場合</li>
+      <li>地震、落雷、火災、停電または天災などの不可抗力により、本サービスの提供が困難となった場合</li>
+      <li>コンピュータまたは通信回線等が事故により停止した場合</li>
+      <li>その他、当社が本サービスの提供が困難と判断した場合</li>
+    </ul>
+    <p className="mt-4">当社は、本サービスの提供の停止または中断により、ユーザーまたは第三者が被ったいかなる不利益または損害についても、一切の責任を負わないものとします。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第4条（著作権等の知的財産権）</h2>
+    <ol className="list-decimal pl-6 space-y-2">
+      <li>本サービスおよび本サービスに関連する一切の情報についての著作権およびその他の知的財産権は、すべて当社または当社にその利用を許諾した権利者に帰属します。</li>
+      <li>ユーザーは、無断で複製、譲渡、貸与、翻訳、改変、転載、公衆送信、配布、出版、営業使用等をしてはならないものとします。</li>
+    </ol>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第5条（免責事項）</h2>
+    <ol className="list-decimal pl-6 space-y-2">
+      <li>当社は、本サービスに事実上または法律上の瑕疵（安全性、信頼性、正確性、完全性、有効性、特定の目的への適合性、セキュリティなどに関する欠陥、エラーやバグ、権利侵害などを含みます。）がないことを明示的にも黙示的にも保証しておりません。</li>
+      <li>当社は、本サービスに起因してユーザーに生じたあらゆる損害について一切の責任を負いません。ただし、本サービスに関する当社とユーザーとの間の契約（本規約を含みます。）が消費者契約法に定める消費者契約となる場合、この免責規定は適用されません。</li>
+      <li>前項ただし書に定める場合であっても、当社は、当社の過失（重過失を除きます。）による債務不履行または不法行為によりユーザーに生じた損害のうち特別な事情から生じた損害（当社またはユーザーが損害発生につき予見し、または予見し得た場合を含みます。）について一切の責任を負いません。</li>
+    </ol>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第6条（サービス内容の変更等）</h2>
+    <p>当社は、ユーザーに通知することなく、本サービスの内容を変更しまたは本サービスの提供を中止することができるものとし、これによってユーザーに生じた損害について一切の責任を負いません。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第7条（利用規約の変更）</h2>
+    <p>当社は、必要と判断した場合には、ユーザーに通知することなくいつでも本規約を変更することができるものとします。なお、本規約の変更後、本サービスの利用を開始した場合には、当該ユーザーは変更後の規約に同意したものとみなします。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第8条（個人情報の取扱い）</h2>
+    <p>当社は、本サービスの利用によって取得する個人情報については、当社「プライバシーポリシー」に従い適切に取り扱うものとします。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第9条（準拠法・裁判管轄）</h2>
+    <ol className="list-decimal pl-6 space-y-2">
+      <li>本規約の解釈にあたっては、日本法を準拠法とします。</li>
+      <li>本サービスに関して紛争が生じた場合には、当社の本店所在地を管轄する裁判所を専属的合意管轄とします。</li>
+    </ol>
+
+    <p className="mt-12 text-zinc-400 text-sm">【制定日・改定日】<br />制定日：2026年4月15日</p>
+  </LegalLayout>
+);
+
+interface BlogPost {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  author: string;
+  readTime: string;
+  summary: string;
+  image: string;
+  content: {
+    emoji: string;
+    sectionTitle: string;
+    paragraphs: string[];
+  }[];
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+  scheduledDate?: string;
+  isPublished?: boolean;
+}
+
+const BLOG_POSTS: BlogPost[] = [
+  {
+    id: "b2b-short-videos-2026",
+    title: "B2B企業が今すぐショート動画（TikTok・リール）に参入すべき理由：市場シェア争奪戦",
+    category: "SNSマーケティング",
+    date: "2026.06.05",
+    author: "SYNC2 編集部",
+    readTime: "5分",
+    summary: "娯楽ツールとして見過ごされがちなショート動画ですが、B2B市場における意思決定者の接触時間は急増中。競合より一歩先に顧客を獲得するための、先行優位性の活かし方を徹底解説。",
+    image: "https://picsum.photos/seed/b2b-short/800/500",
+    content: [
+      {
+        emoji: "🚀",
+        sectionTitle: "B2Bにおける動画消費行動のパラダイムシフト",
+        paragraphs: [
+          "2026年現在、多くのB2B企業における『ターゲット決裁者』。彼ら・彼女らも、業務情報の収集やトレンド理解の手段として日々SNS（YouTubeショート、Instagramリール、TikTok）を活用するようになっています。",
+          "従来の『文字ばかりのホワイトペーパー』や『重苦しい営業資料』だけでは、相手の発注アテンションを引くのは容易ではありません。15秒〜60秒のショート動画は、直感的で効率よく情報を得られる最適な手段として機能しています。"
+        ]
+      },
+      {
+        emoji: "🔥",
+        sectionTitle: "15秒で決裁者のアテンションを奪う「冒頭2秒」の公式",
+        paragraphs: [
+          "ショート動画の成否は開始2秒で決まります。特にB2Bでは、最初の2秒で『これ、自社の課題だ』と直感させることが不可欠です。",
+          "最初に『なぜ〜なのか？』という意外な問いを投げかける、あるいは『CPAを半分にした3つのステップ』といった数字を用いたベネフィットを画面と声で伝えるなど、インパクトの強いフックが必要です。"
+        ]
+      },
+      {
+        emoji: "⚙️",
+        sectionTitle: "属人性を排除した「会社資産型」としての発信設計",
+        paragraphs: [
+          "『属人化して担当が辞めたら動画アカウントが廃れてしまう』というのは、B2B企業によくある不安です。",
+          "SYNC2では、特定の個人のタレントパワーに依存せず、会社のナレッジ（知見、成功の裏側、ビフォーアフター）をアニメーションや分かりやすいテロップ、高品質な音声ガイドを組み合わせてフォーマット化。会社の永続的な集客資産として構築します。"
+        ]
+      }
+    ]
+  },
+  {
+    id: "line-ai-workflow",
+    title: "LINE公式アカウントを自動集客マシーンに変える最新AIワークフロー",
+    category: "アプリ・AI・システム開発",
+    date: "2026.05.28",
+    author: "AIシステム・コア開発室",
+    readTime: "8分",
+    summary: "問い合わせ対応だけのLINEはもう古い。ユーザー行動に基づいたAI自動分岐と、リアルタイムなプッシュプランを組み合わせることで、成約率を最大330%高める仕組みを大公開。",
+    image: "https://picsum.photos/seed/line-ai/800/500",
+    content: [
+      {
+        emoji: "🤖",
+        sectionTitle: "なぜ日本のB2B商談はLINEで加速するのか？",
+        paragraphs: [
+          "日本のビジネスパーソンのほぼ全員が日常的に使用しているLINE。しかしB2B領域では、未だに使いこなせている企業はわずか数%です。",
+          "お役立ち資料（ホワイトペーパー）のダウンロードから即時LINEの友達登録に誘導し、そこで個別チャットを開始することで、メールに比べて到達率・開封率ともに圧倒的な数値差を叩き出すことができます。"
+        ]
+      },
+      {
+        emoji: "⚡",
+        sectionTitle: "Geminiを活用した「パーソナライズ型自動チャットボット」の組み込み",
+        paragraphs: [
+          "SYNC2では、最先端のGemini APIを採用したB2B商談特化型の自動チャットボットを構築しています。",
+          "あらかじめ設定したシナリオ分岐に加え、急な質問（例：『他社との違いは何ですか？』や『初期費用はいくらですか？』）に対しても、貴社のナレッジベースから安全かつ精度の高い解答を瞬時に生成。熱量が高いまま、スムーズに商談・デモ予約へと結びつけます。"
+        ]
+      },
+      {
+        emoji: "🎯",
+        sectionTitle: "カスタマーサクセス不要論：深夜でも高精度の一次応答",
+        paragraphs: [
+          "B2Bの意思決定者は、深夜や早朝の静かな時間に情報収集を行う傾向があります。問い合わせフォームを送っても返事が来るのは翌営業日の午後。これでは競合に負けてしまいます。",
+          "AI統合型LINEであれば、深夜0時でも1分以内に具体的な解決へのアクションを回答可能。そのままオンラインカレンダー（Google Calendar等）と完全に同期して、自動で翌週の商談予約枠を確保させることができます。"
+        ]
+      }
+    ]
+  },
+  {
+    id: "reduce-cpa-marketing",
+    title: "CPA（顧客獲得単価）を1/4に抑えるB2Bオンライン広告のバイイング設計",
+    category: "SNSマーケティング",
+    date: "2026.05.15",
+    author: "マーケティングアドバイザー",
+    readTime: "6分",
+    summary: "媒体の自動最適化だけに頼っていませんか？本当に狙うべき『ターゲット経営層』を逃さないための除外ターゲティングテクニックと、高反響の動画クリエイティブ設計の裏側。",
+    image: "https://picsum.photos/seed/reduce-cpa/800/500",
+    content: [
+      {
+        emoji: "📉",
+        sectionTitle: "自動ターゲティングがB2Bで失敗する深い理由",
+        paragraphs: [
+          "主要なプラットフォーム（Meta広告やGoogle等）の自動最適化は強力ですが、コンバージョン（CV）単価を下げるために『関係のない一般消費者や就活生等』をたくさん呼び込んでしまい、結果的にインサイドセールスの時間を無駄にしてしまうことが多々あります。",
+          "B2Bオンライン広告では、CV数を追うのではなく『アポ獲得率、および受注したか』を最適化目標にする必要があります。そのための最初のハードルがターゲット除外と精密なセグメント設計です。"
+        ]
+      },
+      {
+        emoji: "🌟",
+        sectionTitle: "「経営者・役員ターゲット」を正確に割り出すためのクリエイティブ設計",
+        paragraphs: [
+          "B2B広告のクリエイティブは、万人受けする必要はありません。むしろ、一般の人が見たらすぐに読み飛ばすような『具体的な業界の悩み』や『業務プロセスの単語』を表出させることが大切です。",
+          "あえてメッセージの抽象度を高くするのではなく、具体的に『製造業の工場長向け』『システム会社のCTO向け』という明瞭なコピーを採用することで、質の高い層だけがクリックし、無駄打ちを完全に防ぐことができます。"
+        ]
+      },
+      {
+        emoji: "💡",
+        sectionTitle: "予算1日1万円から始める、スモールステップ検証フロー",
+        paragraphs: [
+          "『SNS広告は大金が必要なのでは？』と思われがちですが、B2Bは非常にニッチな領域のため、むしろ日額数千円〜1万円でのテストで十分なデータが得られます。",
+          "1週間で3つのクリエイティブを回し、クリック率（CTR）とリード獲得率（CVR）のバランスが取れた1本の本命を見つける。そして本命クリエイティブを軸に、SNS（Instagram / Note等）に有機的に展開する、というサイクルがSYNC2プロセスの基本です。"
+        ]
+      }
+    ]
+  }
+];
 const BlogPage = () => {
   const seo = useSeoMeta(
     'blog',
@@ -1976,6 +2232,7 @@ const BlackboxAccessPage = () => {
   
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [leads, setLeads] = useState<any[]>([]);
+  const [leadSearch, setLeadSearch] = useState("");
   const [docs, setDocs] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   
@@ -2259,321 +2516,22 @@ const BlackboxAccessPage = () => {
 
   const handleAddTransaction = (e: React.FormEvent) => {
     handleAddTx(e);
-  };��の収集のためにCookie（クッキー）を使用しています。このデータは匿名で収集されており、個人を特定するものではありません。ブラウザの設定によりCookieを無効にすることで収集を拒否することが可能です。</p>
+  };
 
-    <h2 className="text-xl font-bold mt-8 mb-4">第7条（個人情報の開示・訂正・利用停止等）</h2>
-    <p>当社は、本人から個人情報の開示、訂正、追加、削除、利用停止等を求められたときは、本人確認を行った上で、遅滞なくこれに対応します。ただし、法令に基づき対応の義務を負わない場合は、この限りではありません。</p>
-
-    <h2 className="text-xl font-bold mt-8 mb-4">第8条（お問い合わせ窓口）</h2>
-    <p>本ポリシーに関するお問い合わせは、下記の窓口までお願いいたします。</p>
-    <p className="mt-2">
-      会社名：SYNC2<br />
-      担当部署：プライバシーポリシー管理担当<br />
-      Eメールアドレス：contact@sync2.agency
-    </p>
-
-    <h2 className="text-xl font-bold mt-8 mb-4">第9条（プライバシーポリシーの変更）</h2>
-    <p>本ポリシーの内容は、法令その他本ポリシーに別段の定めのある事項を除いて、ユーザーに通知することなく、変更することができるものとします。当社が別途定める場合を除いて、変更後のプライバシーポリシーは、本ウェブサイトに掲載したときから効力を生じるものとします。</p>
-
-    <p className="mt-12 text-zinc-400 text-sm">【制定日・改定日】<br />制定日：2026年4月15日</p>
-  </LegalLayout>
-);
-
-const TermsPage = () => (
-  <LegalLayout title="利用規約">
-    <p>この利用規約（以下、「本規約」といいます。）は、SYNC2（以下、「当社」といいます。）がウェブサイト（https://sync2.agency/）上で提供するサービス（以下、「本サービス」といいます。）の利用条件を定めるものです。本サービスをご利用になる方（以下、「ユーザー」といいます。）には、本規約に従って、本サービスをご利用いただきます。</p>
-
-    <h2 className="text-xl font-bold mt-8 mb-4">第1条（適用）</h2>
-    <p>本規約は、ユーザーと当社との間の本サービスの利用に関わる一切の関係に適用されるものとします。当社は本サービスに関し、本規約のほか、ご利用にあたってのルール等、各種の定め（以下、「個別規定」といいます。）をすることがあります。これら個別規定はその名称のいかんに関わらず、本規約の一部を構成するものとします。</p>
-
-    <h2 className="text-xl font-bold mt-8 mb-4">第2条（禁止事項）</h2>
-    <p>ユーザーは、本サービスの利用にあたり、以下の行為をしてはなりません。</p>
-    <ul className="list-disc pl-6 space-y-2">
-      <li>法令または公序良俗に違反する行為</li>
-      <li>犯罪行為に関連する行為</li>
-      <li>当社、本サービスの他のユーザー、または第三者のサーバーまたはネットワークの機能を破壊したり、妨害したりする行為</li>
-      <li>当社のサービスの運営を妨害するおそれのある行為</li>
-      <li>他のユーザーに関する個人情報等を収集または蓄積する行為</li>
-      <li>不正アクセスをし、またはこれを試みる行為</li>
-      <li>他のユーザーに成りすます行為</li>
-      <li>当社のサービスに関連して、反社会的勢力に対して直接または間接に利益を供与する行為</li>
-      <li>当社、本サービスの他のユーザーまたは第三者の知的財産権、肖像権、プライバシー、名誉その他の権利または利益を侵害する行為</li>
-      <li>その他、当社が不適切と判断する行為</li>
-    </ul>
-
-    <h2 className="text-xl font-bold mt-8 mb-4">第3条（本サービスの提供の停止等）</h2>
-    <p>当社は、以下のいずれかの事由があると判断した場合、ユーザーに事前に通知することなく本サービスの全部または一部の提供を停止または中断することができるものとします。</p>
-    <ul className="list-disc pl-6 space-y-2">
-      <li>本サービスにかかるコンピュータシステムの保守点検または更新を行う場合</li>
-      <li>地震、落雷、火災、停電または天災などの不可抗力により、本サービスの提供が困難となった場合</li>
-      <li>コンピュータまたは通信回線等が事故により停止した場合</li>
-      <li>その他、当社が本サービスの提供が困難と判断した場合</li>
-    </ul>
-    <p className="mt-4">当社は、本サービスの提供の停止または中断により、ユーザーまたは第三者が被ったいかなる不利益または損害についても、一切の責任を負わないものとします。</p>
-
-    <h2 className="text-xl font-bold mt-8 mb-4">第4条（著作権等の知的財産権）</h2>
-    <ol className="list-decimal pl-6 space-y-2">
-      <li>本サービスおよび本サービスに関連する一切の情報についての著作権およびその他の知的財産権は、すべて当社または当社にその利用を許諾した権利者に帰属します。</li>
-      <li>ユーザーは、無断で複製、譲渡、貸与、翻訳、改変、転載、公衆送信、配布、出版、営業使用等をしてはならないものとします。</li>
-    </ol>
-
-    <h2 className="text-xl font-bold mt-8 mb-4">第5条（免責事項）</h2>
-    <ol className="list-decimal pl-6 space-y-2">
-      <li>当社は、本サービスに事実上または法律上の瑕疵（安全性、信頼性、正確性、完全性、有効性、特定の目的への適合性、セキュリティなどに関する欠陥、エラーやバグ、権利侵害などを含みます。）がないことを明示的にも黙示的にも保証しておりません。</li>
-      <li>当社は、本サービスに起因してユーザーに生じたあらゆる損害について一切の責任を負いません。ただし、本サービスに関する当社とユーザーとの間の契約（本規約を含みます。）が消費者契約法に定める消費者契約となる場合、この免責規定は適用されません。</li>
-      <li>前項ただし書に定める場合であっても、当社は、当社の過失（重過失を除きます。）による債務不履行または不法行為によりユーザーに生じた損害のうち特別な事情から生じた損害（当社またはユーザーが損害発生につき予見し、または予見し得た場合を含みます。）について一切の責任を負いません。</li>
-    </ol>
-
-    <h2 className="text-xl font-bold mt-8 mb-4">第6条（サービス内容の変更等）</h2>
-    <p>当社は、ユーザーに通知することなく、本サービスの内容を変更しまたは本サービスの提供を中止することができるものとし、これによってユーザーに生じた損害について一切の責任を負いません。</p>
-
-    <h2 className="text-xl font-bold mt-8 mb-4">第7条（利用規約の変更）</h2>
-    <p>当社は、必要と判断した場合には、ユーザーに通知することなくいつでも本規約を変更することができるものとします。なお、本規約の変更後、本サービスの利用を開始した場合には、当該ユーザーは変更後の規約に同意したものとみなします。</p>
-
-    <h2 className="text-xl font-bold mt-8 mb-4">第8条（個人情報の取扱い）</h2>
-    <p>当社は、本サービスの利用によって取得する個人情報については、当社「プライバシーポリシー」に従い適切に取り扱うものとします。</p>
-
-    <h2 className="text-xl font-bold mt-8 mb-4">第9条（準拠法・裁判管轄）</h2>
-    <ol className="list-decimal pl-6 space-y-2">
-      <li>本規約の解釈にあたっては、日本法を準拠法とします。</li>
-      <li>本サービスに関して紛争が生じた場合には、当社の本店所在地を管轄する裁判所を専属的合意管轄とします。</li>
-    </ol>
-
-    <p className="mt-12 text-zinc-400 text-sm">【制定日・改定日】<br />制定日：2026年4月15日</p>
-  </LegalLayout>
-);
-
-interface BlogPost {
-  id: string;
-  title: string;
-  category: string;
-  date: string;
-  author: string;
-  readTime: string;
-  summary: string;
-  image: string;
-  content: {
-    emoji: string;
-    sectionTitle: string;
-    paragraphs: string[];
-  }[];
-}
-
-const BLOG_POSTS: BlogPost[] = [
-  {
-    id: "b2b-short-videos-2026",
-    title: "B2B企業が今すぐショート動画（TikTok・リール）に参入すべき理由：市場シェア争奪戦",
-    category: "SNSマーケティング",
-    date: "2026.06.05",
-    author: "SYNC2 編集部",
-    readTime: "5分",
-    summary: "娯楽ツールとして見過ごされがちなショート動画ですが、B2B市場における意思決定者の接触時間は急増中。競合より一歩先に顧客を獲得するための、先行優位性の活かし方を徹底解説。",
-    image: "https://picsum.photos/seed/b2b-short/800/500",
-    content: [
-      {
-        emoji: "🚀",
-        sectionTitle: "B2Bにおける動画消費行動のパラダイムシフト",
-        paragraphs: [
-          "2026年現在、多くのB2B企業における『ターゲット決裁者』。彼ら・彼女らも、業務情報の収集やトレンド理解の手段として日々SNS（YouTubeショート、Instagramリール、TikTok）を活用するようになっています。",
-          "従来の『文字ばかりのホワイトペーパー』や『重苦しい営業資料』だけでは、相手の発注アテンションを引くのは容易ではありません。15秒〜60秒のショート動画は、直感的で効率よく情報を得られる最適な手段として機能しています。"
-        ]
-      },
-      {
-        emoji: "🔥",
-        sectionTitle: "15秒で決裁者のアテンションを奪う「冒頭2秒」の公式",
-        paragraphs: [
-          "ショート動画の成否は開始2秒で決まります。特にB2Bでは、最初の2秒で『これ、自社の課題だ』と直感させることが不可欠です。",
-          "最初に『なぜ〜なのか？』という意外な問いを投げかける、あるいは『CPAを半分にした3つのステップ』といった数字を用いたベネフィットを画面と声で伝えるなど、インパクトの強いフックが必要です。"
-        ]
-      },
-      {
-        emoji: "⚙️",
-        sectionTitle: "属人性を排除した「会社資産型」としての発信設計",
-        paragraphs: [
-          "『属人化して担当が辞めたら動画アカウントが廃れてしまう』というのは、B2B企業によくある不安です。",
-          "SYNC2では、特定の個人のタレントパワーに依存せず、会社のナレッジ（知見、成功の裏側、ビフォーアフター）をアニメーションや分かりやすいテロップ、高品質な音声ガイドを組み合わせてフォーマット化。会社の永続的な集客資産として構築します。"
-        ]
-      }
-    ]
-  },
-  {
-    id: "line-ai-workflow",
-    title: "LINE公式アカウントを自動集客マシーンに変える最新AIワークフロー",
-    category: "アプリ・AI・システム開発",
-    date: "2026.05.28",
-    author: "AIシステム・コア開発室",
-    readTime: "8分",
-    summary: "問い合わせ対応だけのLINEはもう古い。ユーザー行動に基づいたAI自動分岐と、リアルタイムなプッシュプランを組み合わせることで、成約率を最大330%高める仕組みを大公開。",
-    image: "https://picsum.photos/seed/line-ai/800/500",
-    content: [
-      {
-        emoji: "🤖",
-        sectionTitle: "なぜ日本のB2B商談はLINEで加速するのか？",
-        paragraphs: [
-          "日本のビジネスパーソンのほぼ全員が日常的に使用しているLINE。しかしB2B領域では、未だに使いこなせている企業はわずか数%です。",
-          "お役立ち資料（ホワイトペーパー）のダウンロードから即時LINEの友達登録に誘導し、そこで個別チャットを開始することで、メールに比べて到達率・開封率ともに圧倒的な数値差を叩き出すことができます。"
-        ]
-      },
-      {
-        emoji: "⚡",
-        sectionTitle: "Geminiを活用した「パーソナライズ型自動チャットボット」の組み込み",
-        paragraphs: [
-          "SYNC2では、最先端のGemini APIを採用したB2B商談特化型の自動チャットボットを構築しています。",
-          "あらかじめ設定したシナリオ分岐に加え、急な質問（例：『他社との違いは何ですか？』や『初期費用はいくらですか？』）に対しても、貴社のナレッジベースから安全かつ精度の高い解答を瞬時に生成。熱量が高いまま、スムーズに商談・デモ予約へと結びつけます。"
-        ]
-      },
-      {
-        emoji: "🎯",
-        sectionTitle: "カスタマーサクセス不要論：深夜でも高精度の一次応答",
-        paragraphs: [
-          "B2Bの意思決定者は、深夜や早朝の静かな時間に情報収集を行う傾向があります。問い合わせフォームを送っても返事が来るのは翌営業日の午後。これでは競合に負けてしまいます。",
-          "AI統合型LINEであれば、深夜0時でも1分以内に具体的な解決へのアクションを回答可能。そのままオンラインカレンダー（Google Calendar等）と完全に同期して、自動で翌週の商談予約枠を確保させることができます。"
-        ]
-      }
-    ]
-  },
-  {
-    id: "reduce-cpa-marketing",
-    title: "CPA（顧客獲得単価）を1/4に抑えるB2Bオンライン広告のバイイング設計",
-    category: "SNSマーケティング",
-    date: "2026.05.15",
-    author: "マーケティングアドバイザー",
-    readTime: "6分",
-    summary: "媒体の自動最適化だけに頼っていませんか？本当に狙うべき『ターゲット経営層』を逃さないための除外ターゲティングテクニックと、高反響の動画クリエイティブ設計の裏側。",
-    image: "https://picsum.photos/seed/reduce-cpa/800/500",
-    content: [
-      {
-        emoji: "📉",
-        sectionTitle: "自動ターゲティングがB2Bで失敗する深い理由",
-        paragraphs: [
-          "主要なプラットフォーム（Meta広告やGoogle等）の自動最適化は強力ですが、コンバージョン（CV）単価を下げるために『関係のない一般消費者や就活生等』をたくさん呼び込んでしまい、結果的にインサイドセールスの時間を無駄にしてしまうことが多々あります。",
-          "B2Bオンライン広告では、CV数を追うのではなく『アポ獲得率、および受注したか』を最適化目標にする必要があります。そのための最初のハードルがターゲット除外と精密なセグメント設計です。"
-        ]
-      },
-      {
-        emoji: "🌟",
-        sectionTitle: "「経営者・役員ターゲット」を正確に割り出すためのクリエイティブ設計",
-        paragraphs: [
-          "B2B広告のクリエイティブは、万人受けする必要はありません。むしろ、一般の人が見たらすぐに読み飛ばすような『具体的な業界の悩み』や『業務プロセスの単語』を表出させることが大切です。",
-          "あえてメッセージの抽象度を高くするのではなく、具体的に『製造業の工場長向け』『システム会社のCTO向け』という明瞭なコピーを採用することで、質の高い層だけがクリックし、無駄打ちを完全に防ぐことができます。"
-        ]
-      },
-      {
-        emoji: "💡",
-        sectionTitle: "予算1日1万円から始める、スモールステップ検証フロー",
-        paragraphs: [
-          "『SNS広告は大金が必要なのでは？』と思われがちですが、B2Bは非常にニッチな領域のため、むしろ日額数千円〜1万円でのテストで十分なデータが得られます。",
-          "1週間で3つのクリエイティブを回し、クリック率（CTR）とリード獲得率（CVR）のバランスが取れた1本の本命を見つける。そして本命クリエイティブを軸に、SNS（Instagram / Note等）に有機的に展開する、というサイクルがSYNC2プロセスの基本です。"
-        ]
-      }
-    ]
-  }
-];
-
-const BlogPage = () => {
-  const seo = useSeoMeta(
-    'blog',
-    'SYNC2 INSIGHTS | ブログ & 最新トレンドナレッジ',
-    'SYNC2がお届けする、SNSマーケティングや最新AIシステム開発に関する価値ある戦略的ノウハウ集。'
-  );
-
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("すべて");
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  
-  useEffect(() => {
-    const existing = localStorage.getItem('sync2_blog_posts');
-    if (!existing) {
-      localStorage.setItem('sync2_blog_posts', JSON.stringify(BLOG_POSTS));
-      setPosts(BLOG_POSTS);
-    } else {
-      try {
-        setPosts(JSON.parse(existing));
-      } catch (e) {
-        setPosts(BLOG_POSTS);
-      }
-    }
-  }, []);
-  
-  // Feedback state for Poll
-  const [voted, setVoted] = useState<Record<string, 'yes' | 'no'>>({});
-  const [copiedPostId, setCopiedPostId] = useState<string | null>(null);
-
-  // Scroll target reference or percentage indicator for the active reading post
-  const [readProgress, setReadProgress] = useState(0);
-
-  useEffect(() => {
-    if (!id) {
-      setReadProgress(0);
-      return;
-    }
-    
-    const handleScroll = () => {
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight > 0) {
-        const pct = Math.min(100, Math.round((window.scrollY / docHeight) * 100));
-        setReadProgress(pct);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [id]);
-
-  // Scroll to top when post changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [id]);
-
-  const categories = ["すべて", "SNSマーケティング", "アプリ・AI・システム開発"];
-
-  const handleShare = (postId: string) => {
-    const url = `${window.location.origin}/blog/${postId}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(() => {
-        setCopiedPostId(postId);
-        setTimeout(() => setCopiedPostId(null), 2500);
-      }).catch(() => {});
+  const handleDeleteDoc = (id: string) => {
+    if (window.confirm("この書類を削除してもよろしいですか？")) {
+      const updated = docs.filter(d => d.id !== id);
+      setDocs(updated);
+      localStorage.setItem('sync2_docs', JSON.stringify(updated));
     }
   };
 
-  const currentPost = id ? posts.find(p => p.id === id) : null;
-
-  if (id && !currentPost) {
-    return (
-      <div className="pt-32 pb-24 bg-white min-h-screen flex flex-col items-center justify-center px-6">
-        <h2 className="text-2xl font-bold mb-4 text-[#1a1a1a]">記事が見つかりませんでした。</h2>
-        <button 
-          onClick={() => navigate('/blog')}
-          className="bg-[#1a1a1a] text-white px-6 py-3 rounded-full font-bold text-xs cursor-pointer"
-        >
-          ブログトップへ戻る
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="pt-28 pb-24 bg-white min-h-screen select-none">
-      <Helmet>
-        <title>{currentPost ? `${currentPost.title} - SYNC2 INSIGHTS` : seo.title}</title>
-          // Legacy clean up
-  const unused_dashboard_start = null;
-  const legacy_blog_dummy = null;
-  const dummy_start = null;
-
-  // Render Authorization Shield��ズム", paragraphs: [] },
-        { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: [] }
-      ],
-      seoTitle: post.seoTitle || "",
-      seoDescription: post.seoDescription || "",
-      seoKeywords: post.seoKeywords || "",
-      scheduledDate: post.scheduledDate || "",
-      isPublished: post.isPublished !== false
-    });
-    setShowBlogForm(true);
+  const handleDeleteTx = (id: string) => {
+    if (window.confirm("この取引を削除してもよろしいですか？")) {
+      const updated = transactions.filter(t => t.id !== id);
+      setTransactions(updated);
+      localStorage.setItem('sync2_transactions', JSON.stringify(updated));
+    }
   };
 
   const handleDeleteBlog = (id: string) => {
@@ -2734,279 +2692,6 @@ const BlogPage = () => {
       description: ""
     });
   };
-
-
-
-  // Legacy clean up
-  const unused_dashboard_start = null;
-  const legacy_blog_dummy = null;
-  const dummy_start = null;
-
-  /*
-    <div>
-      <p>
-        SYNC2 INSIGHTSに表示される記事をリアルタイムに作成・編集・削除できます。
-      </p>
-                  
-                  {!showBlogForm && (
-                    <button 
-                      onClick={() => {
-                        setEditingPost(null);
-                        setNewPost({
-                          id: "",
-                          title: "",
-                          category: "SNSマーケティング",
-                          date: new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.'),
-                          author: "SYNC2 編集部",
-                          readTime: "5分",
-                          summary: "",
-                          image: "https://picsum.photos/seed/any/800/500",
-                          content: [
-                            { emoji: "🚀", sectionTitle: "導入・背景", paragraphs: [] },
-                            { emoji: "🔥", sectionTitle: "本質と実践メカニズム", paragraphs: [] },
-                            { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: [] }
-                          ]
-                        });
-                        setShowBlogForm(true);
-                      }}
-                      className="bg-[#1a1a1a] hover:bg-zinc-800 text-white px-4 h-11 rounded-xl text-xs font-black tracking-wider uppercase inline-flex items-center gap-2 transition-all cursor-pointer shadow-sm"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>新規記事作成</span>
-                    </button>
-                  )}
-
-                {showBlogForm ? (
-                  // Create/Edit Blog Form
-                  <form onSubmit={handleAddNewPost} className="space-y-5 bg-zinc-50 p-5 rounded-2xl border border-zinc-200">
-                    <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest">
-                      {editingPost ? "✍️ 既存記事のアップデート" : "📝 新規トピック執筆"}
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">URLスラッグ (ID) *半角英字・重複不可</label>
-                        <input 
-                          required
-                          disabled={!!editingPost}
-                          type="text"
-                          placeholder="ai-system-transformation-2026"
-                          className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-400 px-3 text-xs text-zinc-800 disabled:opacity-40 font-mono"
-                          value={newPost.id}
-                          onChange={(e) => setNewPost({ ...newPost, id: e.target.value })}
-                        />
-                      </div>
-                      
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">カテゴリ</label>
-                        <select 
-                          className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-400 px-3 text-xs text-zinc-800"
-                          value={newPost.category}
-                          onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
-                        >
-                          <option value="SNSマーケティング">SNSマーケティング</option>
-                          <option value="アプリ・AI・システム開発">アプリ・AI・システム開発</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">記事タイトル</label>
-                      <input 
-                        required
-                        type="text"
-                        placeholder="15秒で決裁者を虜にする超短尺クリエイティブ撮影の教科書"
-                        className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 px-3 text-xs text-zinc-900 font-bold"
-                        value={newPost.title}
-                        onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">執筆日</label>
-                        <input 
-                          type="text"
-                          placeholder="2026.06.08"
-                          className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 px-3 text-xs text-zinc-700 font-mono"
-                          value={newPost.date}
-                          onChange={(e) => setNewPost({ ...newPost, date: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">想定読了時間</label>
-                        <input 
-                          type="text"
-                          placeholder="6分"
-                          className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 px-3 text-xs text-zinc-700"
-                          value={newPost.readTime}
-                          onChange={(e) => setNewPost({ ...newPost, readTime: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">著者署名</label>
-                        <input 
-                          type="text"
-                          placeholder="SYNC2 編集部"
-                          className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 px-3 text-xs text-zinc-700"
-                          value={newPost.author}
-                          onChange={(e) => setNewPost({ ...newPost, author: e.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">アイキャッチ画像URL (Picsum等プレースホルダ可)</label>
-                      <input 
-                        type="text"
-                        placeholder="https://picsum.photos/seed/b2b-short/800/500"
-                        className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 px-3 text-xs text-zinc-700 font-mono"
-                        value={newPost.image}
-                        onChange={(e) => setNewPost({ ...newPost, image: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">要約/サマリー(カード紹介文)</label>
-                      <textarea 
-                        rows={3}
-                        placeholder="リード文及びサマリー。カードビューで詳細ページに入る前に読まれる短い要約テキストです。"
-                        className="w-full p-3 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 text-xs text-zinc-700 leading-relaxed resize-none"
-                        value={newPost.summary}
-                        onChange={(e) => setNewPost({ ...newPost, summary: e.target.value })}
-                      />
-                    </div>
-
-                    {/* Section blocks editor */}
-                    <div className="space-y-3.5 border-t border-zinc-200 pt-4">
-                      <h4 className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">📖 本文セクション構成（3章構成）</h4>
-                      
-                      {newPost.content?.map((sec: any, sIdx: number) => (
-                        <div key={sIdx} className="p-3 bg-white border border-zinc-200 rounded-xl space-y-3">
-                          <div className="flex gap-2">
-                            <input 
-                              type="text" 
-                              placeholder="🚀" 
-                              className="w-10 h-10 text-center bg-zinc-50 border border-zinc-300 rounded-lg text-sm"
-                              value={sec.emoji}
-                              onChange={(e) => {
-                                const content = [...(newPost.content || [])];
-                                content[sIdx] = { ...sec, emoji: e.target.value };
-                                setNewPost({ ...newPost, content });
-                              }}
-                            />
-                            <input 
-                              type="text" 
-                              placeholder={`第${sIdx + 1}章：見出し`} 
-                              className="flex-1 h-10 px-3 bg-zinc-50 border border-zinc-300 rounded-lg text-xs font-bold text-zinc-900 outline-none focus:border-zinc-400"
-                              value={sec.sectionTitle}
-                              onChange={(e) => {
-                                const content = [...(newPost.content || [])];
-                                content[sIdx] = { ...sec, sectionTitle: e.target.value };
-                                setNewPost({ ...newPost, content });
-                              }}
-                            />
-                          </div>
-                          
-                          <textarea 
-                            rows={3}
-                            placeholder="段落文章を入力してください。改行（エンター）で新たなブロックを追加できます。"
-                            className="w-full p-2.5 bg-zinc-50 border border-zinc-300 rounded-lg text-[11px] text-zinc-700 outline-none focus:border-zinc-400 leading-relaxed resize-none font-sans"
-                            value={sec.paragraphs.join("\n")}
-                            onChange={(e) => {
-                              const content = [...(newPost.content || [])];
-                              content[sIdx] = { ...sec, paragraphs: e.target.value.split("\n") };
-                              setNewPost({ ...newPost, content });
-                            }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="flex justify-end gap-3 pt-3 border-t border-zinc-200">
-                      <button 
-                        type="button" 
-                        onClick={() => {
-                          setShowBlogForm(false);
-                          setEditingPost(null);
-                        }}
-                        className="h-10 px-4 rounded-xl bg-zinc-200 text-xs font-bold text-zinc-700 hover:text-zinc-900 hover:bg-zinc-300 cursor-pointer transition-colors"
-                      >
-                        キャンセル
-                      </button>
-                      <button 
-                        type="submit" 
-                        className="h-10 px-6 rounded-xl bg-[#1a1a1a] hover:bg-zinc-800 text-white text-xs font-black tracking-widest inline-flex items-center gap-1.5 cursor-pointer shadow-md transition-colors"
-                      >
-                        <Save className="w-3.5 h-3.5" />
-                        <span>{editingPost ? "記事を更新保存" : "新しい記事を公開"}</span>
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  // Blog posts grid-table list
-                  <div className="space-y-3">
-                    {blogPosts.length === 0 ? (
-                      <div className="text-center py-10 bg-zinc-50 rounded-2xl border border-zinc-200">
-                        <p className="text-zinc-500 text-xs">登録されているブログ記事はありません。</p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-3">
-                        {blogPosts.map(post => (
-                          <div 
-                            key={post.id}
-                            className="p-4 bg-zinc-50 border border-zinc-200 rounded-2xl hover:border-zinc-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
-                          >
-                            <div className="flex gap-3.5 items-center">
-                              <div className="w-16 h-12 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-zinc-200">
-                                <img src={post.image} alt="" className="w-full h-full object-cover" />
-                              </div>
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="px-2 py-0.5 bg-zinc-200 text-zinc-800 border border-zinc-300 rounded text-[8px] font-black tracking-wider uppercase font-mono">
-                                    {post.category}
-                                  </span>
-                                  <span className="text-[10px] text-zinc-500 font-mono">{post.date}</span>
-                                </div>
-                                <h4 className="text-xs sm:text-sm font-extrabold text-zinc-800 line-clamp-1">{post.title}</h4>
-                                <p className="text-[10px] text-zinc-400 font-mono">slug: /blog/{post.id}</p>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 self-end sm:self-auto w-full sm:w-auto justify-end border-t sm:border-t-0 border-zinc-200 pt-2 sm:pt-0">
-                              <button 
-                                onClick={() => window.open(`/blog/${post.id}`, '_blank')}
-                                className="h-9 px-3 bg-white border border-zinc-200 hover:bg-zinc-50 hover:text-black rounded-lg text-[10px] sm:text-xs font-bold text-zinc-600 cursor-pointer"
-                              >
-                                表示
-                              </button>
-                              <button 
-                                onClick={() => handleEditBlogClick(post)}
-                                className="h-9 px-3 bg-white border border-zinc-200 hover:border-zinc-400 hover:text-black rounded-lg text-[10px] sm:text-xs font-bold text-zinc-600 inline-flex items-center gap-1 cursor-pointer"
-                              >
-                                <Edit className="w-3 h-3" />
-                                <span>編集</span>
-                              </button>
-                              <button 
-                                onClick={() => handleDeleteBlog(post.id)}
-                                className="h-9 w-9 bg-white hover:bg-red-50 hover:border-red-300 text-zinc-400 hover:text-red-500 border border-zinc-200 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  */;
 
 
 
