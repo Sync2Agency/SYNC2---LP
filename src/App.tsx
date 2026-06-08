@@ -583,13 +583,59 @@ const LeadMagnet = () => {
   const [progressText, setProgressText] = useState('リクエストを準備中...');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Quick Mock Info fill for seamless preview/testing
-  const handleAutoFill = () => {
-    setFormData({
-      company: '株式会社SYNCシステム',
-      name: '佐藤 健太',
-      email: 'kenta.sato@sync2.agency'
-    });
+  const triggerPdfDownload = () => {
+    // Elegant minimal valid PDF document text shell with correct boundaries
+    const pdfContent = `%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [ 3 0 R ] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << >> /MediaBox [ 0 0 595.275 841.889 ] /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 200 >>
+stream
+BT
+/F1 18 Tf
+72 750 Td
+(SYNC2 - B2B SNS Strategy Guide 2026) Tj
+/F1 11 Tf
+0 -36 Td
+(Thank you for completing our inquiry form.) Tj
+0 -18 Td
+(This guide includes key insights on B2B Social Media marketing campaigns) Tj
+0 -18 Td
+(and AI-driven business scaling strategies.) Tj
+0 -36 Td
+(To explore further, please contact us at: info@sync2.agency) Tj
+ET
+endstream
+endobj
+xref
+0 5
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000213 00000 n 
+trailer
+<< /Size 5 /Root 1 0 R >>
+startxref
+485
+%%EOF`;
+
+    const blob = new Blob([pdfContent], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'SYNC2_B2B_SNS_Strategy_Guide_2026.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleDownload = async (e: React.FormEvent) => {
@@ -602,14 +648,20 @@ const LeadMagnet = () => {
       { prg: 20, text: 'セキュアな暗号化接続を開始中...' },
       { prg: 45, text: '2026年最新アルゴリズムレポート生成中...' },
       { prg: 70, text: '高解像度カスタムPDFをパッケージング中...' },
-      { prg: 90, text: 'メール配信システムへの送信要求完了...' },
       { prg: 100, text: 'パケットの整合性を検証、ダウンロード完了！' }
     ];
 
     for (const step of steps) {
-      await new Promise(resolve => setTimeout(resolve, 550 + Math.random() * 250));
+      await new Promise(resolve => setTimeout(resolve, 400 + Math.random() * 200));
       setDownloadProgress(step.prg);
       setProgressText(step.text);
+    }
+
+    // Trigger PDF download automatically
+    try {
+      triggerPdfDownload();
+    } catch (e) {
+      console.error("Automatic download blocked or failed", e);
     }
 
     setIsSuccess(true);
@@ -731,18 +783,6 @@ const LeadMagnet = () => {
                   <h3 className="text-lg sm:text-xl font-bold text-center tracking-tight text-zinc-900 mb-1">今すぐ無料でダウンロード</h3>
                   <p className="text-xs text-zinc-500 text-center">以下の情報を入力して資料をお受け取りください。</p>
                 </div>
-                
-                {/* 1-Tap Auto-fill feature for quick mobile evaluation */}
-                <div className="flex justify-center">
-                  <button 
-                    type="button"
-                    onClick={handleAutoFill}
-                    className="inline-flex items-center gap-1.5 bg-zinc-50 hover:bg-zinc-100 text-zinc-600 px-3 py-1.5 rounded-full border border-zinc-200 text-[10px] sm:text-xs font-bold tracking-tight transition-all active:scale-95 cursor-pointer shadow-sm hover:border-zinc-300"
-                  >
-                    <Sparkles className="w-3 h-3 text-[#cbd35f] fill-[#cbd35f]/10" />
-                    <span>デモお試し入力 (自動充填)</span>
-                  </button>
-                </div>
 
                 <form onSubmit={handleDownload} className="space-y-4 sm:space-y-5">
                   <div className="space-y-1.5">
@@ -823,7 +863,7 @@ const LeadMagnet = () => {
                   </div>
                 </form>
                 <p className="text-[9px] text-zinc-400 text-center leading-relaxed">
-                  ※ご入力頂いたメールアドレスに即時ダウンロードURL付のメールをお送りいたします。
+                  ※ご登録後、資料のダウンロードが即時開始されます。
                 </p>
               </div>
             ) : (
@@ -836,13 +876,25 @@ const LeadMagnet = () => {
                   <CheckCircle2 className="w-8 h-8 text-[#8edce0]" />
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <h3 className="text-xl font-black text-zinc-950 tracking-tight">送信完了いたしました</h3>
-                  <p className="text-[11px] text-zinc-500 leading-relaxed max-w-xs mx-auto">
-                    ホワイトペーパーのダウンロード用リンクを 
-                    <strong className="text-zinc-800 break-all font-semibold block mt-1">{formData.email}</strong>
-                    宛てに送信いたしました。数分後に受信箱をご確認ください。
+                  <p className="text-[12px] text-zinc-600 leading-relaxed max-w-sm mx-auto">
+                    ご入力いただいた情報が送信されました。<br />
+                    資料のダウンロードを再開するには、以下のボタンをクリックしてください。
                   </p>
+                  
+                  <div className="pt-2">
+                    <button
+                      onClick={triggerPdfDownload}
+                      className="inline-flex items-center justify-center gap-2 w-full py-3.5 h-12 bg-[#1a1a1a] hover:bg-zinc-800 text-white rounded-xl font-bold text-xs tracking-widest uppercase transition-all shadow-xl active:scale-95 cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 text-[#8edce0]" />
+                      <span>PDF資料をダウンロードする</span>
+                    </button>
+                    <p className="text-[9px] text-zinc-400 mt-2">
+                      ※自動的にダウンロードが始まらない場合は、上のボタンをクリックしてください。
+                    </p>
+                  </div>
                 </div>
 
                 <div className="border-t border-zinc-100 pt-5 flex flex-col gap-2.5">
@@ -1448,6 +1500,7 @@ const Footer = () => (
           <Link to="/blog" className="text-zinc-400 hover:text-[#1a1a1a] text-[10px] font-medium transition-colors">ブログ</Link>
           <Link to="/terms" className="text-zinc-400 hover:text-[#1a1a1a] text-[10px] font-medium transition-colors">利用規約</Link>
           <Link to="/privacy" className="text-zinc-400 hover:text-[#1a1a1a] text-[10px] font-medium transition-colors">プライバシー</Link>
+          <Link to="/blackbox-access" className="text-zinc-400 hover:text-[#1a1a1a] text-[10px] font-medium transition-colors">BLACKBOX</Link>
         </div>
       </div>
     </div>
@@ -1590,33 +1643,623 @@ const PrivacyPage = () => (
     <h2 className="text-xl font-bold mt-8 mb-4">第1条（個人情報の定義）</h2>
     <p>「個人情報」とは、個人情報保護法にいう「個人情報」を指すものとし、生存する個人に関する情報であって、当該情報に含まれる氏名、生年月日、住所、電話番号、連絡先その他の記述等により特定の個人を識別できる情報、および容貌、指紋、声紋にかかるデータ、及び健康保険証の保険者番号などの当該情報単体から特定の個人を識別できる情報（個人識別符号）を指します。</p>
 
-    <h2 className="text-xl font-bold mt-8 mb-4">第2条（個人情報の収集方法）</h2>
-    <p>当社は、ユーザーが本サービスを利用する際やお問い合わせをする際に、氏名、会社名、メールアドレス、電話番号などの個人情報をお尋ねすることがあります。また、ユーザーのアクセス履歴、IPアドレス、Cookie情報などを収集する場合があります。</p>
+    <h2 className="text-xl font-bolconst useSeoMeta = (pageKey: string, defaultTitle: string, defaultDesc: string) => {
+  const [seo, setSeo] = useState({ title: defaultTitle, description: defaultDesc, keywords: "" });
 
-    <h2 className="text-xl font-bold mt-8 mb-4">第3条（個人情報を収集・利用する目的）</h2>
-    <p>当社が個人情報を収集・利用する目的は、以下のとおりです。</p>
-    <ul className="list-disc pl-6 space-y-2">
-      <li>本サービスの提供・運営のため</li>
-      <li>ユーザーからのお問い合わせに回答するため（本人確認を行うことを含む）</li>
-      <li>ユーザーが利用中のサービスの新機能、更新情報、キャンペーン等及び当社が提供する他のサービスの案内のメールを送付するため</li>
-      <li>メンテナンス、重要のお知らせなど必要に応じたご連絡のため</li>
-      <li>利用規約に違反したユーザーや、不正・不当な目的でサービスを利用しようとするユーザーの特定をし、ご利用をお断りするため</li>
-      <li>上記の利用目的に付随する目的</li>
-    </ul>
+  useEffect(() => {
+    const loadedSeo = localStorage.getItem('sync2_seo_config');
+    if (loadedSeo) {
+      try {
+        const config = JSON.parse(loadedSeo);
+        if (config[pageKey]) {
+          setSeo({
+            title: config[pageKey].title || defaultTitle,
+            description: config[pageKey].desc || defaultDesc,
+            keywords: config[pageKey].keywords || ""
+          });
+        }
+      } catch (e) {}
+    }
+  }, [pageKey, defaultTitle, defaultDesc]);
 
-    <h2 className="text-xl font-bold mt-8 mb-4">第4条（利用目的の変更）</h2>
-    <p>当社は、利用目的が変更前と関連性を有すると合理的に認められる場合に限り、個人情報の利用目的を変更するものとします。利用目的の変更を行った場合には、変更後の目的について、当社所定の方法により、ユーザーに通知し、または本ウェブサイト上に公表するものとします。</p>
+  return seo;
+};
 
-    <h2 className="text-xl font-bold mt-8 mb-4">第5条（個人情報の第三者提供）</h2>
-    <p>当社は、次に掲げる場合を除いて、あらかじめユーザーの同意を得ることなく、第三者に個人情報を提供することはありません。ただし、個人情報保護法その他の法令で認められる場合を除きます。</p>
-    <ul className="list-disc pl-6 space-y-2">
-      <li>人の生命、身体または財産の保護のために必要がある場合であって、本人の同意を得ることが困難であるとき</li>
-      <li>公衆衛生の向上または児童の健全な育成の推進のために特に必要がある場合であって、本人の同意を得ることが困難であるとき</li>
-      <li>国の機関もしくは地方公共団体またはその委託を受けた者が法令の定める事務を遂行することに対して協力する必要がある場合であって、本人の同意を得ることにより当該事務の遂行に支障を及ぼすおそれがあるとき</li>
-    </ul>
+const BlogPage = () => {
+  const seo = useSeoMeta(
+    'blog',
+    'SYNC2 INSIGHTS | ブログ & 最新トレンドナレッジ',
+    'SYNC2がお届けする、SNSマーケティングや最新AIシステム開発に関する価値ある戦略的ノウハウ集。'
+  );
 
-    <h2 className="text-xl font-bold mt-8 mb-4">第6条（アクセス解析ツール・Cookieの利用について）</h2>
-    <p>当サイトでは、サービスの向上や利用状況の分析のためにGoogleアナリティクスなどのアクセス解析ツールを利用しています。これらのツールはトラフィックデータの収集のためにCookie（クッキー）を使用しています。このデータは匿名で収集されており、個人を特定するものではありません。ブラウザの設定によりCookieを無効にすることで収集を拒否することが可能です。</p>
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("すべて");
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  
+  useEffect(() => {
+    const existing = localStorage.getItem('sync2_blog_posts');
+    if (!existing) {
+      localStorage.setItem('sync2_blog_posts', JSON.stringify(BLOG_POSTS));
+      setPosts(BLOG_POSTS);
+    } else {
+      try {
+        setPosts(JSON.parse(existing));
+      } catch (e) {
+        setPosts(BLOG_POSTS);
+      }
+    }
+  }, []);
+  
+  // Feedback state for Poll
+  const [voted, setVoted] = useState<Record<string, 'yes' | 'no'>>({});
+  const [copiedPostId, setCopiedPostId] = useState<string | null>(null);
+
+  // Scroll target reference or percentage indicator for the active reading post
+  const [readProgress, setReadProgress] = useState(0);
+
+  useEffect(() => {
+    if (!id) {
+      setReadProgress(0);
+      return;
+    }
+    
+    const handleScroll = () => {
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight > 0) {
+        const pct = Math.min(100, Math.round((window.scrollY / docHeight) * 100));
+        setReadProgress(pct);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [id]);
+
+  // Scroll to top when post changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [id]);
+
+  const categories = ["すべて", "SNSマーケティング", "アプリ・AI・システム開発"];
+
+  const handleShare = (postId: string) => {
+    const url = `${window.location.origin}/blog/${postId}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopiedPostId(postId);
+        setTimeout(() => setCopiedPostId(null), 2500);
+      }).catch(() => {});
+    }
+  };
+
+  const currentPost = id ? posts.find(p => p.id === id) : null;
+
+  const filteredPosts = posts.filter((post) => {
+    const matchesCategory = selectedCategory === "すべて" || post.category === selectedCategory;
+    const matchesSearch = 
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      post.summary.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  if (id && !currentPost) {
+    return (
+      <div className="pt-32 pb-24 bg-white min-h-screen flex flex-col items-center justify-center px-6">
+        <h2 className="text-2xl font-bold mb-4 text-[#1a1a1a]">記事が見つかりませんでした。</h2>
+        <button 
+          onClick={() => navigate('/blog')}
+          className="bg-[#1a1a1a] text-white px-6 py-3 rounded-full font-bold text-xs cursor-pointer"
+        >
+          ブログトップへ戻る
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pt-28 pb-24 bg-white min-h-screen select-none">
+      <Helmet>
+        <title>{currentPost ? `${currentPost.title} - SYNC2 INSIGHTS` : seo.title}</title>
+        <meta name="description" content={currentPost ? currentPost.summary : seo.description} />
+      </Helmet>
+
+      {/* Progress bar for reading detailed post */}
+      {currentPost && (
+        <div 
+          className="fixed top-0 left-0 h-1 bg-[#8edce0] transition-all duration-100 z-50" 
+          style={{ width: `${readProgress}%` }}
+        />
+      )}
+
+      {currentPost ? (
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <button 
+            onClick={() => navigate('/blog')}
+            className="flex items-center gap-1 text-xs font-bold text-zinc-500 hover:text-zinc-900 mb-6 cursor-pointer"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            <span>記事一覧に戻る</span>
+          </button>
+
+          <article className="space-y-8 sm:space-y-10">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
+                <span className="px-2 py-0.5 bg-[#8edce0]/15 text-zinc-700 font-extrabold rounded">
+                  {currentPost.category}
+                </span>
+                <span>•</span>
+                <span>{currentPost.date}</span>
+                <span>•</span>
+                <span>{currentPost.readTime}</span>
+              </div>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1a1a1a] leading-snug">
+                {currentPost.title}
+              </h1>
+            </div>
+
+            {/* Main Visual Image Banner */}
+            <div className="rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden aspect-[16/10] sm:aspect-[16/9] bg-zinc-50 border border-zinc-100 relative group">
+              <img 
+                src={currentPost.image} 
+                alt={currentPost.title} 
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102"
+              />
+            </div>
+
+            {/* Read Summary Card */}
+            <div className="bg-zinc-50 border-l-4 border-[#8edce0] p-5 sm:p-6 rounded-r-2xl leading-relaxed text-zinc-650 text-sm md:text-base">
+              <p className="font-bold text-[#1a1a1a] mb-2 text-xs uppercase tracking-widest text-[#8edce0] font-mono">SUMMARY / 要約</p>
+              {currentPost.summary}
+            </div>
+
+            {/* Render blog body content */}
+            <div className="space-y-10 text-zinc-700 leading-relaxed text-sm sm:text-base md:text-lg">
+              {currentPost.content?.map((sec: any, idx: number) => (
+                <div key={idx} className="space-y-4">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#1a1a1a] flex items-center gap-2.5 pt-4 text-zinc-950">
+                    <span className="w-8 h-8 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-sm md:text-base">{sec.emoji}</span>
+                    <span>{sec.sectionTitle}</span>
+                  </h3>
+                  
+                  <div className="space-y-4 text-zinc-650 text-xs sm:text-sm md:text-base pl-1 md:pl-2">
+                    {sec.paragraphs?.map((p: string, pIdx: number) => (
+                      <p key={pIdx} className="leading-relaxed">
+                        {p}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Social Share Trigger Widget */}
+            <div className="border-t border-zinc-100 pt-8 mt-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2.5">
+                <span className="text-zinc-400 text-xs font-mono font-bold">SHARE THIS ARTICLE :</span>
+                <button 
+                  onClick={() => handleShare(currentPost.id)}
+                  className="h-10 px-4 bg-zinc-50 hover:bg-[#8edce0]/10 border border-zinc-200 hover:border-[#8edce0]/30 rounded-xl font-bold text-xs text-zinc-700 hover:text-teal-650 flex items-center gap-2 cursor-pointer transition-colors"
+                >
+                  {copiedPostId === currentPost.id ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                      <span className="text-emerald-600 font-bold">リンクをコピーしました！</span>
+                    </>
+                  ) : (
+                    <>
+                      <AtSign className="w-3.5 h-3.5" />
+                      <span>シェアリンクをコピー</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <button 
+                onClick={() => navigate('/blog')}
+                className="text-xs font-black tracking-widest text-zinc-900 hover:text-teal-650 flex items-center gap-1 cursor-pointer font-sans"
+              >
+                <span>他のノウハウを読む</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </article>
+        </div>
+      ) : (
+        // LIST VIEW
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center space-y-4 mb-8 sm:mb-14">
+            <span className="text-[10px] font-black tracking-[0.3em] text-[#8edce0] uppercase block font-mono">SYNC2 INSIGHTS</span>
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-[#1a1a1a] tracking-tight">
+              ブログ & トレンド解説
+            </h1>
+            <p className="text-zinc-500 text-xs sm:text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+              日本のB2B企業がSNSや最新のデジタル自動化ワークフローを味方につけ、中長期的に集客・売上を生み出し続けるノウハウを結集。
+            </p>
+          </div>
+
+          <div className="space-y-6 sm:space-y-8">
+            {/* Search and Category block */}
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-b border-zinc-100 pb-5">
+              {/* Category selector */}
+              <div className="w-full md:w-auto overflow-x-auto scrollbar-none flex gap-2 pb-2 md:pb-0 scroll-smooth select-none px-2 -mx-2">
+                <div className="inline-flex gap-2">
+                  {categories.map((cat) => (
+                    <button 
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`h-10 px-4 rounded-full text-xs font-bold font-mono tracking-wide transition-all uppercase flex-shrink-0 cursor-pointer ${
+                        selectedCategory === cat 
+                          ? 'bg-[#1a1a1a] text-[#8edce0] shadow-md shadow-zinc-150' 
+                          : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-500 border border-zinc-150'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Minimal Search bar */}
+              <div className="relative w-full md:w-72 lg:w-80">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                <input 
+                  type="text" 
+                  placeholder="記事を検索..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full h-11 bg-zinc-50 border border-zinc-200 rounded-full pl-10 pr-4 text-xs font-bold outline-none focus:ring-1 focus:ring-zinc-350 text-zinc-800"
+                />
+              </div>
+            </div>
+
+            {/* Posts Grid */}
+            {filteredPosts && filteredPosts.length === 0 ? (
+              <div className="text-center py-20 bg-zinc-50 rounded-2xl border border-zinc-150">
+                <p className="text-zinc-500 text-xs font-mono">該当するキーワードの記事がありません。</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredPosts.map((post) => (
+                  <div 
+                    key={post.id}
+                    onClick={() => navigate(`/blog/${post.id}`)}
+                    className="group bg-white border border-zinc-150 rounded-3xl overflow-hidden cursor-pointer hover:border-zinc-350 hover:shadow-lg transition-all duration-300 flex flex-col h-full"
+                  >
+                    <div className="aspect-[16/10] bg-zinc-50 overflow-hidden relative border-b border-zinc-100">
+                      <img 
+                        src={post.image} 
+                        alt={post.title} 
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
+                      />
+                    </div>
+                    <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-400">
+                          <span className="px-2 py-0.5 bg-[#8edce0]/15 text-zinc-700 font-extrabold rounded">
+                            {post.category}
+                          </span>
+                          <span>•</span>
+                          <span>{post.date}</span>
+                        </div>
+                        <h3 className="text-sm font-extrabold text-zinc-900 group-hover:text-teal-650 transition-colors line-clamp-2 leading-snug">
+                          {post.title}
+                        </h3>
+                        <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                          {post.summary}
+                        </p>
+                      </div>
+                      <div className="pt-2 text-xs font-bold text-zinc-700 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5 self-start">
+                        <span>記事を読む</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const BlackboxAccessPage = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [passError, setPassError] = useState("");
+  const [activeTab, setActiveTab] = useState<'blog' | 'leads' | 'docs' | 'cashflow' | 'seo'>('blog');
+  
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [leads, setLeads] = useState<any[]>([]);
+  const [docs, setDocs] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  
+  const [showBlogForm, setShowBlogForm] = useState(false);
+  const [showDocForm, setShowDocForm] = useState(false);
+  const [showTxForm, setShowTxForm] = useState(false);
+  
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  
+  // Custom PDF states
+  const [pdfInfo, setPdfInfo] = useState<{ name: string; size: string; date: string }>({
+    name: localStorage.getItem('sync2_pdf_name') || "",
+    size: localStorage.getItem('sync2_pdf_size') || "",
+    date: localStorage.getItem('sync2_pdf_date') || ""
+  });
+
+  const [newPost, setNewPost] = useState<{
+    id: string;
+    title: string;
+    category: string;
+    date: string;
+    author: string;
+    readTime: string;
+    summary: string;
+    image: string;
+    content: { emoji: string; sectionTitle: string; paragraphs: string[] }[];
+    seoTitle: string;
+    seoDescription: string;
+    seoKeywords: string;
+    scheduledDate: string;
+    isPublished: boolean;
+  }>({
+    id: "",
+    title: "",
+    category: "SNSマーケティング",
+    date: "",
+    author: "SYNC2 編集部",
+    readTime: "5分",
+    summary: "",
+    image: "https://picsum.photos/seed/sync2-blog/800/500",
+    content: [
+      { emoji: "🚀", sectionTitle: "導入・背景", paragraphs: [] },
+      { emoji: "🔥", sectionTitle: "本質と実践メカニズム", paragraphs: [] },
+      { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: [] }
+    ],
+    seoTitle: "",
+    seoDescription: "",
+    seoKeywords: "",
+    scheduledDate: "",
+    isPublished: true
+  });
+
+  // State for transaction register form
+  const [txForm, setTxForm] = useState({
+    date: new Date().toISOString().split('T')[0],
+    type: 'income',
+    category: '売上',
+    amount: 100000,
+    description: ''
+  });
+
+  // Document states
+  const [docForm, setDocForm] = useState<{
+    id: string;
+    docType: 'estimate' | 'invoice';
+    docNumber: string;
+    recipient: string;
+    sender: string;
+    issueDate: string;
+    dueDate: string;
+    taxRate: number;
+    memo: string;
+    items: { id: string; name: string; price: number; qty: number }[];
+  }>({
+    id: "",
+    docType: "estimate",
+    docNumber: "",
+    recipient: "",
+    sender: "SYNC2 経営管理部",
+    issueDate: "",
+    dueDate: "",
+    taxRate: 0.10,
+    memo: "【振込先口座案内】\nGMOあおぞらネット銀行 法人営業部\n普通 1234567\nカ)シンクツー",
+    items: []
+  });
+
+  const [tempItemName, setTempItemName] = useState("");
+  const [tempItemPrice, setTempItemPrice] = useState(0);
+  const [tempItemQty, setTempItemQty] = useState(1);
+  const [viewingDoc, setViewingDoc] = useState<any | null>(null);
+
+  const [selectedSeoPage, setSelectedSeoPage] = useState<string>('home');
+  const [seoConfig, setSeoConfig] = useState<Record<string, { title: string; desc: string; keywords: string }>>({
+    home: {
+      title: "SYNC2 B2B TECHNOLOGY AGENCY",
+      desc: "SYNC2は、経営・SNSマーケティング・システム開発プロセスを完全同期するB2B特化のテクノロジーエージェンシーです。",
+      keywords: "B2B, マーケティング, AI開発, システム開発"
+    },
+    sns: {
+      title: "SYNC2 | SNSショート動画マーケティング集客",
+      desc: "縦型動画クリエイティブと高密度アカウントプランで、新規リード獲得単価を最小化する戦略的SNSサービス。",
+      keywords: "TikTok, Instagram, ショート動画, B2Bマーケティング"
+    },
+    dev: {
+      title: "SYNC2 | アプリ・AIシステム開発 & 設計",
+      desc: "最先端Gemini APIや高度API統合を活用。顧客対応から商談予約、業務自動化、基幹システムとのスマート同期まで構築。",
+      keywords: "AI開発, システム開発, LINE自動化, 業務DX"
+    },
+    blog: {
+      title: "SYNC2 INSIGHTS | ブログ & 最新トレンドナレッジ",
+      desc: "SYNC2がお届けする、SNSマーケティングや最新AIシステム開発に関する価値ある戦略的ノウハウ集。",
+      keywords: "ブログ, デジタルマーケティング, ナレッジシェア, 企業DX"
+    }
+  });
+
+  // Load state values from LocalStorage inside useEffect on mounted node
+  useEffect(() => {
+    // Load blog posts from local storage
+    const loadedPosts = localStorage.getItem('sync2_blog_posts');
+    if (loadedPosts) {
+      try {
+        setBlogPosts(JSON.parse(loadedPosts));
+      } catch (e) {
+        setBlogPosts(BLOG_POSTS);
+      }
+    } else {
+      setBlogPosts(BLOG_POSTS);
+    }
+
+    // Load leads
+    const loadedLeads = localStorage.getItem('sync2_leads');
+    if (loadedLeads) {
+      try {
+        setLeads(JSON.parse(loadedLeads));
+      } catch (e) {}
+    }
+
+    // Load docs (estimates & invoices)
+    const loadedDocs = localStorage.getItem('sync2_docs');
+    if (loadedDocs) {
+      try {
+        setDocs(JSON.parse(loadedDocs));
+      } catch (e) {}
+    }
+
+    // Load financial transactions
+    const loadedTxs = localStorage.getItem('sync2_transactions');
+    if (loadedTxs) {
+      try {
+        setTransactions(JSON.parse(loadedTxs));
+      } catch (e) {}
+    }
+
+    // Load custom SEO Configs
+    const loadedSeo = localStorage.getItem('sync2_seo_config');
+    if (loadedSeo) {
+      try {
+        setSeoConfig(JSON.parse(loadedSeo));
+      } catch (e) {}
+    }
+  }, []);
+
+  // Calculate dynamic outputs
+  const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+  const totalExpense = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  const netProfit = totalIncome - totalExpense;
+
+  const handleAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passcode === "sync2admin") {
+      setIsAuthenticated(true);
+      setPassError("");
+    } else {
+      setPassError("無効なパスコードキーです。");
+    }
+  };
+
+  const handleEditBlogClick = (post: BlogPost) => {
+    setEditingPost(post);
+    setNewPost({
+      id: post.id,
+      title: post.title,
+      category: post.category,
+      date: post.date,
+      author: post.author,
+      readTime: post.readTime,
+      summary: post.summary,
+      image: post.image,
+      content: post.content || [
+        { emoji: "🚀", sectionTitle: "導入・背景", paragraphs: [] },
+        { emoji: "🔥", sectionTitle: "本質と実践メカニズム", paragraphs: [] },
+        { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: [] }
+      ],
+      seoTitle: post.seoTitle || "",
+      seoDescription: post.seoDescription || "",
+      seoKeywords: post.seoKeywords || "",
+      scheduledDate: post.scheduledDate || "",
+      isPublished: post.isPublished !== false
+    });
+    setShowBlogForm(true);
+  };
+
+  const handleAddItemToDoc = () => {
+    if (!tempItemName.trim()) return;
+    const newItem = {
+      id: Math.random().toString(36).substring(2, 9),
+      name: tempItemName.trim(),
+      price: tempItemPrice,
+      qty: tempItemQty
+    };
+    setDocForm(prev => ({
+      ...prev,
+      items: [...(prev.items || []), newItem]
+    }));
+    setTempItemName("");
+    setTempItemPrice(0);
+    setTempItemQty(1);
+  };
+
+  const handleRemoveItemFromDoc = (itemId: string) => {
+    setDocForm(prev => ({
+      ...prev,
+      items: (prev.items || []).filter(item => item.id !== itemId)
+    }));
+  };
+
+  const handleSaveDoc = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!docForm.recipient || !docForm.docNumber) {
+      alert("宛先及び帳票番号は必須入力です。");
+      return;
+    }
+    const docObj = {
+      ...docForm,
+      id: docForm.id || Math.random().toString(36).substring(2, 9)
+    };
+    let updatedDocs;
+    if (docForm.id) {
+      updatedDocs = docs.map(d => d.id === docForm.id ? docObj : d);
+    } else {
+      updatedDocs = [docObj, ...docs];
+    }
+    setDocs(updatedDocs);
+    localStorage.setItem('sync2_docs', JSON.stringify(updatedDocs));
+    setShowDocForm(false);
+    // Reset form
+    setDocForm({
+      id: "",
+      docType: "estimate",
+      docNumber: "",
+      recipient: "",
+      sender: "SYNC2 経営管理部",
+      issueDate: "",
+      dueDate: "",
+      taxRate: 0.10,
+      memo: "【振込先口座案内】\nGMOあおぞらネット銀行 法人営業部\n普通 1234567\nカ)シンクツー",
+      items: []
+    });
+  };
+
+  const handleEditDocClick = (doc: any) => {
+    setDocForm(doc);
+    setShowDocForm(true);
+  };
+
+  const handleUpdateSeo = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem('sync2_seo_config', JSON.stringify(seoConfig));
+    alert(`${selectedSeoPage.toUpperCase()} のSEOメタ設定を更新保存しました。`);
+  };
+
+  const updateSelectedSeoField = (field: 'title' | 'desc' | 'keywords', value: string) => {
+    setSeoConfig(prev => ({
+      ...prev,
+      [selectedSeoPage]: {
+        ...prev[selectedSeoPage],
+        [field]: value
+      }
+    }));
+  };
+
+  const handleAddTransaction = (e: React.FormEvent) => {
+    handleAddTx(e);
+  };��の収集のためにCookie（クッキー）を使用しています。このデータは匿名で収集されており、個人を特定するものではありません。ブラウザの設定によりCookieを無効にすることで収集を拒否することが可能です。</p>
 
     <h2 className="text-xl font-bold mt-8 mb-4">第7条（個人情報の開示・訂正・利用停止等）</h2>
     <p>当社は、本人から個人情報の開示、訂正、追加、削除、利用停止等を求められたときは、本人確認を行った上で、遅滞なくこれに対応します。ただし、法令に基づき対応の義務を負わない場合は、この限りではありません。</p>
@@ -1916,555 +2559,129 @@ const BlogPage = () => {
     <div className="pt-28 pb-24 bg-white min-h-screen select-none">
       <Helmet>
         <title>{currentPost ? `${currentPost.title} - SYNC2 INSIGHTS` : seo.title}</title>
-        <meta name="description" content={currentPost ? currentPost.summary : seo.desc} />
-      </Helmet>
+          // Legacy clean up
+  const unused_dashboard_start = null;
+  const legacy_blog_dummy = null;
+  const dummy_start = null;
 
-      {/* Modern thin micro scroll visual progress bar for reading */}
-      {id && (
-        <div className="fixed top-0 left-0 right-0 h-1 bg-zinc-100 z-[60]">
-          <motion.div 
-            className="h-full bg-gradient-to-r from-[#8edce0] to-teal-400"
-            style={{ width: `${readProgress}%` }}
-          />
-        </div>
-      )}
+  // Render Authorization Shield��ズム", paragraphs: [] },
+        { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: [] }
+      ],
+      seoTitle: post.seoTitle || "",
+      seoDescription: post.seoDescription || "",
+      seoKeywords: post.seoKeywords || "",
+      scheduledDate: post.scheduledDate || "",
+      isPublished: post.isPublished !== false
+    });
+    setShowBlogForm(true);
+  };
 
-      {currentPost ? (
-        // DETAIL VIEW
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 relative">
-          {/* Back button with rich clickable target size */}
-          <div className="mb-6">
-            <button 
-              onClick={() => navigate('/blog')}
-              className="inline-flex items-center gap-2 text-zinc-500 hover:text-[#8edce0] transition-colors text-sm font-bold h-12 px-2 hover:translate-x-[-2px] cursor-pointer"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span>記事一覧に戻る</span>
-            </button>
-          </div>
-
-          <article className="space-y-6 sm:space-y-8">
-            {/* Meta headers */}
-            <div className="space-y-4">
-              <span className="inline-block px-3 py-1 bg-[#8edce0]/10 text-[#8edce0] rounded-full text-xs font-black tracking-wider font-mono">
-                {currentPost.category}
-              </span>
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#1a1a1a] leading-tight tracking-tight">
-                {currentPost.title}
-              </h1>
-              
-              <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-400 font-mono pt-2 border-b border-zinc-100 pb-5">
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-zinc-400" />
-                  <span>{currentPost.date}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-zinc-400" />
-                  <span>読了 {currentPost.readTime}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <User className="w-4 h-4 text-zinc-400" />
-                  <span>著者: {currentPost.author}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Main Visual Image Banner */}
-            <div className="rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden aspect-[16/10] sm:aspect-[16/9] bg-zinc-50 border border-zinc-100 relative group">
-              <img 
-                src={currentPost.image} 
-                alt={currentPost.title} 
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102"
-              />
-            </div>
-
-            {/* Read Summary Card */}
-            <div className="bg-zinc-50 border-l-4 border-[#8edce0] p-5 sm:p-6 rounded-r-2xl leading-relaxed text-zinc-650 text-sm md:text-base">
-              <p className="font-bold text-[#1a1a1a] mb-2 text-xs uppercase tracking-widest text-[#8edce0] font-mono">SUMMARY / 要約</p>
-              {currentPost.summary}
-            </div>
-
-            {/* Render blog body content */}
-            <div className="space-y-10 text-zinc-700 leading-relaxed text-sm sm:text-base md:text-lg">
-              {currentPost.content.map((sec, idx) => (
-                <div key={idx} className="space-y-4">
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#1a1a1a] flex items-center gap-2.5 pt-4 text-zinc-950">
-                    <span className="w-8 h-8 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-sm md:text-base">{sec.emoji}</span>
-                    <span>{sec.sectionTitle}</span>
-                  </h3>
-                  
-                  <div className="space-y-4 text-zinc-650 text-xs sm:text-sm md:text-base pl-1 md:pl-2">
-                    {sec.paragraphs.map((p, pIdx) => (
-                      <p key={pIdx} className="leading-relaxed">
-                        {p}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Social Share Trigger Widget */}
-            <div className="border-t border-zinc-150 pt-8 mt-12">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-zinc-50 border border-zinc-100 rounded-2xl">
-                <div>
-                  <h5 className="font-bold text-xs sm:text-sm text-[#1a1a1a]">こちらの記事を周りに共有しませんか？</h5>
-                  <p className="text-[10px] sm:text-xs text-zinc-400">社内チームや運用担当者との共有にご活用ください。</p>
-                </div>
-                <button 
-                  onClick={() => handleShare(currentPost.id)}
-                  className="w-full sm:w-auto px-5 py-2.5 bg-white border border-zinc-150 rounded-xl text-xs font-black tracking-wider text-[#1a1a1a] hover:bg-zinc-950 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
-                >
-                  {copiedPostId === currentPost.id ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                      <span className="text-emerald-600 font-bold">コピー完了！</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 text-[#8edce0]" />
-                      <span>URLリンクをコピー</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Interactive Feedback Poll Widget */}
-            <div className="p-6 sm:p-8 bg-gradient-to-br from-zinc-50 to-white border border-zinc-150 rounded-2xl text-center space-y-4">
-              <h4 className="font-extrabold text-sm sm:text-base text-zinc-900">
-                この記事は参考になりましたか？💡
-              </h4>
-              
-              {!voted[currentPost.id] ? (
-                <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
-                  <button 
-                    onClick={() => setVoted({...voted, [currentPost.id]: 'yes'})}
-                    className="h-12 px-6 bg-white border border-zinc-150 rounded-xl text-xs sm:text-sm font-bold text-zinc-705 hover:bg-emerald-50 hover:text-emerald-650 hover:border-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
-                  >
-                    <span>👍 はい、とても参考になった</span>
-                  </button>
-                  <button 
-                    onClick={() => setVoted({...voted, [currentPost.id]: 'no'})}
-                    className="h-12 px-6 bg-white border border-zinc-150 rounded-xl text-xs sm:text-sm font-bold text-zinc-705 hover:bg-red-50 hover:text-red-650 hover:border-red-150 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
-                  >
-                    <span>📖 他の情報も知りたい</span>
-                  </button>
-                </div>
-              ) : (
-                <motion.div 
-                  initial={{ scale: 0.95, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="p-3.5 bg-[#8edce0]/10 text-zinc-850 text-xs sm:text-sm font-bold rounded-xl max-w-sm mx-auto shadow-sm"
-                >
-                  🎉 フィードバックありがとうございます！<br />
-                  <span className="font-normal text-[10px] text-zinc-500 mt-1 block">皆様の声をもとに、さらに価値ある情報をお届けしてまいります。</span>
-                </motion.div>
-              )}
-            </div>
-          </article>
-        </div>
-      ) : (
-        // LIST VIEW (Beautiful modern dashboard with horizontal swipable category tags on mobile)
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center space-y-4 mb-8 sm:mb-14">
-            <span className="text-[10px] font-black tracking-[0.3em] text-[#8edce0] uppercase block font-mono">SYNC2 INSIGHTS</span>
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-[#1a1a1a] tracking-tight">
-              ブログ & トレンド解説
-            </h1>
-            <p className="text-zinc-550 text-xs sm:text-sm md:text-base max-w-lg mx-auto leading-relaxed">
-              日本のB2B企業がSNSや最新のデジタル自動化ワークフローを味方につけ、中長期的に集客・売上を生み出し続けるノウハウを結集。
-            </p>
-          </div>
-
-          <div className="space-y-6 sm:space-y-8">
-            {/* Search and Category block */}
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-b border-zinc-100 pb-5">
-              {/* Category selector - horizontally swipable on mobile! */}
-              <div className="w-full md:w-auto overflow-x-auto scrollbar-none flex gap-2 pb-2 md:pb-0 scroll-smooth select-none px-2 -mx-2">
-                <div className="inline-flex gap-2">
-                  {categories.map((cat) => (
-                    <button 
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`h-10 px-4 rounded-full text-xs font-bold font-mono tracking-wide transition-all uppercase flex-shrink-0 cursor-pointer ${
-                        selectedCategory === cat 
-                          ? 'bg-[#1a1a1a] text-[#8edce0] shadow-md shadow-zinc-150' 
-                          : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-500 border border-zinc-150'
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Minimal Search bar */}
-              <div className="relative w-full md:w-72 lg:w-80">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                <input 
-                  type="text" 
-                  placeholder="記事を検索..."
-                  className="w-full h-11 pl-10 pr-4 bg-zinc-50 border border-zinc-150 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#8edce0]/30 focus:border-[#8edce0] transition-all text-zinc-800"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Main blog grid */}
-            {(() => {
-              const filtered = posts.filter(post => {
-                const matchesCat = selectedCategory === "すべて" || post.category === selectedCategory;
-                const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                     post.summary.toLowerCase().includes(searchTerm.toLowerCase());
-                return matchesCat && matchesSearch;
-              });
-
-              if (filtered.length === 0) {
-                return (
-                  <div className="text-center py-16 bg-zinc-50 rounded-3xl border border-zinc-100">
-                    <p className="text-zinc-400 text-xs sm:text-sm">条件に一致する記事が見つかりませんでした。</p>
-                  </div>
-                );
-              }
-
-              return (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                  {filtered.map((post, index) => (
-                    <motion.div
-                      key={post.id}
-                      initial={{ opacity: 0, y: 15 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}
-                      className="group bg-white border border-zinc-150 rounded-[1.8rem] overflow-hidden hover:border-[#8edce0]/45 hover:shadow-2xl hover:shadow-[#8edce0]/5 transition-all duration-350 cursor-pointer flex flex-col justify-between"
-                      onClick={() => navigate(`/blog/${post.id}`)}
-                    >
-                      <div className="space-y-4">
-                        {/* Image holding div */}
-                        <div className="relative overflow-hidden aspect-[16/10] bg-zinc-100">
-                          <img 
-                            src={post.image} 
-                            alt={post.title} 
-                            referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
-                          />
-                          {/* Floating Category indicator tag */}
-                          <div className="absolute top-4 left-4">
-                            <span className="px-2.5 py-0.5 bg-[#1a1a1a]/90 backdrop-blur-md text-[#8edce0] rounded-md text-[9px] font-black tracking-wide uppercase font-mono">
-                              {post.category}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Text card metadata */}
-                        <div className="px-5 space-y-2">
-                          <div className="flex items-center gap-3 text-[10px] text-zinc-400 font-mono">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {post.date}
-                            </span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3 text-zinc-450" />
-                              {post.readTime}
-                            </span>
-                          </div>
-                          
-                          <h3 className="font-bold text-zinc-900 text-sm sm:text-base leading-snug group-hover:text-[#8edce0] transition-colors line-clamp-2">
-                            {post.title}
-                          </h3>
-                          
-                          <p className="text-zinc-450 text-[11px] sm:text-xs leading-relaxed line-clamp-3">
-                            {post.summary}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Footer visual indicators */}
-                      <div className="px-5 pb-5 pt-4 mt-4 border-t border-[#f4f4f5] flex items-center justify-between">
-                        <span className="text-[9px] font-bold text-zinc-500 group-hover:text-zinc-700 font-mono">
-                          BY {post.author.toUpperCase()}
-                        </span>
-                        
-                        <div className="inline-flex items-center gap-1 text-[11px] font-black text-[#8edce0]">
-                          <span>読む</span>
-                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              );
-            })()}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Hook to sync SEO configuration across pages
-const useSeoMeta = (pageKey: string, defaultTitle: string, defaultDesc: string) => {
-  const [meta, setMeta] = useState({ title: defaultTitle, desc: defaultDesc });
-  useEffect(() => {
-    const handleSeoUpdate = () => {
-      try {
-        const saved = localStorage.getItem('sync2_seo_config');
-        if (saved) {
-          const config = JSON.parse(saved);
-          if (config[pageKey]) {
-            setMeta({
-              title: config[pageKey].title || defaultTitle,
-              desc: config[pageKey].desc || defaultDesc
-            });
-          }
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    
-    handleSeoUpdate();
-    window.addEventListener('storage', handleSeoUpdate);
-    return () => window.removeEventListener('storage', handleSeoUpdate);
-  }, [pageKey, defaultTitle, defaultDesc]);
-  return meta;
-};
-
-// Hidden Access Portal exclusively for SYNC2 internal operations
-interface DocItem {
-  id: string;
-  name: string;
-  price: number;
-  qty: number;
-}
-
-interface BillingDoc {
-  id: string;
-  docType: 'estimate' | 'invoice';
-  docNumber: string;
-  recipient: string;
-  sender: string;
-  issueDate: string;
-  dueDate: string;
-  items: DocItem[];
-  taxRate: number;
-  memo?: string;
-}
-
-interface LedgerTransaction {
-  id: string;
-  date: string;
-  type: 'income' | 'expense';
-  category: string;
-  amount: number;
-  description: string;
-}
-
-const SEED_CASH_FLOW: LedgerTransaction[] = [
-  { id: "tx-1", date: "2026-06-05", type: "income", category: "売上", amount: 750000, description: "SNSマーケティング 4月度配信代行" },
-  { id: "tx-2", date: "2026-06-04", type: "expense", category: "外注費", amount: 150000, description: "クリエイター報酬（ショート動画4本分）" },
-  { id: "tx-3", date: "2026-06-03", type: "expense", category: "クラウド経費", amount: 12000, description: "Gemini API利用料 & Hostings" },
-  { id: "tx-4", date: "2026-06-01", type: "income", category: "売上", amount: 1200000, description: "LINE公式アカウント自動応答AIシステム開発 着手先" },
-  { id: "tx-5", date: "2026-05-28", type: "expense", category: "広告宣伝費", amount: 200000, description: "Meta広告成果テスト出稿" },
-  { id: "tx-6", date: "2026-05-25", type: "income", category: "売上", amount: 500000, description: "デジタル変革アドバイザリー" }
-];
-
-const SEED_BILLING_DOCS: BillingDoc[] = [
-  {
-    id: "doc-1",
-    docType: "estimate",
-    docNumber: "EST-2026-003",
-    recipient: "港湾クリエイティブ株式会社 殿",
-    sender: "SYNC2合同会社",
-    issueDate: "2026/06/08",
-    dueDate: "2026/07/08",
-    items: [
-      { id: "itm-1", name: "B2B向けSNS運用ディレクション・ショート動画12本制作", price: 450000, qty: 1 },
-      { id: "itm-2", name: "LINE公式アカウント自動応答連携 AIモデル学習設定", price: 300000, qty: 1 }
-    ],
-    taxRate: 0.10,
-    memo: "有効期限：発行日より1ヶ月間 / 最速の成果をお約束いたします。"
-  },
-  {
-    id: "doc-2",
-    docType: "invoice",
-    docNumber: "INV-2026-019",
-    recipient: "株式会社アオバエンタープライズ 御中",
-    sender: "SYNC2合同会社",
-    issueDate: "2026/06/01",
-    dueDate: "2026/06/30",
-    items: [
-      { id: "itm-3", name: "SNS広告バイイング成果報酬（5月度運用実績）", price: 200000, qty: 1 },
-      { id: "itm-4", name: "LINE公式アカウントAIチャットサポート導入構築", price: 500000, qty: 1 }
-    ],
-    taxRate: 0.10,
-    memo: "お振込先：SYNC銀行 渋谷支店 普通 1234567 SYNC2合同会社\n※お振込手数料は貴社負担にてお願いいたします。"
-  }
-];
-
-const SEED_LEADS = [
-  { id: "1", company: "大和エステート株式会社", name: "高橋 聡也", email: "takahashi.s@daiwa-estate.co.jp", date: "2026/06/07", time: "18:24:11" },
-  { id: "2", company: "Next Dimension Design", name: "鈴木 麻美", email: "mami_suzuki@next-d.design", date: "2026/06/06", time: "14:15:02" },
-  { id: "3", company: "ミナトヘルスケアホールディングス", name: "岡本 良孝", email: "yokamoto@minato-hc.jp", date: "2026/06/05", time: "11:58:34" }
-];
-
-const BlackboxAccessPage = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [passcode, setPasscode] = useState("");
-  const [passError, setPassError] = useState("");
-  
-  // Tab control
-  const [activeTab, setActiveTab ] = useState<'blog' | 'seo' | 'leads' | 'docs' | 'cashflow'>('blog');
-  
-  // Data States
-  const [leads, setLeads] = useState<any[]>([]);
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-  const [seoConfig, setSeoConfig] = useState<Record<string, { title: string; desc: string; keywords: string }>>({});
-  const [docs, setDocs] = useState<BillingDoc[]>([]);
-  const [transactions, setTransactions] = useState<LedgerTransaction[]>([]);
-  
-  // Lead states
-  const [leadSearch, setLeadSearch] = useState("");
-
-  // Blog Editor Temp states
-  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
-  const [showBlogForm, setShowBlogForm] = useState(false);
-  const [newPost, setNewPost] = useState<Partial<BlogPost>>({
-    id: "",
-    title: "",
-    category: "SNSマーケティング",
-    date: "",
-    author: "SYNC2 編集部",
-    readTime: "5分",
-    summary: "",
-    image: "",
-    content: [
-      { emoji: "🚀", sectionTitle: "導入・背景", paragraphs: ["内容を記述してください。"] },
-      { emoji: "🔥", sectionTitle: "本質と実践メカニズム", paragraphs: ["内容を記述してください。"] },
-      { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: ["内容を記述してください。"] }
-    ]
-  });
-
-  // SEO Editor Local state
-  const [selectedSeoPage, setSelectedSeoPage] = useState<string>("home");
-
-  // Invoice Creator Temp states
-  const [showDocForm, setShowDocForm] = useState(false);
-  const [viewingDoc, setViewingDoc] = useState<BillingDoc | null>(null);
-  const [docForm, setDocForm] = useState<Partial<BillingDoc>>({
-    docType: "estimate",
-    docNumber: "",
-    recipient: "",
-    sender: "SYNC2合同会社",
-    issueDate: "",
-    dueDate: "",
-    items: [],
-    taxRate: 0.10,
-    memo: ""
-  });
-  const [tempItemName, setTempItemName] = useState("");
-  const [tempItemPrice, setTempItemPrice] = useState<number>(100000);
-  const [tempItemQty, setTempItemQty] = useState<number>(1);
-
-  // Cash Flow Temp States
-  const [showTxForm, setShowTxForm] = useState(false);
-  const [txForm, setTxForm] = useState<Partial<LedgerTransaction>>({
-    date: "",
-    type: "income",
-    category: "売上",
-    amount: 100000,
-    description: ""
-  });
-
-  // Load and seed initial states
-  useEffect(() => {
-    // 1. Leads
-    const savedLeads = localStorage.getItem('sync2_leads');
-    if (!savedLeads) {
-      localStorage.setItem('sync2_leads', JSON.stringify(SEED_LEADS));
-      setLeads(SEED_LEADS);
-    } else {
-      setLeads(JSON.parse(savedLeads));
+  const handleDeleteBlog = (id: string) => {
+    if (window.confirm("このブログ記事を完全に削除してよろしいですか？")) {
+      const updated = blogPosts.filter(p => p.id !== id);
+      setBlogPosts(updated);
+      localStorage.setItem('sync2_blog_posts', JSON.stringify(updated));
     }
+  };
 
-    // 2. Blog Posts
-    const savedBlogs = localStorage.getItem('sync2_blog_posts');
-    if (!savedBlogs) {
-      localStorage.setItem('sync2_blog_posts', JSON.stringify(BLOG_POSTS));
-      setBlogPosts(BLOG_POSTS);
-    } else {
-      setBlogPosts(JSON.parse(savedBlogs));
-    }
-
-    // 3. SEO Config
-    const savedSeo = localStorage.getItem('sync2_seo_config');
-    const defaultSeo = {
-      home: {
-        title: "SYNC2 | クリエイティブ・マーケティング・AIシステム開発",
-        desc: "SYNC2はブランド設計、SNSマーケティング、そして最高峰のアプリ・システム開発・AI実装を一気通貫で提供するクリエイティブテクノロジーエージェンシーです。貴社のビジネスを自動化し、資産化します。",
-        keywords: "SYNC2, SNSマーケティング, AIアプリ開発, システム開発, LINE自動応答"
-      },
-      sns: {
-        title: "SNSマーケティング | クリート動画広告と運用のプロフェッショナル - SYNC2",
-        desc: "B2B企業向けショート動画(TikTok, Reels)の獲得型バイイング設計。予算1日1万円から始める、確実なリードへの最適化戦略をご提案します。",
-        keywords: "Short video ads, B2B SNS marketing, TikTok, Instagram Reels, 動画バズ"
-      },
-      dev: {
-        title: "アプリ・AI・システム開発 | 最先端AI(Gemini)とLINE連携 - SYNC2",
-        desc: "LINE公式アカウントを全自動の商談獲得マシーンへと最適化する統合型AI/チャットボットシステム。強固なセキュリティと高速処理で業務プロセスを完全自動化。",
-        keywords: "Generative AI system, Gemini API integration, LINE chat bot, LLM workflow"
-      },
-      blog: {
-        title: "SYNC2 INSIGHTS | ブログ & 最新トレンドナレッジ",
-        desc: "SYNC2がお届けする、SNSマーケティングや最新AIシステム開発に関する価値ある戦略的ノウハウ集。",
-        keywords: "SYNC2 insights, テックブログ, マーケトレンド, 導入実績"
-      }
-    };
-    if (!savedSeo) {
-      localStorage.setItem('sync2_seo_config', JSON.stringify(defaultSeo));
-      setSeoConfig(defaultSeo);
-    } else {
-      setSeoConfig(JSON.parse(savedSeo));
-    }
-
-    // 4. Billing Docs
-    const savedDocs = localStorage.getItem('sync2_docs');
-    if (!savedDocs) {
-      localStorage.setItem('sync2_docs', JSON.stringify(SEED_BILLING_DOCS));
-      setDocs(SEED_BILLING_DOCS);
-    } else {
-      setDocs(JSON.parse(savedDocs));
-    }
-
-    // 5. Cash Flow Transactions
-    const savedTxs = localStorage.getItem('sync2_transactions');
-    if (!savedTxs) {
-      localStorage.setItem('sync2_transactions', JSON.stringify(SEED_CASH_FLOW));
-      setTransactions(SEED_CASH_FLOW);
-    } else {
-      setTransactions(JSON.parse(savedTxs));
-    }
-  }, []);
-
-  const handleAuth = (e: React.FormEvent) => {
+  const handleAddNewPost = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode === "sync2026") {
-      setIsAuthenticated(true);
-      setPassError("");
+    if (!newPost.title || !newPost.id) {
+       alert("記事ID(Slug)と記事タイトルは必須入力です。");
+       return;
+    }
+
+    const postObj: BlogPost = {
+      id: newPost.id.trim(),
+      title: newPost.title,
+      category: newPost.category,
+      date: newPost.date || new Date().toISOString().split('T')[0].replace(/-/g, '.'),
+      author: newPost.author,
+      readTime: newPost.readTime,
+      summary: newPost.summary,
+      image: newPost.image || "https://picsum.photos/seed/sync2-blog/800/500",
+      content: newPost.content,
+      seoTitle: newPost.seoTitle,
+      seoDescription: newPost.seoDescription,
+      seoKeywords: newPost.seoKeywords,
+      scheduledDate: newPost.scheduledDate,
+      isPublished: newPost.isPublished
+    };
+
+    let updatedPosts;
+    if (editingPost) {
+      updatedPosts = blogPosts.map(p => p.id === editingPost.id ? postObj : p);
     } else {
-      setPassError("認証コードが正しくありません。");
+      if (blogPosts.some(p => p.id === postObj.id)) {
+        alert("その記事ID(Slug)は既に使用されています。ユニークなIDを指定してください。");
+        return;
+      }
+      updatedPosts = [postObj, ...blogPosts];
+    }
+
+    setBlogPosts(updatedPosts);
+    localStorage.setItem('sync2_blog_posts', JSON.stringify(updatedPosts));
+    setShowBlogForm(false);
+    setEditingPost(null);
+    setNewPost({
+      id: "",
+      title: "",
+      category: "SNSマーケティング",
+      date: "",
+      author: "SYNC2 編集部",
+      readTime: "5分",
+      summary: "",
+      image: "https://picsum.photos/seed/sync2-blog/800/500",
+      content: [
+         { emoji: "🚀", sectionTitle: "導入・背景", paragraphs: [] },
+         { emoji: "🔥", sectionTitle: "本質と実践メカニズム", paragraphs: [] },
+         { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: [] }
+      ],
+      seoTitle: "",
+      seoDescription: "",
+      seoKeywords: "",
+      scheduledDate: "",
+      isPublished: true
+    });
+  };
+
+  const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      alert("PDFファイルのみ選択可能です。");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64Data = result.split(',')[1];
+      const sizeStr = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+      const dateStr = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/-/g, '.');
+
+      localStorage.setItem('sync2_pdf_data', base64Data);
+      localStorage.setItem('sync2_pdf_name', file.name);
+      localStorage.setItem('sync2_pdf_size', sizeStr);
+      localStorage.setItem('sync2_pdf_date', dateStr);
+
+      setPdfInfo({ name: file.name, size: sizeStr, date: dateStr });
+      alert("配布用PDFファイルを正常にアップデートしました。LP側フォームの申請者は即時にこの新しいPDFをダウンロード可能です。");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handlePdfDelete = () => {
+    if (window.confirm("独自アップロードしたPDFを削除し、システム内蔵のデフォルトPDFに戻しますか？")) {
+      localStorage.removeItem('sync2_pdf_data');
+      localStorage.removeItem('sync2_pdf_name');
+      localStorage.removeItem('sync2_pdf_size');
+      localStorage.removeItem('sync2_pdf_date');
+      setPdfInfo({ name: "", size: "", date: "" });
     }
   };
 
-  const handleBypass = () => {
-    setIsAuthenticated(true);
-  };
-
-  // --- Leads Triggers ---
   const handleDeleteLead = (id: string) => {
     if (window.confirm("このリード情報を削除してよろしいですか？")) {
       const filtered = leads.filter(l => l.id !== id);
@@ -2474,211 +2691,37 @@ const BlackboxAccessPage = () => {
   };
 
   const handleClearAllLeads = () => {
-    if (window.confirm("すべてのリード情報(資料請求者リスト)を一括消去します。よろしいですか？")) {
+    if (window.confirm("すべてのリード個人情報を物理削除してよろしいですか？（復元できません）")) {
       setLeads([]);
-      localStorage.setItem('sync2_leads', JSON.stringify([]));
+      localStorage.removeItem('sync2_leads');
     }
   };
 
   const exportLeadsCSV = () => {
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "ID,企業名,ご担当者名,メールアドレス,申請日,申請時間\r\n";
+    let csv = "申請日時,企業名,ご担当者氏名,メールアドレス\n";
     leads.forEach(l => {
-      csvContent += `"${l.id}","${l.company}","${l.name}","${l.email}","${l.date}","${l.time}"\r\n`;
+      csv += `"${l.date} ${l.time}","${l.company}","${l.name}","${l.email}"\n`;
     });
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `sync2_leads_export_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
+    
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `SYNC2_Leads_Export_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
-    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
-  // --- Blog Triggers ---
-  const handleAddNewPost = (e: React.FormEvent) => {
+  const handleAddTx = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPost.id || !newPost.title) {
-      alert("スラッグ(ID)とタイトルは必須です。");
-      return;
-    }
-
-    const postObj: BlogPost = {
-      id: newPost.id,
-      title: newPost.title,
-      category: newPost.category || "SNSマーケティング",
-      date: newPost.date || new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.'),
-      author: newPost.author || "SYNC2 編集部",
-      readTime: newPost.readTime || "5分",
-      summary: newPost.summary || "",
-      image: newPost.image || `https://picsum.photos/seed/${newPost.id}/800/500`,
-      content: newPost.content as any
-    };
-
-    let updatedBlogs = [];
-    if (editingPost) {
-      // Edit mode
-      updatedBlogs = blogPosts.map(b => b.id === editingPost.id ? postObj : b);
-    } else {
-      // Creation mode
-      if (blogPosts.some(b => b.id === postObj.id)) {
-        alert("そのID/スラッグはすでに存在します。");
-        return;
-      }
-      updatedBlogs = [postObj, ...blogPosts];
-    }
-
-    setBlogPosts(updatedBlogs);
-    localStorage.setItem('sync2_blog_posts', JSON.stringify(updatedBlogs));
-    window.dispatchEvent(new Event('storage')); // trigger updates in navigation lists
-    setShowBlogForm(false);
-    setEditingPost(null);
-    // Reset state
-    setNewPost({
-      id: "",
-      title: "",
-      category: "SNSマーケティング",
-      date: "",
-      author: "SYNC2 編集部",
-      readTime: "5分",
-      summary: "",
-      image: "",
-      content: [
-        { emoji: "🚀", sectionTitle: "導入・背景", paragraphs: ["内容を記述してください。"] },
-        { emoji: "🔥", sectionTitle: "本質と実践メカニズム", paragraphs: ["内容を記述してください。"] },
-        { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: ["内容を記述してください。"] }
-      ]
-    });
-  };
-
-  const handleEditBlogClick = (post: BlogPost) => {
-    setEditingPost(post);
-    setNewPost(post);
-    setShowBlogForm(true);
-  };
-
-  const handleDeleteBlog = (id: string) => {
-    if (window.confirm("この記事を削除してよろしいですか？")) {
-      const filtered = blogPosts.filter(b => b.id !== id);
-      setBlogPosts(filtered);
-      localStorage.setItem('sync2_blog_posts', JSON.stringify(filtered));
-      window.dispatchEvent(new Event('storage'));
-    }
-  };
-
-  // --- SEO Triggers ---
-  const handleUpdateSeo = (e: React.FormEvent) => {
-    e.preventDefault();
-    localStorage.setItem('sync2_seo_config', JSON.stringify(seoConfig));
-    window.dispatchEvent(new Event('storage'));
-    alert(`「${selectedSeoPage.toUpperCase()}」のSEO設定を保存しました。`);
-  };
-
-  const updateSelectedSeoField = (field: 'title' | 'desc' | 'keywords', val: string) => {
-    setSeoConfig({
-      ...seoConfig,
-      [selectedSeoPage]: {
-        ...seoConfig[selectedSeoPage],
-        [field]: val
-      }
-    });
-  };
-
-  // --- Bill / Invoice Triggers ---
-  const handleAddItemToDoc = () => {
-    if (!tempItemName) return;
-    const items = docForm.items ? [...docForm.items] : [];
-    items.push({
-      id: Date.now().toString(),
-      name: tempItemName,
-      price: tempItemPrice,
-      qty: tempItemQty
-    });
-    setDocForm({ ...docForm, items });
-    setTempItemName("");
-    setTempItemPrice(100000);
-    setTempItemQty(1);
-  };
-
-  const handleRemoveItemFromDoc = (itemId: string) => {
-    const items = docForm.items ? docForm.items.filter(i => i.id !== itemId) : [];
-    setDocForm({ ...docForm, items });
-  };
-
-  const handleSaveDoc = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!docForm.recipient || !docForm.docNumber) {
-      alert("宛先と書面番号は必須です。");
-      return;
-    }
-
-    const docObj: BillingDoc = {
-      id: docForm.id || Date.now().toString(),
-      docType: docForm.docType || "estimate",
-      docNumber: docForm.docNumber,
-      recipient: docForm.recipient,
-      sender: docForm.sender || "SYNC2合同会社",
-      issueDate: docForm.issueDate || new Date().toLocaleDateString('ja-JP'),
-      dueDate: docForm.dueDate || new Date().toLocaleDateString('ja-JP'),
-      items: docForm.items || [],
-      taxRate: docForm.taxRate || 0.10,
-      memo: docForm.memo
-    };
-
-    let updatedDocs = [];
-    if (docForm.id) {
-      updatedDocs = docs.map(d => d.id === docForm.id ? docObj : d);
-    } else {
-      updatedDocs = [docObj, ...docs];
-    }
-
-    setDocs(updatedDocs);
-    localStorage.setItem('sync2_docs', JSON.stringify(updatedDocs));
-    setShowDocForm(false);
-    // Reset doc form
-    setDocForm({
-      docType: "estimate",
-      docNumber: "",
-      recipient: "",
-      sender: "SYNC2合同会社",
-      issueDate: "",
-      dueDate: "",
-      items: [],
-      taxRate: 0.10,
-      memo: ""
-    });
-  };
-
-  const handleEditDocClick = (doc: BillingDoc) => {
-    setDocForm(doc);
-    setShowDocForm(true);
-  };
-
-  const handleDeleteDoc = (id: string) => {
-    if (window.confirm("この書面データを削除してよろしいですか？")) {
-      const filtered = docs.filter(d => d.id !== id);
-      setDocs(filtered);
-      localStorage.setItem('sync2_docs', JSON.stringify(filtered));
-    }
-  };
-
-  // --- Cash Flow Triggers ---
-  const handleAddTransaction = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!txForm.date || !txForm.description || !txForm.amount) {
-      alert("日付、摘要、金額は必須です。");
-      return;
-    }
-
-    const txObj: LedgerTransaction = {
-      id: Date.now().toString(),
-      date: txForm.date,
-      type: txForm.type || "income",
-      category: txForm.category || "売上",
+    const txObj = {
+      id: Math.random().toString(36).substring(2, 9),
+      date: txForm.date || new Date().toISOString().split('T')[0],
+      type: txForm.type,
+      category: txForm.category || (txForm.type === 'income' ? "売上" : "経費"),
       amount: Number(txForm.amount),
       description: txForm.description
     };
-
     const updatedTxs = [txObj, ...transactions].sort((a, b) => b.date.localeCompare(a.date));
     setTransactions(updatedTxs);
     localStorage.setItem('sync2_transactions', JSON.stringify(updatedTxs));
@@ -2692,18 +2735,280 @@ const BlackboxAccessPage = () => {
     });
   };
 
-  const handleDeleteTx = (id: string) => {
-    if (window.confirm("この収支の明細レコードを削除してよろしいですか？")) {
-      const filtered = transactions.filter(t => t.id !== id);
-      setTransactions(filtered);
-      localStorage.setItem('sync2_transactions', JSON.stringify(filtered));
-    }
-  };
 
-  // Metrics for Cash Flow
-  const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, current) => acc + current.amount, 0);
-  const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, current) => acc + current.amount, 0);
-  const netProfit = totalIncome - totalExpense;
+
+  // Legacy clean up
+  const unused_dashboard_start = null;
+  const legacy_blog_dummy = null;
+  const dummy_start = null;
+
+  /*
+    <div>
+      <p>
+        SYNC2 INSIGHTSに表示される記事をリアルタイムに作成・編集・削除できます。
+      </p>
+                  
+                  {!showBlogForm && (
+                    <button 
+                      onClick={() => {
+                        setEditingPost(null);
+                        setNewPost({
+                          id: "",
+                          title: "",
+                          category: "SNSマーケティング",
+                          date: new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.'),
+                          author: "SYNC2 編集部",
+                          readTime: "5分",
+                          summary: "",
+                          image: "https://picsum.photos/seed/any/800/500",
+                          content: [
+                            { emoji: "🚀", sectionTitle: "導入・背景", paragraphs: [] },
+                            { emoji: "🔥", sectionTitle: "本質と実践メカニズム", paragraphs: [] },
+                            { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: [] }
+                          ]
+                        });
+                        setShowBlogForm(true);
+                      }}
+                      className="bg-[#1a1a1a] hover:bg-zinc-800 text-white px-4 h-11 rounded-xl text-xs font-black tracking-wider uppercase inline-flex items-center gap-2 transition-all cursor-pointer shadow-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>新規記事作成</span>
+                    </button>
+                  )}
+
+                {showBlogForm ? (
+                  // Create/Edit Blog Form
+                  <form onSubmit={handleAddNewPost} className="space-y-5 bg-zinc-50 p-5 rounded-2xl border border-zinc-200">
+                    <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest">
+                      {editingPost ? "✍️ 既存記事のアップデート" : "📝 新規トピック執筆"}
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">URLスラッグ (ID) *半角英字・重複不可</label>
+                        <input 
+                          required
+                          disabled={!!editingPost}
+                          type="text"
+                          placeholder="ai-system-transformation-2026"
+                          className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-400 px-3 text-xs text-zinc-800 disabled:opacity-40 font-mono"
+                          value={newPost.id}
+                          onChange={(e) => setNewPost({ ...newPost, id: e.target.value })}
+                        />
+                      </div>
+                      
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">カテゴリ</label>
+                        <select 
+                          className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-400 px-3 text-xs text-zinc-800"
+                          value={newPost.category}
+                          onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
+                        >
+                          <option value="SNSマーケティング">SNSマーケティング</option>
+                          <option value="アプリ・AI・システム開発">アプリ・AI・システム開発</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">記事タイトル</label>
+                      <input 
+                        required
+                        type="text"
+                        placeholder="15秒で決裁者を虜にする超短尺クリエイティブ撮影の教科書"
+                        className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 px-3 text-xs text-zinc-900 font-bold"
+                        value={newPost.title}
+                        onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">執筆日</label>
+                        <input 
+                          type="text"
+                          placeholder="2026.06.08"
+                          className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 px-3 text-xs text-zinc-700 font-mono"
+                          value={newPost.date}
+                          onChange={(e) => setNewPost({ ...newPost, date: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">想定読了時間</label>
+                        <input 
+                          type="text"
+                          placeholder="6分"
+                          className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 px-3 text-xs text-zinc-700"
+                          value={newPost.readTime}
+                          onChange={(e) => setNewPost({ ...newPost, readTime: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">著者署名</label>
+                        <input 
+                          type="text"
+                          placeholder="SYNC2 編集部"
+                          className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 px-3 text-xs text-zinc-700"
+                          value={newPost.author}
+                          onChange={(e) => setNewPost({ ...newPost, author: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">アイキャッチ画像URL (Picsum等プレースホルダ可)</label>
+                      <input 
+                        type="text"
+                        placeholder="https://picsum.photos/seed/b2b-short/800/500"
+                        className="w-full h-11 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 px-3 text-xs text-zinc-700 font-mono"
+                        value={newPost.image}
+                        onChange={(e) => setNewPost({ ...newPost, image: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">要約/サマリー(カード紹介文)</label>
+                      <textarea 
+                        rows={3}
+                        placeholder="リード文及びサマリー。カードビューで詳細ページに入る前に読まれる短い要約テキストです。"
+                        className="w-full p-3 bg-white border border-zinc-300 rounded-lg outline-none focus:ring-1 focus:ring-zinc-404 text-xs text-zinc-700 leading-relaxed resize-none"
+                        value={newPost.summary}
+                        onChange={(e) => setNewPost({ ...newPost, summary: e.target.value })}
+                      />
+                    </div>
+
+                    {/* Section blocks editor */}
+                    <div className="space-y-3.5 border-t border-zinc-200 pt-4">
+                      <h4 className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">📖 本文セクション構成（3章構成）</h4>
+                      
+                      {newPost.content?.map((sec: any, sIdx: number) => (
+                        <div key={sIdx} className="p-3 bg-white border border-zinc-200 rounded-xl space-y-3">
+                          <div className="flex gap-2">
+                            <input 
+                              type="text" 
+                              placeholder="🚀" 
+                              className="w-10 h-10 text-center bg-zinc-50 border border-zinc-300 rounded-lg text-sm"
+                              value={sec.emoji}
+                              onChange={(e) => {
+                                const content = [...(newPost.content || [])];
+                                content[sIdx] = { ...sec, emoji: e.target.value };
+                                setNewPost({ ...newPost, content });
+                              }}
+                            />
+                            <input 
+                              type="text" 
+                              placeholder={`第${sIdx + 1}章：見出し`} 
+                              className="flex-1 h-10 px-3 bg-zinc-50 border border-zinc-300 rounded-lg text-xs font-bold text-zinc-900 outline-none focus:border-zinc-400"
+                              value={sec.sectionTitle}
+                              onChange={(e) => {
+                                const content = [...(newPost.content || [])];
+                                content[sIdx] = { ...sec, sectionTitle: e.target.value };
+                                setNewPost({ ...newPost, content });
+                              }}
+                            />
+                          </div>
+                          
+                          <textarea 
+                            rows={3}
+                            placeholder="段落文章を入力してください。改行（エンター）で新たなブロックを追加できます。"
+                            className="w-full p-2.5 bg-zinc-50 border border-zinc-300 rounded-lg text-[11px] text-zinc-700 outline-none focus:border-zinc-400 leading-relaxed resize-none font-sans"
+                            value={sec.paragraphs.join("\n")}
+                            onChange={(e) => {
+                              const content = [...(newPost.content || [])];
+                              content[sIdx] = { ...sec, paragraphs: e.target.value.split("\n") };
+                              setNewPost({ ...newPost, content });
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-3 border-t border-zinc-200">
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setShowBlogForm(false);
+                          setEditingPost(null);
+                        }}
+                        className="h-10 px-4 rounded-xl bg-zinc-200 text-xs font-bold text-zinc-700 hover:text-zinc-900 hover:bg-zinc-300 cursor-pointer transition-colors"
+                      >
+                        キャンセル
+                      </button>
+                      <button 
+                        type="submit" 
+                        className="h-10 px-6 rounded-xl bg-[#1a1a1a] hover:bg-zinc-800 text-white text-xs font-black tracking-widest inline-flex items-center gap-1.5 cursor-pointer shadow-md transition-colors"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>{editingPost ? "記事を更新保存" : "新しい記事を公開"}</span>
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  // Blog posts grid-table list
+                  <div className="space-y-3">
+                    {blogPosts.length === 0 ? (
+                      <div className="text-center py-10 bg-zinc-50 rounded-2xl border border-zinc-200">
+                        <p className="text-zinc-500 text-xs">登録されているブログ記事はありません。</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-3">
+                        {blogPosts.map(post => (
+                          <div 
+                            key={post.id}
+                            className="p-4 bg-zinc-50 border border-zinc-200 rounded-2xl hover:border-zinc-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
+                          >
+                            <div className="flex gap-3.5 items-center">
+                              <div className="w-16 h-12 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-zinc-200">
+                                <img src={post.image} alt="" className="w-full h-full object-cover" />
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="px-2 py-0.5 bg-zinc-200 text-zinc-800 border border-zinc-300 rounded text-[8px] font-black tracking-wider uppercase font-mono">
+                                    {post.category}
+                                  </span>
+                                  <span className="text-[10px] text-zinc-500 font-mono">{post.date}</span>
+                                </div>
+                                <h4 className="text-xs sm:text-sm font-extrabold text-zinc-800 line-clamp-1">{post.title}</h4>
+                                <p className="text-[10px] text-zinc-400 font-mono">slug: /blog/{post.id}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 self-end sm:self-auto w-full sm:w-auto justify-end border-t sm:border-t-0 border-zinc-200 pt-2 sm:pt-0">
+                              <button 
+                                onClick={() => window.open(`/blog/${post.id}`, '_blank')}
+                                className="h-9 px-3 bg-white border border-zinc-200 hover:bg-zinc-50 hover:text-black rounded-lg text-[10px] sm:text-xs font-bold text-zinc-600 cursor-pointer"
+                              >
+                                表示
+                              </button>
+                              <button 
+                                onClick={() => handleEditBlogClick(post)}
+                                className="h-9 px-3 bg-white border border-zinc-200 hover:border-zinc-400 hover:text-black rounded-lg text-[10px] sm:text-xs font-bold text-zinc-600 inline-flex items-center gap-1 cursor-pointer"
+                              >
+                                <Edit className="w-3 h-3" />
+                                <span>編集</span>
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteBlog(post.id)}
+                                className="h-9 w-9 bg-white hover:bg-red-50 hover:border-red-300 text-zinc-400 hover:text-red-500 border border-zinc-200 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  */;
+
+
 
   // Render Authorization Shield
   if (!isAuthenticated) {
@@ -2752,15 +3057,6 @@ const BlackboxAccessPage = () => {
               ノードを承認・接続する
             </button>
           </form>
-
-          <div className="border-t border-zinc-800/80 pt-4 text-center">
-            <button 
-              onClick={handleBypass}
-              className="text-[10px] text-zinc-400 hover:text-white transition-colors underline cursor-pointer"
-            >
-              [デモ確認ゲートウェイ] ワンクリック自動認証
-            </button>
-          </div>
         </div>
       </div>
     );
