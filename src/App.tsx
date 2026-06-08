@@ -21,6 +21,7 @@ import {
   ShieldCheck,
   Menu,
   X,
+  Upload,
   Download,
   Mail,
   Building2,
@@ -584,8 +585,28 @@ const LeadMagnet = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const triggerPdfDownload = () => {
-    // Elegant minimal valid PDF document text shell with correct boundaries
-    const pdfContent = `%PDF-1.4
+    const customPdfData = localStorage.getItem('sync2_pdf_data');
+    const customPdfName = localStorage.getItem('sync2_pdf_name') || 'SYNC2_B2B_SNS_Strategy_Guide_2026.pdf';
+    
+    let blob: Blob;
+    if (customPdfData) {
+      try {
+        const byteCharacters = atob(customPdfData);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        blob = new Blob([byteArray], { type: 'application/pdf' });
+      } catch (e) {
+        console.error("Error decoding custom pdf, falling back to default.", e);
+        // Fallback initialized below
+      }
+    }
+    
+    if (!blob!) {
+      // Elegant minimal valid PDF document text shell with correct boundaries
+      const pdfContent = `%PDF-1.4
 1 0 obj
 << /Type /Catalog /Pages 2 0 R >>
 endobj
@@ -626,12 +647,13 @@ trailer
 startxref
 485
 %%EOF`;
+      blob = new Blob([pdfContent], { type: 'application/pdf' });
+    }
 
-    const blob = new Blob([pdfContent], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'SYNC2_B2B_SNS_Strategy_Guide_2026.pdf';
+    link.download = customPdfData ? customPdfName : 'SYNC2_B2B_SNS_Strategy_Guide_2026.pdf';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1581,45 +1603,6 @@ const DigitalTipsWidget = () => {
   );
 };
 
-const ScrollToTopButton = () => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const toggleVisibility = () => {
-      if (window.scrollY > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-    };
-    window.addEventListener('scroll', toggleVisibility);
-    return () => window.removeEventListener('scroll', toggleVisibility);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  };
-
-  return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.5, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.5, y: 20 }}
-          onClick={scrollToTop}
-          className="fixed bottom-22 right-4 md:bottom-24 md:right-6 z-50 w-12 h-12 bg-white/80 backdrop-blur-md border border-zinc-100 shadow-xl rounded-full flex items-center justify-center text-[#373d43] hover:text-[#8edce0] hover:border-[#8edce0]/50 transition-all hover:scale-110 active:scale-95 group"
-          aria-label="Scroll to top"
-        >
-          <ChevronUp className="w-6 h-6 transition-transform group-hover:-translate-y-0.5" />
-        </motion.button>
-      )}
-    </AnimatePresence>
-  );
-};
 
 const LegalLayout = ({ title, children }: { title: string, children: React.ReactNode }) => (
   <div className="pt-32 pb-24 bg-white min-h-screen">
@@ -1780,449 +1763,18 @@ const TermsPage = () => (
     <h2 className="text-xl font-bold mt-8 mb-4">第8条（個人情報の取扱い）</h2>
     <p>当社は、本サービスの利用によって取得する個人情報については、当社「プライバシーポリシー」に従い適切に取り扱うものとします。</p>
 
-    <h2 className="text-xl font-bold mt-8 mb-4">第9条（準拠法・裁判管轄）</h2>
-    <ol className="list-decimal pl-6 space-y-2">
-      <li>本規約の解釈にあたっては、日本法を準拠法とします。</li>
-      <li>本サービスに関して紛争が生じた場合には、当社の本店所在地を管轄する裁判所を専属的合意管轄とします。</li>
-    </ol>
+    <h2 className="text-xl font-bold mt-8 mb-4">第9条（通知または連絡）</h2>
+    <p>ユーザーと当社との間の通知または連絡は、当社の定める方法によって行うものとします。当社は、ユーザーから、当社が別途定める方式に従った変更届け出がない限り、現在登録されています連絡先が有効なものとみなして当該連絡先へ通知または連絡を行い、これらは、発信時にユーザーへ到達したものとみなします。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第10条（権利義務の譲渡の禁止）</h2>
+    <p>ユーザーは、当社の書面による事前の承諾なく、利用契約上の地位または本規約に基づく権利若しくは義務を第三者に譲渡し、または担保に供することはできません。</p>
+
+    <h2 className="text-xl font-bold mt-8 mb-4">第11条（準拠法・裁判管轄）</h2>
+    <p>本規約の解釈にあたっては、日本法を準拠法とします。本サービスに関して紛争が生じた場合には、当社の本店所在地を管轄する裁判所を専属的合意管轄とします。</p>
 
     <p className="mt-12 text-zinc-400 text-sm">【制定日・改定日】<br />制定日：2026年4月15日</p>
   </LegalLayout>
 );
-
-interface BlogPost {
-  id: string;
-  title: string;
-  category: string;
-  date: string;
-  author: string;
-  readTime: string;
-  summary: string;
-  image: string;
-  content: {
-    emoji: string;
-    sectionTitle: string;
-    paragraphs: string[];
-  }[];
-  seoTitle?: string;
-  seoDescription?: string;
-  seoKeywords?: string;
-  scheduledDate?: string;
-  isPublished?: boolean;
-}
-
-const BLOG_POSTS: BlogPost[] = [
-  {
-    id: "b2b-short-videos-2026",
-    title: "B2B企業が今すぐショート動画（TikTok・リール）に参入すべき理由：市場シェア争奪戦",
-    category: "SNSマーケティング",
-    date: "2026.06.05",
-    author: "SYNC2 編集部",
-    readTime: "5分",
-    summary: "娯楽ツールとして見過ごされがちなショート動画ですが、B2B市場における意思決定者の接触時間は急増中。競合より一歩先に顧客を獲得するための、先行優位性の活かし方を徹底解説。",
-    image: "https://picsum.photos/seed/b2b-short/800/500",
-    content: [
-      {
-        emoji: "🚀",
-        sectionTitle: "B2Bにおける動画消費行動のパラダイムシフト",
-        paragraphs: [
-          "2026年現在、多くのB2B企業における『ターゲット決裁者』。彼ら・彼女らも、業務情報の収集やトレンド理解の手段として日々SNS（YouTubeショート、Instagramリール、TikTok）を活用するようになっています。",
-          "従来の『文字ばかりのホワイトペーパー』や『重苦しい営業資料』だけでは、相手の発注アテンションを引くのは容易ではありません。15秒〜60秒のショート動画は、直感的で効率よく情報を得られる最適な手段として機能しています。"
-        ]
-      },
-      {
-        emoji: "🔥",
-        sectionTitle: "15秒で決裁者のアテンションを奪う「冒頭2秒」の公式",
-        paragraphs: [
-          "ショート動画の成否は開始2秒で決まります。特にB2Bでは、最初の2秒で『これ、自社の課題だ』と直感させることが不可欠です。",
-          "最初に『なぜ〜なのか？』という意外な問いを投げかける、あるいは『CPAを半分にした3つのステップ』といった数字を用いたベネフィットを画面と声で伝えるなど、インパクトの強いフックが必要です。"
-        ]
-      },
-      {
-        emoji: "⚙️",
-        sectionTitle: "属人性を排除した「会社資産型」としての発信設計",
-        paragraphs: [
-          "『属人化して担当が辞めたら動画アカウントが廃れてしまう』というのは、B2B企業によくある不安です。",
-          "SYNC2では、特定の個人のタレントパワーに依存せず、会社のナレッジ（知見、成功の裏側、ビフォーアフター）をアニメーションや分かりやすいテロップ、高品質な音声ガイドを組み合わせてフォーマット化。会社の永続的な集客資産として構築します。"
-        ]
-      }
-    ]
-  },
-  {
-    id: "line-ai-workflow",
-    title: "LINE公式アカウントを自動集客マシーンに変える最新AIワークフロー",
-    category: "アプリ・AI・システム開発",
-    date: "2026.05.28",
-    author: "AIシステム・コア開発室",
-    readTime: "8分",
-    summary: "問い合わせ対応だけのLINEはもう古い。ユーザー行動に基づいたAI自動分岐と、リアルタイムなプッシュプランを組み合わせることで、成約率を最大330%高める仕組みを大公開。",
-    image: "https://picsum.photos/seed/line-ai/800/500",
-    content: [
-      {
-        emoji: "🤖",
-        sectionTitle: "なぜ日本のB2B商談はLINEで加速するのか？",
-        paragraphs: [
-          "日本のビジネスパーソンのほぼ全員が日常的に使用しているLINE。しかしB2B領域では、未だに使いこなせている企業はわずか数%です。",
-          "お役立ち資料（ホワイトペーパー）のダウンロードから即時LINEの友達登録に誘導し、そこで個別チャットを開始することで、メールに比べて到達率・開封率ともに圧倒的な数値差を叩き出すことができます。"
-        ]
-      },
-      {
-        emoji: "⚡",
-        sectionTitle: "Geminiを活用した「パーソナライズ型自動チャットボット」の組み込み",
-        paragraphs: [
-          "SYNC2では、最先端のGemini APIを採用したB2B商談特化型の自動チャットボットを構築しています。",
-          "あらかじめ設定したシナリオ分岐に加え、急な質問（例：『他社との違いは何ですか？』や『初期費用はいくらですか？』）に対しても、貴社のナレッジベースから安全かつ精度の高い解答を瞬時に生成。熱量が高いまま、スムーズに商談・デモ予約へと結びつけます。"
-        ]
-      },
-      {
-        emoji: "🎯",
-        sectionTitle: "カスタマーサクセス不要論：深夜でも高精度の一次応答",
-        paragraphs: [
-          "B2Bの意思決定者は、深夜や早朝の静かな時間に情報収集を行う傾向があります。問い合わせフォームを送っても返事が来るのは翌営業日の午後。これでは競合に負けてしまいます。",
-          "AI統合型LINEであれば、深夜0時でも1分以内に具体的な解決へのアクションを回答可能。そのままオンラインカレンダー（Google Calendar等）と完全に同期して、自動で翌週の商談予約枠を確保させることができます。"
-        ]
-      }
-    ]
-  },
-  {
-    id: "reduce-cpa-marketing",
-    title: "CPA（顧客獲得単価）を1/4に抑えるB2Bオンライン広告のバイイング設計",
-    category: "SNSマーケティング",
-    date: "2026.05.15",
-    author: "マーケティングアドバイザー",
-    readTime: "6分",
-    summary: "媒体の自動最適化だけに頼っていませんか？本当に狙うべき『ターゲット経営層』を逃さないための除外ターゲティングテクニックと、高反響の動画クリエイティブ設計の裏側。",
-    image: "https://picsum.photos/seed/reduce-cpa/800/500",
-    content: [
-      {
-        emoji: "📉",
-        sectionTitle: "自動ターゲティングがB2Bで失敗する深い理由",
-        paragraphs: [
-          "主要なプラットフォーム（Meta広告やGoogle等）の自動最適化は強力ですが、コンバージョン（CV）単価を下げるために『関係のない一般消費者や就活生等』をたくさん呼び込んでしまい、結果的にインサイドセールスの時間を無駄にしてしまうことが多々あります。",
-          "B2Bオンライン広告では、CV数を追うのではなく『アポ獲得率、および受注したか』を最適化目標にする必要があります。そのための最初のハードルがターゲット除外と精密なセグメント設計です。"
-        ]
-      },
-      {
-        emoji: "🌟",
-        sectionTitle: "「経営者・役員ターゲット」を正確に割り出すためのクリエイティブ設計",
-        paragraphs: [
-          "B2B広告のクリエイティブは、万人受けする必要はありません。むしろ、一般の人が見たらすぐに読み飛ばすような『具体的な業界の悩み』や『業務プロセスの単語』を表出させることが大切です。",
-          "あえてメッセージの抽象度を高くするのではなく、具体的に『製造業の工場長向け』『システム会社のCTO向け』という明瞭なコピーを採用することで、質の高い層だけがクリックし、無駄打ちを完全に防ぐことができます。"
-        ]
-      },
-      {
-        emoji: "💡",
-        sectionTitle: "予算1日1万円から始める、スモールステップ検証フロー",
-        paragraphs: [
-          "『SNS広告は大金が必要なのでは？』と思われがちですが、B2Bは非常にニッチな領域のため、むしろ日額数千円〜1万円でのテストで十分なデータが得られます。",
-          "1週間で3つのクリエイティブを回し、クリック率（CTR）とリード獲得率（CVR）のバランスが取れた1本の本命を見つける。そして本命クリエイティブを軸に、SNS（Instagram / Note等）に有機的に展開する、というサイクルがSYNC2プロセスの基本です。"
-        ]
-      }
-    ]
-  }
-];
-const BlogPage = () => {
-  const seo = useSeoMeta(
-    'blog',
-    'SYNC2 INSIGHTS | ブログ & 最新トレンドナレッジ',
-    'SYNC2がお届けする、SNSマーケティングや最新AIシステム開発に関する価値ある戦略的ノウハウ集。'
-  );
-
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("すべて");
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  
-  useEffect(() => {
-    const existing = localStorage.getItem('sync2_blog_posts');
-    if (!existing) {
-      localStorage.setItem('sync2_blog_posts', JSON.stringify(BLOG_POSTS));
-      setPosts(BLOG_POSTS);
-    } else {
-      try {
-        setPosts(JSON.parse(existing));
-      } catch (e) {
-        setPosts(BLOG_POSTS);
-      }
-    }
-  }, []);
-  
-  // Feedback state for Poll
-  const [voted, setVoted] = useState<Record<string, 'yes' | 'no'>>({});
-  const [copiedPostId, setCopiedPostId] = useState<string | null>(null);
-
-  // Scroll target reference or percentage indicator for the active reading post
-  const [readProgress, setReadProgress] = useState(0);
-
-  useEffect(() => {
-    if (!id) {
-      setReadProgress(0);
-      return;
-    }
-    
-    const handleScroll = () => {
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight > 0) {
-        const pct = Math.min(100, Math.round((window.scrollY / docHeight) * 100));
-        setReadProgress(pct);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [id]);
-
-  // Scroll to top when post changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [id]);
-
-  const categories = ["すべて", "SNSマーケティング", "アプリ・AI・システム開発"];
-
-  const handleShare = (postId: string) => {
-    const url = `${window.location.origin}/blog/${postId}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(() => {
-        setCopiedPostId(postId);
-        setTimeout(() => setCopiedPostId(null), 2500);
-      }).catch(() => {});
-    }
-  };
-
-  const currentPost = id ? posts.find(p => p.id === id) : null;
-
-  const filteredPosts = posts.filter((post) => {
-    const matchesCategory = selectedCategory === "すべて" || post.category === selectedCategory;
-    const matchesSearch = 
-      post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      post.summary.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-  if (id && !currentPost) {
-    return (
-      <div className="pt-32 pb-24 bg-white min-h-screen flex flex-col items-center justify-center px-6">
-        <h2 className="text-2xl font-bold mb-4 text-[#1a1a1a]">記事が見つかりませんでした。</h2>
-        <button 
-          onClick={() => navigate('/blog')}
-          className="bg-[#1a1a1a] text-white px-6 py-3 rounded-full font-bold text-xs cursor-pointer"
-        >
-          ブログトップへ戻る
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="pt-28 pb-24 bg-white min-h-screen select-none">
-      <Helmet>
-        <title>{currentPost ? `${currentPost.title} - SYNC2 INSIGHTS` : seo.title}</title>
-        <meta name="description" content={currentPost ? currentPost.summary : seo.description} />
-      </Helmet>
-
-      {/* Progress bar for reading detailed post */}
-      {currentPost && (
-        <div 
-          className="fixed top-0 left-0 h-1 bg-[#8edce0] transition-all duration-100 z-50" 
-          style={{ width: `${readProgress}%` }}
-        />
-      )}
-
-      {currentPost ? (
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <button 
-            onClick={() => navigate('/blog')}
-            className="flex items-center gap-1 text-xs font-bold text-zinc-500 hover:text-zinc-900 mb-6 cursor-pointer"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-            <span>記事一覧に戻る</span>
-          </button>
-
-          <article className="space-y-8 sm:space-y-10">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
-                <span className="px-2 py-0.5 bg-[#8edce0]/15 text-zinc-700 font-extrabold rounded">
-                  {currentPost.category}
-                </span>
-                <span>•</span>
-                <span>{currentPost.date}</span>
-                <span>•</span>
-                <span>{currentPost.readTime}</span>
-              </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1a1a1a] leading-snug">
-                {currentPost.title}
-              </h1>
-            </div>
-
-            {/* Main Visual Image Banner */}
-            <div className="rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden aspect-[16/10] sm:aspect-[16/9] bg-zinc-50 border border-zinc-100 relative group">
-              <img 
-                src={currentPost.image} 
-                alt={currentPost.title} 
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102"
-              />
-            </div>
-
-            {/* Read Summary Card */}
-            <div className="bg-zinc-50 border-l-4 border-[#8edce0] p-5 sm:p-6 rounded-r-2xl leading-relaxed text-zinc-650 text-sm md:text-base">
-              <p className="font-bold text-[#1a1a1a] mb-2 text-xs uppercase tracking-widest text-[#8edce0] font-mono">SUMMARY / 要約</p>
-              {currentPost.summary}
-            </div>
-
-            {/* Render blog body content */}
-            <div className="space-y-10 text-zinc-700 leading-relaxed text-sm sm:text-base md:text-lg">
-              {currentPost.content?.map((sec: any, idx: number) => (
-                <div key={idx} className="space-y-4">
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#1a1a1a] flex items-center gap-2.5 pt-4 text-zinc-950">
-                    <span className="w-8 h-8 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-sm md:text-base">{sec.emoji}</span>
-                    <span>{sec.sectionTitle}</span>
-                  </h3>
-                  
-                  <div className="space-y-4 text-zinc-650 text-xs sm:text-sm md:text-base pl-1 md:pl-2">
-                    {sec.paragraphs?.map((p: string, pIdx: number) => (
-                      <p key={pIdx} className="leading-relaxed">
-                        {p}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Social Share Trigger Widget */}
-            <div className="border-t border-zinc-100 pt-8 mt-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-2.5">
-                <span className="text-zinc-400 text-xs font-mono font-bold">SHARE THIS ARTICLE :</span>
-                <button 
-                  onClick={() => handleShare(currentPost.id)}
-                  className="h-10 px-4 bg-zinc-50 hover:bg-[#8edce0]/10 border border-zinc-200 hover:border-[#8edce0]/30 rounded-xl font-bold text-xs text-zinc-700 hover:text-teal-650 flex items-center gap-2 cursor-pointer transition-colors"
-                >
-                  {copiedPostId === currentPost.id ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                      <span className="text-emerald-600 font-bold">リンクをコピーしました！</span>
-                    </>
-                  ) : (
-                    <>
-                      <AtSign className="w-3.5 h-3.5" />
-                      <span>シェアリンクをコピー</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              <button 
-                onClick={() => navigate('/blog')}
-                className="text-xs font-black tracking-widest text-zinc-900 hover:text-teal-650 flex items-center gap-1 cursor-pointer font-sans"
-              >
-                <span>他のノウハウを読む</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </article>
-        </div>
-      ) : (
-        // LIST VIEW
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center space-y-4 mb-8 sm:mb-14">
-            <span className="text-[10px] font-black tracking-[0.3em] text-[#8edce0] uppercase block font-mono">SYNC2 INSIGHTS</span>
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-[#1a1a1a] tracking-tight">
-              ブログ & トレンド解説
-            </h1>
-            <p className="text-zinc-500 text-xs sm:text-sm md:text-base max-w-lg mx-auto leading-relaxed">
-              日本のB2B企業がSNSや最新のデジタル自動化ワークフローを味方につけ、中長期的に集客・売上を生み出し続けるノウハウを結集。
-            </p>
-          </div>
-
-          <div className="space-y-6 sm:space-y-8">
-            {/* Search and Category block */}
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-b border-zinc-100 pb-5">
-              {/* Category selector */}
-              <div className="w-full md:w-auto overflow-x-auto scrollbar-none flex gap-2 pb-2 md:pb-0 scroll-smooth select-none px-2 -mx-2">
-                <div className="inline-flex gap-2">
-                  {categories.map((cat) => (
-                    <button 
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`h-10 px-4 rounded-full text-xs font-bold font-mono tracking-wide transition-all uppercase flex-shrink-0 cursor-pointer ${
-                        selectedCategory === cat 
-                          ? 'bg-[#1a1a1a] text-[#8edce0] shadow-md shadow-zinc-150' 
-                          : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-500 border border-zinc-150'
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Minimal Search bar */}
-              <div className="relative w-full md:w-72 lg:w-80">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-                <input 
-                  type="text" 
-                  placeholder="記事を検索..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full h-11 bg-zinc-50 border border-zinc-200 rounded-full pl-10 pr-4 text-xs font-bold outline-none focus:ring-1 focus:ring-zinc-350 text-zinc-800"
-                />
-              </div>
-            </div>
-
-            {/* Posts Grid */}
-            {filteredPosts && filteredPosts.length === 0 ? (
-              <div className="text-center py-20 bg-zinc-50 rounded-2xl border border-zinc-150">
-                <p className="text-zinc-500 text-xs font-mono">該当するキーワードの記事がありません。</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPosts.map((post) => (
-                  <div 
-                    key={post.id}
-                    onClick={() => navigate(`/blog/${post.id}`)}
-                    className="group bg-white border border-zinc-150 rounded-3xl overflow-hidden cursor-pointer hover:border-zinc-350 hover:shadow-lg transition-all duration-300 flex flex-col h-full"
-                  >
-                    <div className="aspect-[16/10] bg-zinc-50 overflow-hidden relative border-b border-zinc-100">
-                      <img 
-                        src={post.image} 
-                        alt={post.title} 
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
-                      />
-                    </div>
-                    <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-400">
-                          <span className="px-2 py-0.5 bg-[#8edce0]/15 text-zinc-700 font-extrabold rounded">
-                            {post.category}
-                          </span>
-                          <span>•</span>
-                          <span>{post.date}</span>
-                        </div>
-                        <h3 className="text-sm font-extrabold text-zinc-900 group-hover:text-teal-650 transition-colors line-clamp-2 leading-snug">
-                          {post.title}
-                        </h3>
-                        <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">
-                          {post.summary}
-                        </p>
-                      </div>
-                      <div className="pt-2 text-xs font-bold text-zinc-700 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5 self-start">
-                        <span>記事を読む</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
 const BlackboxAccessPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -2693,26 +2245,22 @@ const BlackboxAccessPage = () => {
     });
   };
 
-
-
   // Render Authorization Shield
   if (!isAuthenticated) {
     return (
-      <div className="pt-28 pb-24 bg-zinc-950 min-h-screen text-white flex flex-col justify-center items-center px-4">
+      <div className="pt-28 pb-24 bg-zinc-50 min-h-screen text-zinc-900 flex flex-col justify-center items-center px-4">
         <Helmet>
           <title>SYNC2 BLACKBOX | RESTRICTED PORTAL</title>
           <meta name="robots" content="noindex, nofollow" />
         </Helmet>
 
-        <div className="max-w-md w-full bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
-          {/* Subtle neon tech grid design */}
+        <div className="max-w-md w-full bg-white border border-zinc-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#8edce0]/10 blur-[60px] pointer-events-none" />
-          <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-red-500/5 blur-[50px] pointer-events-none" />
 
           <div className="text-center space-y-2">
-            <span className="text-[9px] font-black tracking-[0.4em] text-[#8edce0] uppercase font-mono">INTERNAL WORKSPACE</span>
-            <h2 className="text-xl sm:text-2xl font-black text-white tracking-widest flex items-center justify-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-teal-400 animate-ping" />
+            <span className="text-[9px] font-black tracking-[0.4em] text-[#307d80] uppercase font-mono">INTERNAL WORKSPACE</span>
+            <h2 className="text-xl sm:text-2xl font-black text-zinc-900 tracking-widest flex items-center justify-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#8edce0] animate-ping" />
               <span>SYNC2 BLACKBOX</span>
             </h2>
             <p className="text-[10px] text-zinc-500 max-w-xs mx-auto leading-relaxed">
@@ -2725,19 +2273,19 @@ const BlackboxAccessPage = () => {
               <label className="text-[9px] font-bold uppercase tracking-widest text-zinc-500 font-mono">SECURE KEYPASS</label>
               <input 
                 type="password" 
-                placeholder="••••••••" 
-                className="w-full h-12 bg-zinc-950 border border-zinc-850 rounded-xl outline-none focus:ring-2 focus:ring-[#8edce0]/42 focus:border-[#8edce0] px-4 text-center text-sm font-mono tracking-widest text-[#8edce0]"
+                placeholder="•••••••" 
+                className="w-full h-12 bg-zinc-50 border border-zinc-200 rounded-xl outline-none focus:ring-2 focus:ring-[#8edce0]/40 focus:border-[#8edce0] px-4 text-center text-sm font-mono tracking-widest text-zinc-800"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
               />
               {passError && (
-                <p className="text-xs text-red-400 text-center font-bold">{passError}</p>
+                <p className="text-xs text-red-500 text-center font-bold">{passError}</p>
               )}
             </div>
 
             <button 
               type="submit"
-              className="w-full h-12 bg-[#8edce0] hover:bg-teal-400 text-zinc-950 rounded-xl font-black text-[11px] tracking-widest uppercase transition-all duration-250 cursor-pointer shadow-lg"
+              className="w-full h-12 bg-[#8edce0] hover:bg-teal-450 text-zinc-950 rounded-xl font-black text-[11px] tracking-widest uppercase transition-all cursor-pointer shadow-sm"
             >
               ノードを承認・接続する
             </button>
@@ -2749,52 +2297,34 @@ const BlackboxAccessPage = () => {
 
   // Render Inner Connected Dashboard
   return (
-    <div className="pt-28 pb-20 bg-zinc-950 min-h-screen text-zinc-100 select-none font-sans">
+    <div className="pt-28 pb-20 bg-zinc-50 min-h-screen text-zinc-800 font-sans">
       <Helmet>
         <title>SYNC2 BLACKBOX | SECURE CONTROL NODE</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        
-        {/* Header Ribbon bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-zinc-800/80 pb-6 mb-6">
-          <div className="space-y-1 text-center md:text-left">
-            <div className="flex items-center gap-2 justify-center md:justify-start">
-              <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[9px] font-black tracking-widest font-mono rounded border border-emerald-500/20 uppercase">AUTHORIZED CONNECTION LIVE</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-widest text-zinc-100 uppercase">
-              SYNC2 BLACKBOX CORE
-            </h1>
-            <p className="text-[10px] sm:text-xs text-zinc-500 font-mono tracking-wide">
-              チーム占有コントロールプレーン: 経営・SNS・開発プロセスの完全同期
-            </p>
-          </div>
-
+        {/* Navigation Tabs Header */}
+        <div className="bg-white border border-zinc-200 rounded-[2rem] p-4 mb-8 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setIsAuthenticated(false)}
-              className="flex items-center gap-1.5 h-10 px-4 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-850 transition-colors cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>ログアウト</span>
-            </button>
+            <div className="w-10 h-10 rounded-full bg-[#8edce0]/10 flex items-center justify-center text-[#307d80]">
+              <ShieldCheck className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <h1 className="text-sm font-black tracking-widest text-zinc-900 font-mono uppercase">Blackbox Control Node</h1>
+              <p className="text-[9px] text-zinc-400 font-mono tracking-tight uppercase">Operational Status: Online & Synchronized</p>
+            </div>
           </div>
-        </div>
 
-        {/* Dashboard layout with Sidebars or Header links */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
-          {/* Inner Navigation Rail */}
-          <div className="lg:col-span-3 space-y-2">
+          <div className="flex flex-wrap items-center gap-1.5 font-sans font-bold text-xs select-none">
             {[
-              { id: 'blog', name: '📰 ブログコンテンツ編集', count: blogPosts.length + "件" },
-              { id: 'seo', name: '🚀 SEOメタ最適化', count: "4ページ" },
-              { id: 'leads', name: '📊 資料ダウンロード・リード', count: leads.length + "件" },
-              { id: 'docs', name: '🧾 見積書う・請求書生成', count: docs.length + "通" },
-              { id: 'cashflow', name: '📈 入出金・簡易財務管理', count: `利益 ¥${netProfit.toLocaleString()}` }
-            ].map((tab) => (
-              <button 
+              { id: 'blog', label: 'ブログ管理', icon: <BookOpen className="w-3.5 h-3.5" /> },
+              { id: 'leads', label: 'リード個人情報', icon: <Users className="w-3.5 h-3.5" /> },
+              { id: 'docs', label: 'ピッチ・見積・請求書', icon: <FileText className="w-3.5 h-3.5" /> },
+              { id: 'cashflow', label: '収支シミュレータ', icon: <Wallet className="w-3.5 h-3.5" /> },
+              { id: 'seo', label: 'SEOメタ構成', icon: <Settings className="w-3.5 h-3.5" /> }
+            ].map(tab => (
+              <button
                 key={tab.id}
                 onClick={() => {
                   setActiveTab(tab.id as any);
@@ -2802,469 +2332,395 @@ const BlackboxAccessPage = () => {
                   setShowDocForm(false);
                   setShowTxForm(false);
                 }}
-                className={`w-full h-14 rounded-2xl flex items-center justify-between px-4 text-xs font-bold tracking-wide transition-all border text-left cursor-pointer ${
-                  activeTab === tab.id 
-                    ? 'bg-[#8edce0]/10 border-[#8edce0]/42 text-[#8edce0] shadow-md' 
-                    : 'bg-zinc-900/60 border-zinc-800/80 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700/60'
+                className={`px-4 h-10 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-[#1a1a1a] text-[#8edce0] shadow-md'
+                    : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 border border-zinc-200'
                 }`}
               >
-                <span>{tab.name}</span>
-                <span className="text-[9px] font-mono px-2 py-0.5 bg-zinc-950 text-zinc-500 rounded-md border border-zinc-800/60">{tab.count}</span>
+                {tab.icon}
+                <span>{tab.label}</span>
               </button>
             ))}
+            <button 
+              onClick={() => {
+                setIsAuthenticated(false);
+                setPasscode("");
+                localStorage.removeItem('sync2_auth');
+              }}
+              className="px-4 h-10 rounded-xl bg-red-50 text-red-500 border border-red-100 hover:bg-red-100 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ml-4"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>ログアウト</span>
+            </button>
           </div>
+        </div>
 
-          {/* Module Content Container */}
-          <div className="lg:col-span-9 bg-zinc-900 border border-zinc-805 rounded-3xl p-5 sm:p-6 md:p-8 space-y-6 shadow-xl min-h-[500px]">
-            
-            {/* 1. BLOG MANAGEMENT MODULE */}
-            {activeTab === 'blog' && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/60 pb-5">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
-                      <span className="w-1.5 h-3 bg-[#8edce0] rounded-full" />
-                      <span>ブログ記事マスター編集</span>
-                    </h2>
-                    <p className="text-[10px] text-zinc-500 leading-relaxed mt-1">
-                      SYNC2 INSIGHTSに表示される記事をリアルタイムに作成・編集・削除できます。
-                    </p>
-                  </div>
-                  
-                  {!showBlogForm && (
-                    <button 
-                      onClick={() => {
-                        setEditingPost(null);
-                        setNewPost({
-                          id: "",
-                          title: "",
-                          category: "SNSマーケティング",
-                          date: new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.'),
-                          author: "SYNC2 編集部",
-                          readTime: "5分",
-                          summary: "",
-                          image: "https://picsum.photos/seed/any/800/500",
-                          content: [
-                            { emoji: "🚀", sectionTitle: "導入・背景", paragraphs: [] },
-                            { emoji: "🔥", sectionTitle: "本質と実践メカニズム", paragraphs: [] },
-                            { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: [] }
-                          ]
-                        });
-                        setShowBlogForm(true);
-                      }}
-                      className="bg-[#8edce0] hover:bg-teal-400 text-zinc-950 px-4 h-11 rounded-xl text-xs font-black tracking-wider uppercase inline-flex items-center gap-2 transition-all cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>新規記事作成</span>
-                    </button>
-                  )}
-                </div>
+        {/* Content Body Modules */}
+        <div className="space-y-6">
+          
+          {/* 1. BLOG MODULE */}
+          {activeTab === 'blog' && (
+            <div className="bg-white border border-zinc-200 p-6 rounded-2xl shadow-sm space-y-6">
+              <div className="flex justify-between items-center border-b border-zinc-150 pb-4">
+                <h3 className="text-sm font-extrabold text-zinc-900 flex items-center gap-1.5">
+                  <span className="w-1.5 h-3 bg-[#8edce0] rounded-full" />
+                  <span>ブログ記事一覧・記事作成編集</span>
+                </h3>
+                {!showBlogForm && (
+                  <button
+                    onClick={() => {
+                      setNewPost({
+                        id: Math.random().toString(36).substring(2, 9),
+                        title: "",
+                        category: "SNSマーケティング",
+                        date: new Date().toLocaleDateString('ja-JP').replace(/\//g, '.'),
+                        author: "SYNC2 編集部",
+                        readTime: "5分",
+                        summary: "",
+                        image: "https://picsum.photos/seed/sync2-blog/800/500",
+                        content: [
+                          { emoji: "🚀", sectionTitle: "導入・背景", paragraphs: [] },
+                          { emoji: "🔥", sectionTitle: "本質と実践メカニズム", paragraphs: [] },
+                          { emoji: "⚙️", sectionTitle: "これからの展開と導入ステップ", paragraphs: [] }
+                        ],
+                        seoTitle: "",
+                        seoDescription: "",
+                        seoKeywords: "",
+                        scheduledDate: "",
+                        isPublished: true
+                      });
+                      setShowBlogForm(true);
+                      setEditingPost(null);
+                    }}
+                    className="bg-[#8edce0] hover:bg-teal-400 text-zinc-950 px-4 py-2 rounded-xl text-xs font-black tracking-wider uppercase inline-flex items-center gap-1 cursor-pointer transition-all shadow-sm"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>記事を新規作成</span>
+                  </button>
+                )}
+              </div>
 
-                {showBlogForm ? (
-                  // Create/Edit Blog Form
-                  <form onSubmit={handleAddNewPost} className="space-y-5 bg-zinc-950 p-5 rounded-2xl border border-zinc-850">
-                    <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest">
-                      {editingPost ? "✍️ 既存記事のアップデート" : "📝 新規トピック執筆"}
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">URLスラッグ (ID) *半角英字・重複不可</label>
-                        <input 
-                          required
-                          disabled={!!editingPost}
-                          type="text"
-                          placeholder="ai-system-transformation-2026"
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-300 disabled:opacity-40 font-mono"
-                          value={newPost.id}
-                          onChange={(e) => setNewPost({ ...newPost, id: e.target.value })}
-                        />
-                      </div>
-                      
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">カテゴリ</label>
-                        <select 
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-300"
-                          value={newPost.category}
-                          onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
-                        >
-                          <option value="SNSマーケティング">SNSマーケティング</option>
-                          <option value="アプリ・AI・システム開発">アプリ・AI・システム開発</option>
-                        </select>
-                      </div>
+              {showBlogForm ? (
+                <form onSubmit={handleAddNewPost} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">記事カテゴリ</label>
+                      <select 
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-700 font-bold"
+                        value={newPost.category}
+                        onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
+                      >
+                        <option value="SNSマーケティング">SNSマーケティング</option>
+                        <option value="B2B営業・リード獲得">B2B営業・リード獲得</option>
+                        <option value="SNS運用代行サービス">SNS運用代行サービス</option>
+                        <option value="AI・システム開発">AI・システム開発</option>
+                      </select>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">記事タイトル</label>
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">記事ID（Slug・英語・URL用）</label>
                       <input 
                         required
                         type="text"
-                        placeholder="15秒で決裁者を虜にする超短尺クリエイティブ撮影の教科書"
-                        className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-100 font-bold"
-                        value={newPost.title}
-                        onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                        placeholder="sns-marketing-trends"
+                        disabled={editingPost !== null}
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-900 font-bold font-mono disabled:opacity-40"
+                        value={newPost.id}
+                        onChange={(e) => setNewPost({ ...newPost, id: e.target.value.replace(/[^a-zA-Z0-9-]/g, '') })}
                       />
                     </div>
+                  </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">執筆日</label>
-                        <input 
-                          type="text"
-                          placeholder="2026.06.08"
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-300 font-mono"
-                          value={newPost.date}
-                          onChange={(e) => setNewPost({ ...newPost, date: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">想定読了時間</label>
-                        <input 
-                          type="text"
-                          placeholder="6分"
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-300"
-                          value={newPost.readTime}
-                          onChange={(e) => setNewPost({ ...newPost, readTime: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">著者署名</label>
-                        <input 
-                          type="text"
-                          placeholder="SYNC2 編集部"
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-300"
-                          value={newPost.author}
-                          onChange={(e) => setNewPost({ ...newPost, author: e.target.value })}
-                        />
-                      </div>
-                    </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">記事タイトル</label>
+                    <input 
+                      required
+                      type="text"
+                      placeholder="15秒で決裁者を虜にする超短尺クリエイティブ撮影"
+                      className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-900 font-bold"
+                      value={newPost.title}
+                      onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                    />
+                  </div>
 
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">アイキャッチ画像URL (Picsum等プレースホルダ可)</label>
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">執筆日</label>
                       <input 
                         type="text"
-                        placeholder="https://picsum.photos/seed/b2b-short/800/500"
-                        className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-300 font-mono"
-                        value={newPost.image}
-                        onChange={(e) => setNewPost({ ...newPost, image: e.target.value })}
+                        placeholder="2026.06.08"
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-700 font-mono"
+                        value={newPost.date}
+                        onChange={(e) => setNewPost({ ...newPost, date: e.target.value })}
                       />
                     </div>
-
                     <div className="space-y-1.5">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">要約/サマリー(カード紹介文)</label>
-                      <textarea 
-                        rows={3}
-                        placeholder="リード文及びサマリー。カードビューで詳細ページに入る前に読まれる短い要約テキストです。"
-                        className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 text-xs text-zinc-300 leading-relaxed resize-none"
-                        value={newPost.summary}
-                        onChange={(e) => setNewPost({ ...newPost, summary: e.target.value })}
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">想定読了時間</label>
+                      <input 
+                        type="text"
+                        placeholder="5分"
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-700"
+                        value={newPost.readTime}
+                        onChange={(e) => setNewPost({ ...newPost, readTime: e.target.value })}
                       />
                     </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">著者署名</label>
+                      <input 
+                        type="text"
+                        placeholder="SYNC2 編集部"
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-700"
+                        value={newPost.author}
+                        onChange={(e) => setNewPost({ ...newPost, author: e.target.value })}
+                      />
+                    </div>
+                  </div>
 
-                    {/* Section blocks editor */}
-                    <div className="space-y-3.5 border-t border-zinc-800/60 pt-4">
-                      <h4 className="text-[10px] font-black text-teal-400 uppercase tracking-widest">📖 本文セクション構成（3章構成）</h4>
-                      
-                      {newPost.content?.map((sec: any, sIdx: number) => (
-                        <div key={sIdx} className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl space-y-3">
-                          <div className="flex gap-2">
-                            <input 
-                              type="text" 
-                              placeholder="🚀" 
-                              className="w-10 h-10 text-center bg-zinc-950 border border-zinc-800 rounded-lg text-sm"
-                              value={sec.emoji}
-                              onChange={(e) => {
-                                const content = [...(newPost.content || [])];
-                                content[sIdx] = { ...sec, emoji: e.target.value };
-                                setNewPost({ ...newPost, content });
-                              }}
-                            />
-                            <input 
-                              type="text" 
-                              placeholder={`第${sIdx + 1}章：見出し`} 
-                              className="flex-1 h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-bold text-white outline-none focus:border-teal-400"
-                              value={sec.sectionTitle}
-                              onChange={(e) => {
-                                const content = [...(newPost.content || [])];
-                                content[sIdx] = { ...sec, sectionTitle: e.target.value };
-                                setNewPost({ ...newPost, content });
-                              }}
-                            />
-                          </div>
-                          
-                          <textarea 
-                            rows={3}
-                            placeholder="段落文章を入力してください。改行（エンター）で新たなブロックを追加できます。"
-                            className="w-full p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg text-[11px] text-zinc-350 outline-none focus:border-teal-400 leading-relaxed resize-none font-mono"
-                            value={sec.paragraphs.join("\n")}
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">アイキャッチ画像URL</label>
+                    <input 
+                      type="text"
+                      placeholder="https://picsum.photos/seed/sync2-blog/800/500"
+                      className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-650 font-mono"
+                      value={newPost.image}
+                      onChange={(e) => setNewPost({ ...newPost, image: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">要約/サマリー(カード紹介文)</label>
+                    <textarea 
+                      rows={2}
+                      placeholder="リード文及びサマリー。詳細ページに入る前に読まれる短い紹介文です。"
+                      className="w-full p-3 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] text-xs text-zinc-700 leading-relaxed resize-none"
+                      value={newPost.summary}
+                      onChange={(e) => setNewPost({ ...newPost, summary: e.target.value })}
+                    />
+                  </div>
+
+                  {/* Sections list */}
+                  <div className="space-y-3.5 border-t border-zinc-200 pt-4">
+                    <h4 className="text-[10px] font-black text-[#307c80] uppercase tracking-widest font-mono">📖 本文セクション構成（3章構成）</h4>
+                    {newPost.content?.map((sec, sIdx) => (
+                      <div key={sIdx} className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-3">
+                        <div className="flex gap-2">
+                          <input 
+                            type="text" 
+                            placeholder="🚀" 
+                            className="w-10 h-10 text-center bg-white border border-zinc-200 rounded-lg text-sm"
+                            value={sec.emoji}
                             onChange={(e) => {
                               const content = [...(newPost.content || [])];
-                              content[sIdx] = { ...sec, paragraphs: e.target.value.split("\n") };
+                              content[sIdx] = { ...sec, emoji: e.target.value };
+                              setNewPost({ ...newPost, content });
+                            }}
+                          />
+                          <input 
+                            type="text" 
+                            placeholder={`第${sIdx + 1}章：見出し`} 
+                            className="flex-1 h-10 px-3 bg-white border border-zinc-200 rounded-lg text-xs font-bold text-zinc-800 outline-none focus:border-[#8edce0]"
+                            value={sec.sectionTitle}
+                            onChange={(e) => {
+                              const content = [...(newPost.content || [])];
+                              content[sIdx] = { ...sec, sectionTitle: e.target.value };
                               setNewPost({ ...newPost, content });
                             }}
                           />
                         </div>
-                      ))}
-                    </div>
-
-                    <div className="flex justify-end gap-3 pt-3 border-t border-zinc-800/40">
-                      <button 
-                        type="button" 
-                        onClick={() => {
-                          setShowBlogForm(false);
-                          setEditingPost(null);
-                        }}
-                        className="h-10 px-4 rounded-xl bg-zinc-900 text-xs font-bold text-zinc-400 hover:text-white cursor-pointer"
-                      >
-                        キャンセル
-                      </button>
-                      <button 
-                        type="submit" 
-                        className="h-10 px-6 rounded-xl bg-[#8edce0] hover:bg-teal-400 text-zinc-900 text-xs font-black tracking-widest inline-flex items-center gap-1.5 cursor-pointer shadow-md"
-                      >
-                        <Save className="w-3.5 h-3.5" />
-                        <span>{editingPost ? "記事を更新保存" : "新しい記事を公開"}</span>
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  // Blog posts grid-table list
-                  <div className="space-y-3">
-                    {blogPosts.length === 0 ? (
-                      <div className="text-center py-10 bg-zinc-950 rounded-2xl border border-zinc-850">
-                        <p className="text-zinc-500 text-xs">登録されているブログ記事はありません。</p>
+                        <textarea 
+                          rows={4}
+                          placeholder="段落文章を入力（改行でパラグラフが追加されます）"
+                          className="w-full p-2.5 bg-white border border-zinc-200 rounded-lg text-[11px] text-zinc-700 outline-none focus:border-[#8edce0] leading-relaxed resize-none"
+                          value={sec.paragraphs.join("\n")}
+                          onChange={(e) => {
+                            const content = [...(newPost.content || [])];
+                            content[sIdx] = { ...sec, paragraphs: e.target.value.split("\n") };
+                            setNewPost({ ...newPost, content });
+                          }}
+                        />
                       </div>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-3">
-                        {blogPosts.map(post => (
-                          <div 
-                            key={post.id}
-                            className="p-4 bg-zinc-950/60 border border-zinc-850 rounded-2xl hover:border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
-                          >
-                            <div className="flex gap-3.5 items-center">
-                              <div className="w-16 h-12 bg-zinc-900 rounded-lg overflow-hidden flex-shrink-0 border border-zinc-800">
-                                <img src={post.image} alt="" className="w-full h-full object-cover" />
-                              </div>
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="px-2 py-0.5 bg-[#8edce0]/10 text-[#8edce0] border border-[#8edce0]/15 rounded text-[8px] font-black tracking-wider uppercase font-mono">
-                                    {post.category}
-                                  </span>
-                                  <span className="text-[10px] text-zinc-500 font-mono">{post.date}</span>
-                                </div>
-                                <h4 className="text-xs sm:text-sm font-extrabold text-zinc-200 line-clamp-1">{post.title}</h4>
-                                <p className="text-[10px] text-zinc-500 font-mono">slug: /blog/{post.id}</p>
-                              </div>
-                            </div>
+                    ))}
+                  </div>
 
-                            <div className="flex items-center gap-2 self-end sm:self-auto w-full sm:w-auto justify-end border-t sm:border-t-0 border-zinc-905 pt-2 sm:pt-0">
-                              <button 
-                                onClick={() => window.open(`/blog/${post.id}`, '_blank')}
-                                className="h-9 px-3 bg-zinc-900 hover:bg-zinc-850 hover:text-white rounded-lg text-[10px] sm:text-xs font-bold text-zinc-400 cursor-pointer"
-                              >
-                                表示
-                              </button>
-                              <button 
-                                onClick={() => handleEditBlogClick(post)}
-                                className="h-9 px-3 bg-zinc-900 border border-zinc-800 hover:border-teal-400 hover:text-teal-400 rounded-lg text-[10px] sm:text-xs font-bold text-zinc-400 inline-flex items-center gap-1 cursor-pointer"
-                              >
-                                <Edit className="w-3 h-3" />
-                                <span>編集</span>
-                              </button>
-                              <button 
-                                onClick={() => handleDeleteBlog(post.id)}
-                                className="h-9 w-9 bg-zinc-900 hover:bg-red-500/10 hover:border-red-500/30 text-zinc-500 hover:text-red-400 border border-zinc-800 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                  <div className="flex justify-end gap-3 pt-3 border-t border-zinc-150">
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setShowBlogForm(false);
+                        setEditingPost(null);
+                      }}
+                      className="h-10 px-4 rounded-xl bg-zinc-100 text-xs font-bold text-zinc-650 hover:bg-zinc-200 hover:text-zinc-900 cursor-pointer transition-colors"
+                    >
+                      キャンセル
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="h-10 px-6 rounded-xl bg-[#8edce0] hover:bg-teal-400 text-zinc-900 text-xs font-black tracking-widest inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-colors animate-pulse"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      <span>{editingPost ? "記事を更新保存" : "新しい記事を公開"}</span>
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-3">
+                  {blogPosts.length === 0 ? (
+                    <div className="text-center py-12 bg-zinc-50 border border-zinc-200 rounded-2xl">
+                      <p className="text-zinc-500 text-xs text-zinc-400">登録されているブログ記事はありません。</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-3">
+                      {blogPosts.map(post => (
+                        <div 
+                          key={post.id}
+                          className="p-4 bg-white border border-zinc-200 rounded-2xl hover:border-zinc-300 hover:shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
+                        >
+                          <div className="flex gap-3 items-center">
+                            <div className="w-16 h-12 bg-zinc-100 rounded-lg overflow-hidden flex-shrink-0 border border-zinc-200">
+                              <img src={post.image} alt="" className="w-full h-full object-cover" />
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="px-2 py-0.5 bg-[#8edce0]/10 text-[#307d80] rounded text-[8px] font-black tracking-wider uppercase font-mono">
+                                  {post.category}
+                                </span>
+                                <span className="text-[10px] text-zinc-450 font-mono">{post.date}</span>
+                              </div>
+                              <h4 className="text-xs sm:text-sm font-extrabold text-zinc-900">{post.title}</h4>
+                              <p className="text-[10px] text-zinc-400 font-mono">slug: /blog/{post.id}</p>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
 
-            {/* 2. SEO META OPTIMIZATION MODULE */}
-            {activeTab === 'seo' && (
-              <div className="space-y-6">
+                          <div className="flex items-center gap-2 self-end sm:self-auto">
+                            <button 
+                              onClick={() => window.open(`/blog/${post.id}`, '_blank')}
+                              className="h-9 px-3 bg-zinc-50 border border-zinc-200 hover:bg-zinc-100 rounded-lg text-xs font-bold text-zinc-600 cursor-pointer"
+                            >
+                              表示
+                            </button>
+                            <button 
+                              onClick={() => handleEditBlogClick(post)}
+                              className="h-9 px-3 bg-zinc-50 border border-zinc-200 hover:bg-[#8edce0]/10 hover:text-[#2d7679] hover:border-[#8edce0]/40 rounded-lg text-xs font-bold text-zinc-650 inline-flex items-center gap-1 cursor-pointer"
+                            >
+                              <Edit className="w-3 h-3" />
+                              <span>編集</span>
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteBlog(post.id)}
+                              className="h-9 w-9 bg-zinc-50 hover:bg-red-50 hover:border-red-200 hover:text-red-500 text-zinc-400 border border-zinc-200 rounded-lg flex items-center justify-center cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 2. LEADS MODULE */}
+          {activeTab === 'leads' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-zinc-200 p-6 rounded-2xl shadow-sm">
                 <div>
-                  <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
+                  <h3 className="text-sm font-extrabold text-zinc-900 flex items-center gap-1.5">
                     <span className="w-1.5 h-3 bg-[#8edce0] rounded-full" />
-                    <span>SEOメタダッシュボード</span>
-                  </h2>
-                  <p className="text-[10px] text-zinc-500 leading-relaxed mt-1">
-                    各パブリックページのブラウザタイトル、メタディスクリプション、検索キーワードを直接制御します。
+                    <span>資料・ホワイトペーパー請求者リード台帳</span>
+                  </h3>
+                  <p className="text-[10px] text-zinc-400 mt-1 leading-relaxed">
+                    無料プレゼント用ホワイトペーパーをいつでも入れ替え、ダウンロード申請があった顧客リード名簿をCSV取得可能です。
                   </p>
                 </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button 
+                    onClick={exportLeadsCSV}
+                    disabled={leads.length === 0}
+                    className="bg-[#8edce0] hover:bg-teal-400 text-zinc-950 px-4 h-10 rounded-xl text-xs font-black tracking-wider uppercase inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed transition-all"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>CSVダウンロード</span>
+                  </button>
+                  <button 
+                    onClick={handleClearAllLeads}
+                    disabled={leads.length === 0}
+                    className="bg-transparent hover:bg-red-50 hover:border-red-200 text-zinc-500 hover:text-red-500 border border-zinc-200 px-3 h-10 rounded-xl text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    一括クリア
+                  </button>
+                </div>
+              </div>
 
-                {/* Sub tabs for Page Selection */}
-                <div className="flex overflow-x-auto scrollbar-none gap-2 border-b border-zinc-800/80 pb-3">
-                  {[
-                    { id: 'home', name: '🏠 トップページ (/) ' },
-                    { id: 'sns', name: '📈 SNSマーケティング (/sns)' },
-                    { id: 'dev', name: '⚙️ アプリ・AIシステム開発 (/development)' },
-                    { id: 'blog', name: '📰 統合テックブログ (/blog)' }
-                  ].map(page => (
-                    <button
-                      key={page.id}
-                      type="button"
-                      onClick={() => setSelectedSeoPage(page.id)}
-                      className={`h-9 px-3.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                        selectedSeoPage === page.id 
-                          ? 'bg-zinc-100 text-zinc-950 font-black' 
-                          : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200'
-                      }`}
+              {/* PDF uploader card requested by user */}
+              <div className="bg-white border border-zinc-200 p-6 rounded-2xl space-y-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black tracking-widest text-[#307c80] uppercase block font-mono">■ 無料ホワイトペーパープレゼント用PDF管理</span>
+                  {pdfInfo.name && (
+                    <button 
+                      onClick={handlePdfDelete}
+                      className="text-[10px] text-red-500 hover:text-red-700 font-bold border border-red-200 hover:bg-red-50 px-2 py-1 rounded transition-all cursor-pointer"
                     >
-                      {page.name}
+                      独自PDFを削除してデフォルトに戻す
                     </button>
-                  ))}
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Editor inputs forms */}
-                  <form onSubmit={handleUpdateSeo} className="space-y-4 bg-zinc-950 p-5 rounded-2xl border border-zinc-850">
-                    <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest font-mono flex items-center gap-1.5">
-                      <Settings className="w-3.5 h-3.5 text-[#8edce0]" />
-                      <span>{selectedSeoPage.toUpperCase()} メタ設定編集</span>
-                    </h3>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono flex justify-between">
-                        <span>ブラウザタグタイトル (Title)</span>
-                        <span className="text-[#8edce0] font-bold">{seoConfig[selectedSeoPage]?.title?.length || 0}文字</span>
-                      </label>
-                      <input 
-                        type="text"
-                        className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-100 font-semibold"
-                        value={seoConfig[selectedSeoPage]?.title || ""}
-                        onChange={(e) => updateSelectedSeoField('title', e.target.value)}
-                      />
-                      <p className="text-[9px] text-zinc-500 leading-normal">
-                        推奨：30〜55文字。GoogleのPC検索結果では50文字前後、スマートフォンでは35文字前後が表示限界になります。
-                      </p>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono flex justify-between">
-                        <span>サイト紹介文 (Meta Description)</span>
-                        <span className="text-[#8edce0] font-bold">{seoConfig[selectedSeoPage]?.desc?.length || 0}文字</span>
-                      </label>
-                      <textarea 
-                        rows={4}
-                        className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 text-xs text-zinc-200 leading-relaxed resize-none"
-                        value={seoConfig[selectedSeoPage]?.desc || ""}
-                        onChange={(e) => updateSelectedSeoField('desc', e.target.value)}
-                      />
-                      <p className="text-[9px] text-zinc-500 leading-normal">
-                        推奨：80〜120文字。ターゲットに解決可能価値（B2Bリード向上等）を訴求してクリック率（CTR）を高めましょう。
-                      </p>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">カスタムキーワード (Keywords) *カンマ区切り</label>
-                      <input 
-                        type="text"
-                        className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-300 font-mono"
-                        value={seoConfig[selectedSeoPage]?.keywords || ""}
-                        onChange={(e) => updateSelectedSeoField('keywords', e.target.value)}
-                      />
-                    </div>
-
-                    <div className="pt-2">
-                      <button 
-                        type="submit"
-                        className="w-full h-11 bg-[#8edce0] hover:bg-teal-400 text-zinc-900 text-xs font-black tracking-widest uppercase rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow"
-                      >
-                        <Save className="w-4 h-4" />
-                        <span>SEO構成を設定更新</span>
-                      </button>
-                    </div>
-                  </form>
-
-                  {/* High Fidelity Google SERP Visual Simulator */}
-                  <div className="bg-zinc-950 p-5 rounded-2xl border border-zinc-850 flex flex-col justify-between space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="border border-dashed border-zinc-250 rounded-xl p-6 flex flex-col items-center justify-center text-center space-y-3 bg-zinc-50/50 hover:bg-zinc-50 transition-colors">
+                    <Upload className="w-7 h-7 text-zinc-400" />
                     <div className="space-y-1">
-                      <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest font-mono">🔍 Google 検索結果（PC版）リアルタイム表示プレビュー</h4>
-                      <p className="text-[9px] text-zinc-500 leading-normal">
-                        Google検索エンジンが対象キーワード等でクロール・インデックスした場合の物理レイアウトをシミュレートしています。
-                      </p>
+                      <p className="text-xs font-extrabold text-zinc-800">新しいホワイトペーパー (PDF) を選択する</p>
+                      <p className="text-[10px] text-zinc-400">※最大 20MB / 形式: PDFファイルのみ</p>
                     </div>
-                    
-                    <div className="p-4 bg-white rounded-xl shadow-inner border border-zinc-150 space-y-1 text-left">
-                      <div className="flex items-center gap-1.5 text-zinc-400 text-[10px] font-mono leading-none">
-                        <span className="w-4 h-4 rounded-full bg-zinc-100 flex items-center justify-center text-[7px] font-bold text-zinc-700">S2</span>
-                        <span>https://sync2.agency</span>
-                        <span className="text-[8px]">› {selectedSeoPage === 'home' ? 'index' : selectedSeoPage}</span>
-                      </div>
-                      <h5 className="text-[#1a0dab] hover:underline text-base font-normal leading-normal line-clamp-1 font-sans cursor-pointer">
-                        {seoConfig[selectedSeoPage]?.title || "SYNC2 AGENCY"}
-                      </h5>
-                      <p className="text-[#4d5156] text-[11px] leading-relaxed line-clamp-2 font-sans pt-0.5">
-                        {seoConfig[selectedSeoPage]?.desc || "SYNC2はB2B特化の次世代テクノロジーエージェンシーです。"}
-                      </p>
-                    </div>
+                    <label className="bg-[#8edce0] hover:bg-teal-400 text-zinc-950 px-4 py-2 rounded-lg text-xs font-bold cursor-pointer transition-colors shadow-sm inline-block select-none">
+                      ファイルを選択
+                      <input 
+                        type="file" 
+                        accept="application/pdf" 
+                        onChange={handlePdfUpload} 
+                        className="hidden" 
+                      />
+                    </label>
+                  </div>
 
-                    <div className="p-4.5 bg-zinc-900 border border-zinc-850 rounded-xl space-y-2 text-zinc-400 text-[10px] leading-relaxed">
-                      <span className="font-bold text-orange-400 font-mono text-[9px] uppercase tracking-wider block">🛡️ クローラ制御ディレクティブ</span>
-                      <p className="font-mono text-zinc-450 leading-relaxed">
-                        &lt;meta name="robots" content="noindex, nofollow" /&gt;<br />
-                        ※本ブラックボックスアクセスルート以外は、標準のサイトマップと強固なインデックス連携が構築され、SEO効果は最大化されます。
-                      </p>
+                  <div className="p-5 bg-teal-50/20 rounded-xl border border-teal-100 flex flex-col justify-between space-y-3">
+                    <div className="space-y-2">
+                      <span className="text-[9px] font-bold text-[#307c80] uppercase tracking-wider block font-mono">現在LPで配信中のホワイトペーパー</span>
+                      {pdfInfo.name ? (
+                        <div className="space-y-1">
+                          <p className="text-xs font-black text-zinc-800 line-clamp-1">{pdfInfo.name}</p>
+                          <p className="text-[10px] text-zinc-505 font-mono">ファイルサイズ: {pdfInfo.size} / 更新日: {pdfInfo.date}</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <p className="text-xs text-zinc-600 font-bold italic">システム標準レポートが配信されています</p>
+                          <p className="text-[10px] text-zinc-400 font-mono">SYNC2_B2B_SNS_Strategy_Guide_2026.pdf (内蔵レポート)</p>
+                        </div>
+                      )}
                     </div>
+                    <p className="text-[9px] text-zinc-400 leading-normal pt-2 border-t border-teal-100/50">
+                      ※ここからPDFファイルを差し替えると、LPのホワイトペーパー請求フォームを送信した閲覧者に、即時に新しいPDFがダウンロードプレゼントされます。
+                    </p>
                   </div>
                 </div>
               </div>
-            )}
 
-            {/* 3. LEADS (資料ダウンロード請求者) LIST MODULE */}
-            {activeTab === 'leads' && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/60 pb-5">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
-                      <span className="w-1.5 h-3 bg-[#8edce0] rounded-full" />
-                      <span>資料・ホワイトペーパー請求者リード台帳</span>
-                    </h2>
-                    <p className="text-[10px] text-zinc-500 leading-relaxed mt-1">
-                      LPの「無料ダウンロード」から申請したリード（氏名、社名、メールアドレス）です。
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <button 
-                      onClick={exportLeadsCSV}
-                      disabled={leads.length === 0}
-                      className="bg-[#8edce0] hover:bg-teal-400 text-zinc-950 px-4 h-11 rounded-xl text-xs font-black tracking-wider uppercase inline-flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>CSVで一括出力</span>
-                    </button>
-                    <button 
-                      onClick={handleClearAllLeads}
-                      disabled={leads.length === 0}
-                      className="bg-transparent hover:bg-red-500/10 hover:border-red-500/30 text-zinc-400 hover:text-red-400 border border-zinc-800 px-3 h-11 rounded-xl text-xs font-bold transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-                    >
-                      一括クリア
-                    </button>
-                  </div>
-                </div>
-
-                {/* Filters block */}
-                <div className="relative max-w-sm">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+              {/* Leads registered list */}
+              <div className="bg-white border border-zinc-200 p-6 rounded-2xl shadow-sm space-y-4">
+                <div className="flex items-center gap-3">
+                  <Search className="w-4 h-4 text-zinc-400" />
                   <input 
                     type="text" 
-                    placeholder="氏名、企業名、メールアドレスで検索..."
-                    className="w-full h-11 pl-10 pr-4 bg-zinc-950 border border-zinc-805 rounded-xl text-xs outline-none focus:ring-1 focus:ring-teal-400 text-zinc-350"
+                    placeholder="氏名、企業名、メールアドレスでリード検索..."
+                    className="flex-1 h-11 bg-zinc-50 border border-zinc-200 rounded-xl text-xs outline-none focus:ring-1 focus:ring-[#8edce0] px-3 font-semibold text-zinc-800"
                     value={leadSearch}
                     onChange={(e) => setLeadSearch(e.target.value)}
                   />
                 </div>
 
-                {/* Table list */}
                 {(() => {
                   const filteredLeads = leads.filter(l => 
                     l.name.toLowerCase().includes(leadSearch.toLowerCase()) ||
@@ -3274,51 +2730,43 @@ const BlackboxAccessPage = () => {
 
                   if (filteredLeads.length === 0) {
                     return (
-                      <div className="text-center py-12 bg-zinc-950 rounded-2xl border border-zinc-855">
-                        <p className="text-zinc-500 text-xs">条件に一致するリード情報が見つかりませんでした。</p>
+                      <div className="text-center py-10 bg-zinc-50 border border-zinc-150 rounded-2xl">
+                        <p className="text-zinc-550 text-xs">登録されているリード請求者はいません。</p>
                       </div>
                     );
                   }
 
                   return (
-                    <div className="overflow-hidden border border-zinc-805 rounded-2xl bg-zinc-950">
+                    <div className="overflow-hidden border border-zinc-200 rounded-xl shadow-sm">
                       <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs border-collapse">
-                          <thead className="bg-zinc-900 border-b border-zinc-800 font-mono text-zinc-450 uppercase tracking-widest text-[9px] h-10 select-none">
+                          <thead className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 text-[9px] uppercase tracking-wider font-mono h-11">
                             <tr>
-                              <th className="px-4 py-3 font-semibold">申請日時</th>
-                              <th className="px-4 py-3 font-semibold">企業名</th>
-                              <th className="px-4 py-3 font-semibold">ご担当者氏名</th>
-                              <th className="px-4 py-3 font-semibold">メールアドレス</th>
-                              <th className="px-4 py-3 text-right font-semibold">操作</th>
+                              <th className="px-4 py-3 font-bold">申請日時</th>
+                              <th className="px-4 py-3 font-bold">企業名</th>
+                              <th className="px-4 py-3 font-bold">ご担当者名</th>
+                              <th className="px-4 py-3 font-bold">Eメール</th>
+                              <th className="px-4 py-3 text-right font-bold">操作</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-zinc-850/60 font-sans text-zinc-300">
+                          <tbody className="divide-y divide-zinc-100 font-sans text-zinc-750">
                             {filteredLeads.map((lead) => (
-                              <tr 
-                                key={lead.id}
-                                className="hover:bg-zinc-900/40 transition-colors"
-                              >
+                              <tr key={lead.id} className="hover:bg-zinc-50/50 transition-colors">
                                 <td className="px-4 py-3.5 font-mono text-[10px] text-zinc-400">
                                   <span>{lead.date}</span>
-                                  <span className="text-zinc-600 block mt-0.5 text-[9px]">{lead.time}</span>
+                                  <span className="block text-[9px] text-zinc-405 mt-0.5">{lead.time}</span>
                                 </td>
-                                <td className="px-4 py-3.5 font-bold text-zinc-200">
-                                  {lead.company}
-                                </td>
-                                <td className="px-4 py-3.5 font-bold">
-                                  {lead.name}
-                                </td>
-                                <td className="px-4 py-3.5 font-mono text-[11px] text-teal-300">
+                                <td className="px-4 py-3.5 font-bold text-zinc-900">{lead.company}</td>
+                                <td className="px-4 py-3.5 font-bold text-zinc-800">{lead.name}</td>
+                                <td className="px-4 py-3.5 font-mono text-[11px] text-teal-605 font-bold">
                                   <a href={`mailto:${lead.email}`} className="hover:underline">{lead.email}</a>
                                 </td>
                                 <td className="px-4 py-3.5 text-right">
                                   <button 
                                     onClick={() => handleDeleteLead(lead.id)}
-                                    className="h-8 w-8 bg-zinc-900 hover:bg-red-500/10 hover:border-red-500/30 text-zinc-500 hover:text-red-400 border border-zinc-800 rounded-lg inline-flex items-center justify-center cursor-pointer transition-colors"
-                                    title="削除"
+                                    className="h-8 w-8 bg-zinc-50 hover:bg-red-50 hover:border-red-200 text-zinc-400 hover:text-red-550 border border-zinc-200 rounded-lg flex items-center justify-center cursor-pointer"
                                   >
-                                    <Trash2 className="w-3" />
+                                    <Trash2 className="w-3.5 h-3.5" />
                                   </button>
                                 </td>
                               </tr>
@@ -3329,570 +2777,451 @@ const BlackboxAccessPage = () => {
                     </div>
                   );
                 })()}
-
               </div>
-            )}
+            </div>
+          )}
 
-            {/* 4. BILLING DOCS MODULE */}
-            {activeTab === 'docs' && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/60 pb-5">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
-                      <span className="w-1.5 h-3 bg-[#8edce0] rounded-full" />
-                      <span>見積書 ＆ 請求書オペレーションエンジン</span>
-                    </h2>
-                    <p className="text-[10px] text-zinc-500 leading-relaxed mt-1">
-                      顧客宛ての見積書(Estimate)・請求書(Invoice)を瞬時に作成・複製、印刷に最適なA4ドキュメントに変換します。
-                    </p>
-                  </div>
+          {/* 3. DOCUMENTS MODULE (Estimates/Invoices generator) */}
+          {activeTab === 'docs' && (
+            <div className="bg-white border border-zinc-200 p-6 rounded-2xl shadow-sm space-y-6">
+              <div className="flex justify-between items-center border-b border-zinc-150 pb-4">
+                <h3 className="text-sm font-extrabold text-zinc-900 flex items-center gap-1.5">
+                  <span className="w-1.5 h-3 bg-[#8edce0] rounded-full" />
+                  <span>ピッチ・見積書・請求書自動生成マスター</span>
+                </h3>
+                {!showDocForm && (
+                  <button
+                    onClick={() => {
+                      setDocForm({
+                        id: "",
+                        docType: "estimate",
+                        docNumber: "EST-2026-" + Math.floor(1000 + Math.random() * 9000),
+                        recipient: "",
+                        sender: "SYNC2 経営管理エージェンシー",
+                        issueDate: new Date().toISOString().split('T')[0],
+                        dueDate: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
+                        taxRate: 0.10,
+                        memo: "【振込先口座案内】\nGMOあおぞらネット銀行 法人営業部\n普通 1234567\nカ)シンクツー",
+                        items: []
+                      });
+                      setShowDocForm(true);
+                    }}
+                    className="bg-[#8edce0] hover:bg-teal-400 text-zinc-950 px-4 py-2 rounded-xl text-xs font-black tracking-wider uppercase inline-flex items-center gap-1 cursor-pointer shadow-sm transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>書類を規作成</span>
+                  </button>
+                )}
+              </div>
 
-                  {!showDocForm && (
-                    <button 
-                      onClick={() => {
-                        const nextId = Date.now().toString();
-                        const year = new Date().getFullYear();
-                        const nextNum = `${docs.length + 1}`.padStart(3, '0');
-                        setDocForm({
-                          id: nextId,
-                          docType: "estimate",
-                          docNumber: `EST-${year}-${nextNum}`,
-                          recipient: "",
-                          sender: "SYNC2合同会社",
-                          issueDate: new Date().toLocaleDateString('ja-JP').replace(/\//g, '/'),
-                          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('ja-JP').replace(/\//g, '/'),
-                          items: [],
-                          taxRate: 0.10,
-                          memo: "振込口座：SYNC銀行 渋谷支店 普通 1234567\n※恐れ入りますが振込手数料は御社負担にてお願い申し上げます。"
-                        });
-                        setShowDocForm(true);
-                      }}
-                      className="bg-[#8edce0] hover:bg-teal-400 text-zinc-950 px-4 h-11 rounded-xl text-xs font-black tracking-wider uppercase inline-flex items-center gap-2 transition-all cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>見積書/請求書 新規作成</span>
-                    </button>
-                  )}
-                </div>
-
-                {showDocForm ? (
-                  // Create/Edit Invoice Doc Form
-                  <form onSubmit={handleSaveDoc} className="space-y-4 bg-zinc-950 p-5 rounded-2xl border border-zinc-850 text-xs text-zinc-300">
-                    <h3 className="text-xs font-black text-teal-400 uppercase tracking-widest block border-b border-zinc-800/60 pb-2">
-                      ✍️ 構成データ入力
-                    </h3>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">帳票種別</label>
-                        <select 
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-200"
-                          value={docForm.docType}
-                          onChange={(e) => {
-                            const newType = e.target.value as any;
-                            const prefix = newType === "estimate" ? "EST" : "INV";
-                            const year = new Date().getFullYear();
-                            const nextNum = `${docs.length + 1}`.padStart(3, '0');
-                            setDocForm({ ...docForm, docType: newType, docNumber: `${prefix}-${year}-${nextNum}` });
-                          }}
-                        >
-                          <option value="estimate">見積書 (Estimate)</option>
-                          <option value="invoice">請求書 (Invoice)</option>
-                        </select>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">帳票番号</label>
-                        <input 
-                          required
-                          type="text"
-                          placeholder="EST-2026-001"
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-200 font-mono"
-                          value={docForm.docNumber}
-                          onChange={(e) => setDocForm({ ...docForm, docNumber: e.target.value })}
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">宛先（クライアント名）</label>
-                        <input 
-                          required
-                          type="text"
-                          placeholder="株式会社Aoba 御中 (殿)"
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-100 font-bold"
-                          value={docForm.recipient}
-                          onChange={(e) => setDocForm({ ...docForm, recipient: e.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">発行日</label>
-                        <input 
-                          type="text"
-                          placeholder="2026/06/08"
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-300 font-mono"
-                          value={docForm.issueDate}
-                          onChange={(e) => setDocForm({ ...docForm, issueDate: e.target.value })}
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">
-                          {docForm.docType === "estimate" ? "見積有効期限" : "お振込期日"}
-                        </label>
-                        <input 
-                          type="text"
-                          placeholder="2026/06/30"
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-300 font-mono"
-                          value={docForm.dueDate}
-                          onChange={(e) => setDocForm({ ...docForm, dueDate: e.target.value })}
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">消費税率</label>
-                        <select 
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-300 font-mono"
-                          value={docForm.taxRate}
-                          onChange={(e) => setDocForm({ ...docForm, taxRate: Number(e.target.value) })}
-                        >
-                          <option value="0.10">10%（標準税率）</option>
-                          <option value="0.08">8%（軽減/特例）</option>
-                          <option value="0.00">0%（免税/非課税）</option>
-                        </select>
-                      </div>
+              {showDocForm ? (
+                <form onSubmit={handleSaveDoc} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">書類種別</label>
+                      <select 
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-700 font-bold"
+                        value={docForm.docType}
+                        onChange={(e) => setDocForm({ ...docForm, docType: e.target.value as any })}
+                      >
+                        <option value="estimate">見積書 (Estimate)</option>
+                        <option value="invoice">請求書 (Invoice)</option>
+                      </select>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">備考欄 / 振込口座案内</label>
-                      <textarea 
-                        rows={2}
-                        className="w-full p-3 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 text-xs text-zinc-300 leading-relaxed resize-none"
-                        value={docForm.memo}
-                        onChange={(e) => setDocForm({ ...docForm, memo: e.target.value })}
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">書類管理番号</label>
+                      <input 
+                        required
+                        type="text"
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-800 font-bold font-mono"
+                        value={docForm.docNumber}
+                        onChange={(e) => setDocForm({ ...docForm, docNumber: e.target.value })}
                       />
                     </div>
 
-                    {/* Interactive Item Builder */}
-                    <div className="space-y-3 border-t border-zinc-800/40 pt-4">
-                      <h4 className="text-[10px] font-black text-[#8edce0] uppercase tracking-widest">📝 明細項目追加編集</h4>
-                      
-                      {/* Added items list */}
-                      <div className="space-y-1.5">
-                        {!docForm.items || docForm.items.length === 0 ? (
-                          <p className="text-zinc-500 text-[10px] italic py-2">明細が空です。以下の入力エリアから製品やサービスを追加してください。</p>
-                        ) : (
-                          <div className="space-y-1 bg-zinc-900 p-2.5 rounded-lg">
-                            {docForm.items.map((item, idx) => (
-                              <div key={item.id} className="flex items-center justify-between gap-3 text-[11px] hover:bg-zinc-950 p-1 rounded transition-colors font-mono">
-                                <span className="text-zinc-400 pl-1">#{idx + 1}</span>
-                                <span className="flex-1 font-bold text-zinc-200 text-left line-clamp-1">{item.name}</span>
-                                <span className="w-24 text-right">¥{item.price.toLocaleString()}</span>
-                                <span className="w-12 text-center">× {item.qty}</span>
-                                <span className="w-24 text-right font-bold text-teal-400">¥{(item.price * item.qty).toLocaleString()}</span>
-                                <button 
-                                  type="button"
-                                  onClick={() => handleRemoveItemFromDoc(item.id)}
-                                  className="text-red-400 hover:text-red-300 px-1 font-bold h-6 flex items-center cursor-pointer"
-                                >
-                                  [削除]
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">消費税率設定</label>
+                      <select 
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-700 font-bold"
+                        value={docForm.taxRate}
+                        onChange={(e) => setDocForm({ ...docForm, taxRate: Number(e.target.value) })}
+                      >
+                        <option value="0.10">消費税 10% (標準)</option>
+                        <option value="0.08">消費税 8% (軽減)</option>
+                        <option value="0">消費税 0% (非課税)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">宛名・企業名</label>
+                      <input 
+                        required
+                        type="text"
+                        placeholder="ハヤブサ・テクノロジーズ合同会社 御中"
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-800 font-bold"
+                        value={docForm.recipient}
+                        onChange={(e) => setDocForm({ ...docForm, recipient: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">発行元署名</label>
+                      <input 
+                        required
+                        type="text"
+                        placeholder="SYNC2 経営管理部"
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-800 font-bold"
+                        value={docForm.sender}
+                        onChange={(e) => setDocForm({ ...docForm, sender: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">発行日</label>
+                      <input 
+                        type="date"
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-700"
+                        value={docForm.issueDate}
+                        onChange={(e) => setDocForm({ ...docForm, issueDate: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">支払または有効期限</label>
+                      <input 
+                        type="date"
+                        className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-700"
+                        value={docForm.dueDate}
+                        onChange={(e) => setDocForm({ ...docForm, dueDate: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Add document item line block */}
+                  <div className="border border-zinc-200 rounded-xl p-4 space-y-3 bg-zinc-50">
+                    <span className="text-[9px] font-black tracking-wider text-zinc-500 block uppercase font-mono">■ 内訳明細行を追加</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                      <div className="sm:col-span-6 space-y-1">
+                        <input 
+                          type="text" 
+                          placeholder="B2B SNSショート動画撮影＆クリエイティブ制作パッケージ"
+                          className="w-full h-10 bg-white border border-zinc-200 rounded-lg px-3 text-xs font-bold"
+                          value={tempItemName}
+                          onChange={(e) => setTempItemName(e.target.value)}
+                        />
                       </div>
-
-                      {/* Line Item Inputs */}
-                      <div className="flex flex-col sm:flex-row gap-2.5 items-end bg-zinc-900/60 p-3 rounded-xl border border-zinc-850/85">
-                        <div className="flex-1 space-y-1 w-full">
-                          <label className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest font-mono">項目名（仕様・要件等）</label>
-                          <input 
-                            type="text"
-                            placeholder="SNS Short Video Production (12 clips)"
-                            className="w-full h-9 bg-zinc-950 border border-zinc-800 rounded px-2.5 text-xs text-zinc-200"
-                            value={tempItemName}
-                            onChange={(e) => setTempItemName(e.target.value)}
-                          />
-                        </div>
-                        
-                        <div className="w-full sm:w-36 space-y-1">
-                          <label className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest font-mono">単価 (¥)</label>
-                          <input 
-                            type="number"
-                            className="w-full h-9 bg-zinc-950 border border-zinc-800 rounded px-2.5 text-xs text-zinc-200 font-mono text-right"
-                            value={tempItemPrice}
-                            onChange={(e) => setTempItemPrice(Number(e.target.value))}
-                          />
-                        </div>
-
-                        <div className="w-full sm:w-16 space-y-1">
-                          <label className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest font-mono">数量</label>
-                          <input 
-                            type="number"
-                            className="w-full h-9 bg-zinc-950 border border-zinc-800 rounded px-2.5 text-xs text-zinc-200 font-mono text-center"
-                            value={tempItemQty}
-                            onChange={(e) => setTempItemQty(Number(e.target.value))}
-                          />
-                        </div>
-
+                      <div className="sm:col-span-3 space-y-1">
+                        <input 
+                          type="number" 
+                          placeholder="単価"
+                          className="w-full h-10 bg-white border border-zinc-200 rounded-lg px-3 text-xs font-black font-mono text-zinc-800"
+                          value={tempItemPrice || ""}
+                          onChange={(e) => setTempItemPrice(Number(e.target.value))}
+                        />
+                      </div>
+                      <div className="sm:col-span-2 space-y-1">
+                        <input 
+                          type="number" 
+                          placeholder="数量"
+                          className="w-full h-10 bg-white border border-zinc-200 rounded-lg px-3 text-xs font-black text-center font-mono"
+                          value={tempItemQty || ""}
+                          onChange={(e) => setTempItemQty(Number(e.target.value))}
+                        />
+                      </div>
+                      <div className="sm:col-span-1">
                         <button 
                           type="button"
                           onClick={handleAddItemToDoc}
-                          className="w-full sm:w-auto h-9 px-4 rounded bg-[#8edce0]/20 text-[#8edce0] border border-[#8edce0]/30 text-[10px] font-black tracking-widest uppercase hover:bg-[#8edce0]/30 cursor-pointer"
+                          className="w-full h-10 bg-[#1a1a1a] hover:bg-zinc-800 text-[#8edce0] rounded-lg text-xs font-bold flex items-center justify-center cursor-pointer"
                         >
-                          明細に追加
+                          追加
                         </button>
                       </div>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-3 border-t border-zinc-800/40">
-                      <button 
-                        type="button" 
-                        onClick={() => setShowDocForm(false)}
-                        className="h-10 px-4 rounded-xl bg-zinc-900 text-xs font-bold text-zinc-400 hover:text-white cursor-pointer"
-                      >
-                        キャンセル
-                      </button>
-                      <button 
-                        type="submit" 
-                        className="h-10 px-6 rounded-xl bg-[#8edce0] hover:bg-teal-400 text-zinc-900 text-xs font-black tracking-widest inline-flex items-center gap-1.5 cursor-pointer shadow-md"
-                      >
-                        <Save className="w-4 h-4" />
-                        <span>構成書面を保存</span>
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  // Document manager items grid list
-                  <div className="space-y-3">
-                    {docs.length === 0 ? (
-                      <div className="text-center py-10 bg-zinc-950 rounded-2xl border border-zinc-850">
-                        <p className="text-zinc-500 text-xs">作成された見積書・請求書はありません。</p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-3">
-                        {docs.map(doc => {
-                          const subtotal = doc.items.reduce((acc, current) => acc + (current.price * current.qty), 0);
-                          const tax = Math.round(subtotal * doc.taxRate);
-                          const total = subtotal + tax;
-
-                          return (
-                            <div 
-                              key={doc.id}
-                              className="p-4 bg-zinc-950/60 border border-zinc-850 rounded-2xl hover:border-zinc-800 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 transition-all"
-                            >
-                              <div className="flex gap-4 items-center flex-1">
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center border font-mono text-[10px] font-bold ${
-                                  doc.docType === 'estimate' 
-                                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
-                                    : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                                }`}>
-                                  {doc.docType === 'estimate' ? '見積' : '請求'}
-                                </div>
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="text-[10px] text-zinc-500 font-mono font-bold tracking-wider">{doc.docNumber}</span>
-                                    <span className="text-zinc-650">•</span>
-                                    <span className="text-[10px] text-zinc-400">{doc.issueDate} 発行</span>
-                                  </div>
-                                  <h4 className="text-xs sm:text-sm font-extrabold text-zinc-100">{doc.recipient}</h4>
-                                  <p className="text-[10px] text-zinc-500 block leading-none pt-0.5">宛先品目: {doc.items.length}行</p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center justify-between md:justify-end gap-5 border-t md:border-t-0 border-zinc-850 pt-3 md:pt-0">
-                                <div className="text-left md:text-right">
-                                  <span className="text-[8px] text-zinc-500 block uppercase tracking-widest font-mono">GRAND TOTAL</span>
-                                  <span className="text-xs sm:text-sm font-black font-mono text-white">¥{total.toLocaleString()}</span>
-                                </div>
-                                
-                                <div className="flex items-center gap-1.5">
-                                  <button 
-                                    onClick={() => setViewingDoc(doc)}
-                                    className="h-9 px-3 bg-zinc-900 hover:bg-zinc-850 hover:text-white border border-zinc-800 rounded-lg text-xs font-bold text-zinc-300 inline-flex items-center gap-1 cursor-pointer"
-                                  >
-                                    <Printer className="w-3.5 h-3.5" />
-                                    <span>印刷プレビュー</span>
-                                  </button>
-                                  <button 
-                                    onClick={() => handleEditDocClick(doc)}
-                                    className="h-9 w-9 bg-zinc-900 border border-zinc-820 hover:border-teal-400 hover:text-teal-400 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                                    title="編集"
-                                  >
-                                    <Edit className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button 
-                                    onClick={() => handleDeleteDoc(doc.id)}
-                                    className="h-9 w-9 bg-zinc-900 hover:bg-red-500/10 hover:border-red-500/30 text-zinc-500 hover:text-red-400 border border-zinc-820 rounded-lg flex items-center justify-center cursor-pointer transition-colors"
-                                    title="削除"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </div>
+                    {/* Added lines items */}
+                    {docForm.items && docForm.items.length > 0 && (
+                      <div className="border-t border-zinc-205/60 pt-3 mt-2 space-y-2">
+                        {docForm.items.map((line) => (
+                          <div key={line.id} className="flex items-center justify-between bg-white px-3 py-2 border border-zinc-150 rounded-lg text-xs text-zinc-700">
+                            <div className="flex-1 font-bold line-clamp-1">{line.name}</div>
+                            <div className="flex items-center gap-4 text-right">
+                              <span className="font-mono text-zinc-900 font-bold">¥{line.price.toLocaleString()} x {line.qty}</span>
+                              <button 
+                                type="button"
+                                onClick={() => handleRemoveItemFromDoc(line.id)}
+                                className="text-red-500 hover:text-red-700 text-[10px] font-bold"
+                              >
+                                削除
+                              </button>
                             </div>
-                          );
-                        })}
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            )}
 
-            {/* 5. CASH FLOW MODULE */}
-            {activeTab === 'cashflow' && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/60 pb-5">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
-                      <span className="w-1.5 h-3 bg-[#8edce0] rounded-full" />
-                      <span>キャッシュフロー・入出金台帳</span>
-                    </h2>
-                    <p className="text-[10px] text-zinc-500 leading-relaxed mt-1">
-                      収入(売上等)と支出(広告費、システム経費、委託費)を入力管理し、純キャッシュ利益を可視化します。
-                    </p>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">備考欄 / 振込口座案内</label>
+                    <textarea 
+                      rows={3}
+                      className="w-full p-3 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] text-xs font-mono text-zinc-600 leading-relaxed font-bold"
+                      value={docForm.memo}
+                      onChange={(e) => setDocForm({ ...docForm, memo: e.target.value })}
+                    />
                   </div>
 
-                  {!showTxForm && (
+                  <div className="flex justify-end gap-3 pt-3 border-t border-zinc-150">
                     <button 
-                      onClick={() => {
-                        setTxForm({
-                          date: new Date().toISOString().split('T')[0],
-                          type: "income",
-                          category: "売上",
-                          amount: 300000,
-                          description: ""
-                        });
-                        setShowTxForm(true);
-                      }}
-                      className="bg-[#8edce0] hover:bg-teal-400 text-zinc-950 px-4 h-11 rounded-xl text-xs font-black tracking-wider uppercase inline-flex items-center gap-2 transition-all cursor-pointer"
+                      type="button" 
+                      onClick={() => setShowDocForm(false)}
+                      className="h-10 px-4 rounded-xl bg-zinc-100 text-xs font-bold text-zinc-650 hover:bg-zinc-200 hover:text-zinc-900 cursor-pointer transition-colors"
                     >
-                      <Plus className="w-4 h-4" />
-                      <span>収支取引レコード登録</span>
+                      キャンセル
                     </button>
+                    <button 
+                      type="submit" 
+                      className="h-10 px-6 rounded-xl bg-[#8edce0] hover:bg-teal-400 text-zinc-900 text-xs font-black tracking-widest inline-flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      <span>{docForm.id ? "帳票を更新" : "帳票を新規登録"}</span>
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-3">
+                  {docs.length === 0 ? (
+                    <div className="text-center py-12 bg-zinc-50 border border-zinc-200 rounded-2xl">
+                      <p className="text-zinc-500 text-xs text-zinc-400">作成された書類はありません。</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-3">
+                      {docs.map(doc => {
+                        const subtotal = doc.items?.reduce((sum: number, line: any) => sum + (line.price * line.qty), 0) || 0;
+                        const tax = Math.round(subtotal * doc.taxRate);
+                        const total = subtotal + tax;
+
+                        return (
+                          <div key={doc.id} className="p-4 bg-white border border-zinc-200 rounded-2xl hover:border-zinc-300 hover:shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className={`px-2 py-0.5 rounded text-[8px] font-black tracking-wider uppercase font-mono ${
+                                  doc.docType === 'invoice' ? 'bg-amber-100/90 text-amber-700' : 'bg-teal-100/90 text-teal-700'
+                                }`}>
+                                  {doc.docType === 'invoice' ? '請求書' : '見積書'}
+                                </span>
+                                <span className="text-[10px] text-zinc-450 font-mono font-bold">{doc.docNumber}</span>
+                              </div>
+                              <h4 className="text-xs sm:text-sm font-extrabold text-zinc-900">{doc.recipient}</h4>
+                              <p className="text-xs font-bold text-zinc-650 font-mono">
+                                合計金額(税込): <span className="text-[#307c80] font-black">¥{total.toLocaleString()}</span>
+                              </p>
+                            </div>
+
+                            <div className="flex items-center gap-2 self-end sm:self-auto w-full sm:w-auto justify-end">
+                              <button 
+                                onClick={() => setViewingDoc(doc)}
+                                className="h-9 px-3 bg-zinc-50 border border-zinc-200 hover:bg-zinc-100 rounded-lg text-xs font-bold text-zinc-650 inline-flex items-center gap-1 cursor-pointer"
+                              >
+                                <Printer className="w-3.5 h-3.5" />
+                                <span>表示・印刷</span>
+                              </button>
+                              <button 
+                                onClick={() => handleEditDocClick(doc)}
+                                className="h-9 px-3 bg-zinc-50 border border-zinc-200 hover:bg-zinc-100 rounded-lg text-xs font-bold text-zinc-600 inline-flex items-center justify-center cursor-pointer"
+                              >
+                                編集
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteDoc(doc.id)}
+                                className="h-9 w-9 bg-zinc-50 hover:bg-red-50 hover:border-red-200 hover:text-red-500 text-zinc-400 border border-zinc-200 rounded-lg flex items-center justify-center cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
+              )}
+            </div>
+          )}
 
-                {/* Top dynamic financial snapshot widget cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-850 text-left space-y-1">
-                    <span className="text-[8px] font-bold text-zinc-550 uppercase tracking-widest block font-mono">総売上 / REVENUE</span>
-                    <div className="text-sm font-mono text-emerald-450 font-bold block pt-1">
-                      + ¥{totalIncome.toLocaleString()}
-                    </div>
-                  </div>
-                  
-                  <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-850 text-left space-y-1">
-                    <span className="text-[8px] font-bold text-zinc-550 uppercase tracking-widest block font-mono">総支出 / OPERATING COSTS</span>
-                    <div className="text-sm font-mono text-red-400 font-bold block pt-1">
-                      - ¥{totalExpense.toLocaleString()}
-                    </div>
-                  </div>
-
-                  <div className="bg-zinc-950 p-4 rounded-2xl border border-teal-500/20 text-left space-y-1 shadow-md shadow-teal-500/3">
-                    <span className="text-[8px] font-bold text-[#8edce0] uppercase tracking-widest block font-mono">純利益 / NET PROFIT</span>
-                    <div className="text-sm font-mono text-[#8edce0] font-black block pt-1">
-                      ¥{netProfit.toLocaleString()}
-                    </div>
-                  </div>
+          {/* 4. CASHFLOW MODULE (FINANCES SIMULATOR) */}
+          {activeTab === 'cashflow' && (
+            <div className="bg-white border border-zinc-200 p-6 rounded-2xl shadow-sm space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-150 pb-5">
+                <div>
+                  <h3 className="text-sm font-extrabold text-zinc-900 flex items-center gap-1.5">
+                    <span className="w-1.5 h-3 bg-[#8edce0] rounded-full" />
+                    <span>入出金・簡易財務管理キャッシュフロー（シミュレーション）</span>
+                  </h3>
+                  <p className="text-[10px] text-zinc-400 mt-1 leading-relaxed">
+                    現在の売上と経費のバランスを記録し、ダイナミックにシミュレーション可能です。
+                  </p>
                 </div>
-
-                {/* Custom Responsive SVG Stack percentage chart */}
-                <div className="bg-zinc-950 p-5 rounded-2xl border border-zinc-850 space-y-3.5">
-                  <div className="flex justify-between items-center text-[10px] font-bold">
-                    <span className="text-zinc-400">📊 金流割合 (収支バランス割合)</span>
-                    <span className="font-mono text-zinc-500">
-                      支出比率: {totalIncome > 0 ? Math.round((totalExpense / totalIncome) * 100) : 0}%
-                    </span>
-                  </div>
-                  
-                  {/* Horizontally stack ratio bar */}
-                  <div className="w-full h-4 bg-zinc-900 rounded-full overflow-hidden flex">
-                    {totalIncome > 0 ? (
-                      <>
-                        <div 
-                          className="h-full bg-gradient-to-r from-emerald-555 to-emerald-400 transition-all duration-500"
-                          style={{ width: `${Math.max(5, Math.min(95, Math.round((netProfit / totalIncome) * 100)))}%` }}
-                          title={`純利益: ${Math.round((netProfit / totalIncome) * 100)}%`}
-                        />
-                        <div 
-                          className="h-full bg-orange-500/70 transition-all duration-500"
-                          style={{ width: `${Math.max(5, Math.min(95, Math.round((totalExpense / totalIncome) * 100)))}%` }}
-                          title={`営業費用: ${Math.round((totalExpense / totalIncome) * 100)}%`}
-                        />
-                      </>
-                    ) : (
-                      <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-[9px] text-zinc-500 font-bold font-mono">NO FINANCIAL DATA</div>
-                    )}
-                  </div>
-
-                  <div className="flex gap-4 text-[9px] font-mono text-zinc-400 justify-center">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded bg-emerald-400" />
-                      <span>利益 (¥{netProfit.toLocaleString()})</span>
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded bg-orange-400" />
-                      <span>費用 (¥{totalExpense.toLocaleString()})</span>
-                    </span>
-                  </div>
-                </div>
-
-                {showTxForm && (
-                  // Add Transaction Form
-                  <form onSubmit={handleAddTransaction} className="space-y-4 bg-zinc-950 p-5 rounded-2xl border border-zinc-850 text-xs text-zinc-300">
-                    <h3 className="text-xs font-black text-teal-400 uppercase tracking-widest pl-1 border-b border-zinc-800/60 pb-2">
-                      💰 取引簿レコード登録
-                    </h3>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">発生日</label>
-                        <input 
-                          required
-                          type="date"
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-200"
-                          value={txForm.date}
-                          onChange={(e) => setTxForm({ ...txForm, date: e.target.value })}
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">収支区分</label>
-                        <select 
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-250"
-                          value={txForm.type}
-                          onChange={(e) => {
-                            const type = e.target.value as any;
-                            const category = type === 'income' ? '売上' : '外注費';
-                            setTxForm({ ...txForm, type, category });
-                          }}
-                        >
-                          <option value="income">収入 (+) </option>
-                          <option value="expense">支出 (-) </option>
-                        </select>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">科目カテゴリ</label>
-                        <select 
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-250"
-                          value={txForm.category}
-                          onChange={(e) => setTxForm({ ...txForm, category: e.target.value })}
-                        >
-                          {txForm.type === 'income' ? (
-                            <>
-                              <option value="売上">売上</option>
-                              <option value="受取利息">受取利息</option>
-                              <option value="その他">その他</option>
-                            </>
-                          ) : (
-                            <>
-                              <option value="外注費">外注費</option>
-                              <option value="広告宣伝費">広告宣伝費</option>
-                              <option value="クラウド経費">クラウド経費 / APIサーバー費</option>
-                              <option value="人件費">人件費</option>
-                              <option value="その他経費">その他経費</option>
-                            </>
-                          )}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">日本円取引金額 (¥)</label>
-                        <input 
-                          required
-                          type="number"
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-100 font-bold font-mono"
-                          value={txForm.amount}
-                          onChange={(e) => setTxForm({ ...txForm, amount: Number(e.target.value) })}
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">摘要（相手取引、内訳等）</label>
-                        <input 
-                          required
-                          type="text"
-                          placeholder="4月度運用代行 retainer (株式会社アオバ)"
-                          className="w-full h-11 bg-zinc-900 border border-zinc-800 rounded-lg outline-none focus:ring-1 focus:ring-teal-400 px-3 text-xs text-zinc-200"
-                          value={txForm.description}
-                          onChange={(e) => setTxForm({ ...txForm, description: e.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end gap-3 pt-3 border-t border-zinc-800/40">
-                      <button 
-                        type="button" 
-                        onClick={() => setShowTxForm(false)}
-                        className="h-10 px-4 rounded-xl bg-zinc-900 text-xs font-bold text-zinc-400 hover:text-white cursor-pointer"
-                      >
-                        キャンセル
-                      </button>
-                      <button 
-                        type="submit" 
-                        className="h-10 px-6 rounded-xl bg-[#8edce0] hover:bg-teal-400 text-zinc-900 text-xs font-black tracking-widest inline-flex items-center gap-1.5 cursor-pointer shadow-md"
-                      >
-                        <Save className="w-4 h-4" />
-                        <span>取引を保存</span>
-                      </button>
-                    </div>
-                  </form>
+                {!showTxForm && (
+                  <button
+                    onClick={() => {
+                      setTxForm({
+                        date: new Date().toISOString().split('T')[0],
+                        type: 'income',
+                        category: '売上',
+                        amount: 100000,
+                        description: ''
+                      });
+                      setShowTxForm(true);
+                    }}
+                    className="bg-[#8edce0] hover:bg-teal-400 text-zinc-950 px-4 py-2 rounded-xl text-xs font-black tracking-wider uppercase inline-flex items-center gap-1 cursor-pointer shadow-sm transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>収支レコードを追加</span>
+                  </button>
                 )}
+              </div>
 
-                {/* Ledger entries list */}
-                <div className="overflow-hidden border border-zinc-805 rounded-2xl bg-zinc-950">
-                  <div className="overflow-x-auto">
+              {/* Cashflow cards row */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-emerald-50/50 border border-emerald-100 p-5 rounded-2xl shadow-sm">
+                  <span className="text-[9px] font-bold text-emerald-600 block uppercase tracking-wider font-mono">総売上 (Total Income)</span>
+                  <p className="text-xl font-black text-emerald-700 font-mono mt-1">¥{totalIncome.toLocaleString()}</p>
+                </div>
+                <div className="bg-rose-50/50 border border-rose-100 p-5 rounded-2xl shadow-sm">
+                  <span className="text-[9px] font-bold text-rose-600 block uppercase tracking-wider font-mono">総経費 (Total Expense)</span>
+                  <p className="text-xl font-black text-rose-700 font-mono mt-1">¥{totalExpense.toLocaleString()}</p>
+                </div>
+                <div className="bg-teal-50/70 border border-teal-100 p-5 rounded-2xl shadow-sm">
+                  <span className="text-[9px] font-bold text-[#307c80] block uppercase tracking-wider font-mono">純利益 (Net Profit)</span>
+                  <p className="text-xl font-black text-[#227276] font-mono mt-1">¥{netProfit.toLocaleString()}</p>
+                </div>
+              </div>
+
+              {showTxForm && (
+                <form onSubmit={handleAddTransaction} className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-4">
+                  <span className="text-xs font-bold text-zinc-700 block font-sans">■ 収支取引レコード登録</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">日付</label>
+                      <input 
+                        type="date"
+                        className="w-full h-10 bg-white border border-zinc-200 rounded-lg px-3 text-xs"
+                        value={txForm.date}
+                        onChange={(e) => setTxForm({ ...txForm, date: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">収支区分</label>
+                      <select 
+                        className="w-full h-10 bg-white border border-zinc-200 rounded-lg px-3 text-xs font-bold"
+                        value={txForm.type}
+                        onChange={(e) => setTxForm({ ...txForm, type: e.target.value, category: e.target.value === 'income' ? '売上' : '広告費' })}
+                      >
+                        <option value="income">売上（入金）</option>
+                        <option value="expense">経費（出金）</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">勘定科目</label>
+                      <input 
+                        type="text"
+                        placeholder={txForm.type === 'income' ? "売上" : "経費カテゴリ"}
+                        className="w-full h-10 bg-white border border-zinc-200 rounded-lg px-3 text-xs font-bold"
+                        value={txForm.category}
+                        onChange={(e) => setTxForm({ ...txForm, category: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">金額 (円)</label>
+                      <input 
+                        required
+                        type="number"
+                        placeholder="120000"
+                        className="w-full h-10 bg-white border border-zinc-200 rounded-lg px-3 text-xs font-bold font-mono"
+                        value={txForm.amount || ""}
+                        onChange={(e) => setTxForm({ ...txForm, amount: Number(e.target.value) })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">摘要・説明</label>
+                    <input 
+                      type="text"
+                      placeholder="SNS動画制作パッケージ 請求分入金"
+                      className="w-full h-10 bg-white border border-zinc-200 rounded-lg px-3 text-xs"
+                      value={txForm.description}
+                      onChange={(e) => setTxForm({ ...txForm, description: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-3">
+                    <button 
+                      type="button" 
+                      onClick={() => setShowTxForm(false)}
+                      className="h-10 px-4 rounded-xl bg-zinc-100 text-xs font-bold text-zinc-600 hover:bg-zinc-200 cursor-pointer"
+                    >
+                      キャンセル
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="h-10 px-6 rounded-xl bg-[#8edce0] hover:bg-teal-400 text-zinc-900 text-xs font-bold cursor-pointer"
+                    >
+                      保存する
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Transactions list table */}
+              <div className="space-y-3">
+                {transactions.length === 0 ? (
+                  <div className="text-center py-10 bg-zinc-50 border border-zinc-200 rounded-2xl">
+                    <p className="text-zinc-400 text-xs text-zinc-500">取引記録は登録されていません。</p>
+                  </div>
+                ) : (
+                  <div className="overflow-hidden border border-zinc-200 rounded-xl shadow-sm">
                     <table className="w-full text-left text-xs border-collapse">
-                      <thead className="bg-zinc-900 border-b border-zinc-800 font-mono text-zinc-450 uppercase tracking-widest text-[9px] h-10 select-none">
+                      <thead className="bg-zinc-50 border-b border-zinc-200 h-11 text-[9px] uppercase tracking-wider font-mono text-zinc-500">
                         <tr>
-                          <th className="px-4 py-3 font-semibold">発生日</th>
-                          <th className="px-4 py-3 font-semibold">区分</th>
-                          <th className="px-4 py-3 font-semibold">科目</th>
-                          <th className="px-4 py-3 flex-1 font-semibold">取引詳細・摘要</th>
-                          <th className="px-4 py-3 text-right font-semibold">金額</th>
-                          <th className="px-4 py-3 text-right font-semibold">操作</th>
+                          <th className="px-4 py-3 font-bold">取引日</th>
+                          <th className="px-4 py-3 font-bold">区分</th>
+                          <th className="px-4 py-3 font-bold">勘定科目</th>
+                          <th className="px-4 py-3 font-bold">摘要・説明</th>
+                          <th className="px-4 py-3 font-bold text-right">金額</th>
+                          <th className="px-4 py-3 text-right font-bold w-16">操作</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-zinc-850/60 font-sans text-zinc-300">
+                      <tbody className="divide-y divide-zinc-100 font-sans text-zinc-700">
                         {transactions.map((tx) => (
-                          <tr key={tx.id} className="hover:bg-zinc-900/40 transition-colors">
-                            <td className="px-4 py-3.5 font-mono text-[10px] text-zinc-400">
-                              {tx.date}
-                            </td>
+                          <tr key={tx.id} className="hover:bg-zinc-50/50 transition-colors">
+                            <td className="px-4 py-3.5 font-mono text-[10px] text-zinc-500">{tx.date}</td>
                             <td className="px-4 py-3.5">
-                              <span className={`px-2 py-0.5 rounded text-[9px] font-black ${
-                                tx.type === 'income' 
-                                  ? 'bg-emerald-500/10 text-emerald-450 border border-emerald-500/15' 
-                                  : 'bg-orange-500/10 text-orange-400 border border-orange-500/15'
+                              <span className={`px-2 py-0.5 rounded text-[8px] font-black tracking-wider uppercase font-mono ${
+                                tx.type === 'income' ? 'bg-emerald-100/90 text-emerald-700' : 'bg-rose-100/90 text-rose-700'
                               }`}>
                                 {tx.type === 'income' ? '入金' : '出金'}
                               </span>
                             </td>
-                            <td className="px-4 py-3.5 font-bold">
-                              {tx.category}
-                            </td>
-                            <td className="px-4 py-3.5 text-zinc-400 text-xs font-semibold">
-                              {tx.description}
-                            </td>
-                            <td className={`px-4 py-3.5 text-right font-mono font-bold text-xs ${
-                              tx.type === 'income' ? 'text-emerald-400' : 'text-orange-400'
+                            <td className="px-4 py-3.5 font-bold text-zinc-900">{tx.category}</td>
+                            <td className="px-4 py-3.5 text-zinc-650">{tx.description || "—"}</td>
+                            <td className={`px-4 py-3.5 text-right font-mono font-bold ${
+                              tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'
                             }`}>
-                              {tx.type === 'income' ? '+' : '-'} ¥{tx.amount.toLocaleString()}
+                              {tx.type === 'income' ? '+' : '-'}¥{tx.amount.toLocaleString()}
                             </td>
                             <td className="px-4 py-3.5 text-right">
                               <button 
                                 onClick={() => handleDeleteTx(tx.id)}
-                                className="h-8 w-8 bg-zinc-900 hover:bg-red-500/10 hover:border-red-500/30 text-zinc-500 hover:text-red-400 border border-zinc-800 rounded-lg inline-flex items-center justify-center cursor-pointer transition-colors"
+                                className="h-8 w-8 bg-zinc-50 hover:bg-red-50 hover:border-red-200 text-zinc-400 hover:text-red-500 border border-zinc-200 rounded-lg flex items-center justify-center cursor-pointer"
                               >
-                                <Trash2 className="w-3" />
+                                <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </td>
                           </tr>
@@ -3900,165 +3229,212 @@ const BlackboxAccessPage = () => {
                       </tbody>
                     </table>
                   </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 5. SEO MODULE */}
+          {activeTab === 'seo' && (
+            <div className="bg-white border border-zinc-200 p-6 rounded-2xl shadow-sm space-y-6">
+              <div>
+                <h3 className="text-sm font-extrabold text-zinc-900 flex items-center gap-1.5">
+                  <span className="w-1.5 h-3 bg-[#8edce0] rounded-full" />
+                  <span>SEOメタ情報ダッシュボード最適化</span>
+                </h3>
+                <p className="text-[10px] text-zinc-400 mt-1 leading-relaxed">
+                  LPなどの主要各公開ページで読み込まれるメタタイトル・説明文(Description)・検索用キーワードを一括最適化保存します。
+                </p>
+              </div>
+
+              {/* Subtabs for selector layout */}
+              <div className="flex overflow-x-auto gap-2 border-b border-zinc-200 pb-3 font-sans font-bold text-xs select-none">
+                {[
+                  { id: 'home', label: '🏠 トップページ' },
+                  { id: 'sns', label: '📈 SNSマーケティング' },
+                  { id: 'dev', label: '⚙️ アプリ・AIシステム開発' },
+                  { id: 'blog', label: '📰 統合ナレッジブログ' }
+                ].map(p => (
+                  <button
+                    key={p.id}
+                    onClick={() => setSelectedSeoPage(p.id)}
+                    className={`px-4 h-9 rounded-lg text-xs font-bold cursor-pointer transition-all border ${
+                      selectedSeoPage === p.id
+                        ? 'bg-zinc-900 text-[#8edce0] hover:bg-zinc-805 border-zinc-900'
+                        : 'bg-zinc-50 text-zinc-650 hover:bg-zinc-100 hover:text-zinc-900 border-zinc-200'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              <form onSubmit={handleUpdateSeo} className="p-4 bg-zinc-50 border border-zinc-200 rounded-xl space-y-4">
+                <span className="text-xs font-bold text-zinc-700 block uppercase font-mono tracking-wide">■ 編集中の対象: {selectedSeoPage.toUpperCase()}</span>
+                
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">ブラウザタイトル (Title)</label>
+                  <input 
+                    required
+                    type="text"
+                    className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs text-zinc-950 font-bold"
+                    value={seoConfig[selectedSeoPage]?.title || ""}
+                    onChange={(e) => updateSelectedSeoField('title', e.target.value)}
+                  />
                 </div>
 
-              </div>
-            )}
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">メタ記述説明文 (Description)</label>
+                  <textarea 
+                    rows={3}
+                    className="w-full p-3 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] text-xs leading-normal font-bold text-zinc-700"
+                    value={seoConfig[selectedSeoPage]?.desc || ""}
+                    onChange={(e) => updateSelectedSeoField('desc', e.target.value)}
+                  />
+                </div>
 
-          </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest font-mono">検索キーワード (Keywords - カンマ区切り)</label>
+                  <input 
+                    type="text"
+                    className="w-full h-11 bg-white border border-zinc-200 rounded-lg outline-none focus:ring-1 focus:ring-[#8edce0] px-3 text-xs font-mono text-zinc-800"
+                    value={seoConfig[selectedSeoPage]?.keywords || ""}
+                    onChange={(e) => updateSelectedSeoField('keywords', e.target.value)}
+                  />
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <button 
+                    type="submit"
+                    className="bg-[#1a1a1a] hover:bg-zinc-800 text-[#8edce0] px-6 h-10 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-sm"
+                  >
+                    SEO設定を保存
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
 
         </div>
-
       </div>
 
-      {/* 6. MODAL: J-STYLE ESTIMATE/INVOICE PRINT PREVIEW */}
+      {/* 6. MODAL SYSTEM FOR PRINTING/VIEWING INVOICES/ESTIMATES */}
       <AnimatePresence>
         {viewingDoc && (() => {
-          const subtotal = viewingDoc.items.reduce((acc, current) => acc + (current.price * current.qty), 0);
+          const subtotal = viewingDoc.items?.reduce((sum: number, line: any) => sum + (line.price * line.qty), 0) || 0;
           const tax = Math.round(subtotal * viewingDoc.taxRate);
           const total = subtotal + tax;
 
           return (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[99] flex items-center justify-center p-4 overflow-y-auto select-text">
+            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                className="bg-white text-zinc-900 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden aspect-[1/1.414]"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative border border-zinc-100"
               >
-                {/* Modal actions bar - Hidden on actual print window! */}
-                <div className="bg-zinc-100 border-b border-zinc-200 px-6 py-4 flex items-center justify-between print:hidden">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-emerald-500" />
-                    <span className="text-xs font-bold text-zinc-700">A4 書面印刷プレビュー (Japanese Business Form Layout)</span>
-                  </div>
+                {/* Print modal top operations */}
+                <div className="flex justify-between items-center border-b border-zinc-200 pb-3 print:hidden">
+                  <span className="text-xs font-black text-zinc-500 font-mono">SYNC2 CORE DOCUMENT PRINT PREVIEW</span>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => window.print()}
-                      className="bg-zinc-950 hover:bg-zinc-800 text-white h-10 px-4 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-sm"
+                      className="bg-emerald-550 hover:bg-emerald-600 bg-emerald-50 text-emerald-600 px-4 h-9 rounded-xl text-xs font-bold inline-flex items-center gap-1 cursor-pointer transition-all"
                     >
-                      <Printer className="w-3.5 h-3.5" />
-                      <span>印刷する (PDF出力)</span>
+                      <span>PDFインクとして印刷 / 保存</span>
                     </button>
                     <button 
                       onClick={() => setViewingDoc(null)}
-                      className="h-10 px-3 hover:bg-zinc-200 rounded-lg text-xs font-bold text-zinc-520 transition-colors cursor-pointer"
+                      className="bg-zinc-100 hover:bg-zinc-200 text-zinc-800 px-3 h-9 rounded-xl text-xs font-bold cursor-pointer"
                     >
                       閉じる
                     </button>
                   </div>
                 </div>
 
-                {/* Printable core sheet frame */}
-                <div className="p-8 sm:p-12 md:p-16 space-y-8 print:p-0 bg-white min-h-screen text-zinc-900 select-text font-serif">
-                  
-                  {/* Document Title Header */}
-                  <div className="text-center">
-                    <h1 className="text-2xl sm:text-3xl font-black tracking-[0.4em] border-b-2 border-double border-zinc-900 pb-3 font-serif uppercase">
-                      {viewingDoc.docType === 'estimate' ? '御見積書' : '御請求書'}
-                    </h1>
-                  </div>
-
-                  {/* Top Header Grid layout */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start pt-4 font-sans text-xs">
-                    {/* Left: Recipient & Grand outline */}
-                    <div className="space-y-4">
-                      <div className="border-b border-zinc-800 pb-1.5">
-                        <p className="text-sm font-black underline underline-offset-4 decoration-zinc-400">
-                          {viewingDoc.recipient}
-                        </p>
-                      </div>
-                      
-                      <p className="text-zinc-600 block leading-relaxed pt-1 font-sans text-[11px]">
-                        下記の通り、慎んで報告{viewingDoc.docType === 'estimate' ? '見積' : '請求'}申し上げます。
-                      </p>
-
-                      <div className="bg-zinc-50 border border-zinc-250 p-4 rounded-xl flex items-center justify-between">
-                        <span className="text-[10px] uppercase font-black text-zinc-500 tracking-wider">合計価格（税込）:</span>
-                        <span className="text-lg sm:text-xl font-black text-zinc-900 font-mono">¥{total.toLocaleString()}-</span>
-                      </div>
+                {/* Printable standard Japanese Invoice structure */}
+                <div className="space-y-6 font-sans text-zinc-900 leading-normal border border-zinc-300 p-8 rounded-2xl bg-white select-text">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h1 className="text-2xl font-black tracking-widest text-zinc-900 font-mono">
+                        {viewingDoc.docType === 'invoice' ? '御 請 求 書' : '御 見 積 書'}
+                      </h1>
+                      <p className="text-[10px] text-zinc-400 font-mono font-bold mt-1">NO: {viewingDoc.docNumber}</p>
                     </div>
-
-                    {/* Right: Sender Info + Digital Hanko Placement */}
-                    <div className="flex justify-between gap-4 border-l border-zinc-150 pl-6 relative">
-                      <div className="space-y-1.5 leading-relaxed text-[11px] text-zinc-700">
-                        <p className="text-xs font-bold text-zinc-900 font-sans tracking-widest">{viewingDoc.sender}</p>
-                        <p className="font-mono text-zinc-500">〒150-0043 東京都渋谷区道玄坂1丁目</p>
-                        <p className="font-mono text-zinc-500">EMAIL: support@sync2.agency</p>
-                        <p className="font-mono text-[9px] pt-1.5 text-zinc-400">帳票番号: {viewingDoc.docNumber}</p>
-                        <p className="font-mono text-[9px] text-zinc-400">発行日付: {viewingDoc.issueDate}</p>
-                        <p className="font-mono text-[9px] text-zinc-400">
-                          {viewingDoc.docType === 'estimate' ? '見積有効' : 'お支払期'}: {viewingDoc.dueDate}
-                        </p>
-                      </div>
-
-                      {/* Traditional Hanko/Stamp Vermillion Mock */}
-                      <div className="w-14 h-14 border-2 border-red-500 text-red-500 rounded-md relative flex items-center justify-center font-bold text-[9px] tracking-widest leading-normal rotate-6 bg-red-500/2 opacity-90 select-none">
-                        <span className="text-[14px]">印</span>
-                        <div className="absolute inset-1.5 border border-dashed border-red-500/30 rounded" />
-                        <span className="absolute text-[6px] font-sans -bottom-1 -right-3 text-red-400/50 block font-mono rotate-[-6deg]">SYNC2</span>
-                      </div>
+                    <div className="text-right text-[10px] text-zinc-550 space-y-1">
+                      <p>発行日付: {viewingDoc.issueDate}</p>
+                      <p>{viewingDoc.docType === 'invoice' ? 'お支払い期日' : 'お見積有効期限'}: {viewingDoc.dueDate}</p>
                     </div>
                   </div>
 
-                  {/* Invoice Bill Items Details Table standard Japanese style */}
-                  <div className="pt-6 font-sans text-[11px]">
-                    <div className="border border-zinc-950 overflow-hidden">
-                      <table className="w-full text-left border-collapse">
-                        <thead className="bg-zinc-50 border-b border-zinc-950 text-zinc-800 text-[10px] font-bold">
-                          <tr className="divide-x divide-zinc-950">
-                            <th className="px-3 py-2 text-center w-10">#</th>
-                            <th className="px-3 py-2">品名・仕様内容</th>
-                            <th className="px-3 py-2 text-right w-24">単価 (JPY)</th>
-                            <th className="px-3 py-2 text-center w-16">数量</th>
-                            <th className="px-3 py-2 text-right w-28">金額 (JPY)</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-950/60 font-medium">
-                          {viewingDoc.items.map((item, idx) => (
-                            <tr key={item.id} className="divide-x divide-zinc-950 border-b border-zinc-250 hover:bg-zinc-50/10">
-                              <td className="px-3 py-2.5 text-center font-mono text-zinc-450">{idx + 1}</td>
-                              <td className="px-3 py-2.5 font-bold text-zinc-850">{item.name}</td>
-                              <td className="px-3 py-2.5 text-right font-mono">¥{item.price.toLocaleString()}</td>
-                              <td className="px-3 py-2.5 text-center font-mono">{item.qty}</td>
-                              <td className="px-3 py-2.5 text-right font-mono font-bold">¥{(item.price * item.qty).toLocaleString()}</td>
-                            </tr>
-                          ))}
-                          
-                          {/* Blank filler rows to make it look empty and official */}
-                          {Array.from({ length: Math.max(0, 4 - viewingDoc.items.length) }).map((_, bIdx) => (
-                            <tr key={bIdx} className="divide-x divide-zinc-950/60 border-b border-zinc-150 h-8">
-                              <td className="px-3 py-1"></td>
-                              <td className="px-3 py-1"></td>
-                              <td className="px-3 py-1"></td>
-                              <td className="px-3 py-1"></td>
-                              <td className="px-3 py-1"></td>
-                            </tr>
-                          ))}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                    <div className="space-y-2 border-b border-zinc-250 pb-4">
+                      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block font-mono">■ お取引先（御中）</span>
+                      <p className="text-sm font-black text-zinc-900 border-l-4 border-[#8edce0] pl-3">{viewingDoc.recipient}</p>
+                      <p className="text-xs text-zinc-500">下記の通り、つつしんで{viewingDoc.docType === 'invoice' ? "請求" : "見積"}申し上げます。</p>
+                    </div>
 
-                          {/* Calculations summary */}
-                          <tr className="divide-x divide-zinc-950 border-t border-zinc-950 font-bold">
-                            <td colSpan={3} className="bg-zinc-50 font-semibold px-3 py-2 text-right">小計</td>
-                            <td colSpan={2} className="px-3 py-2 text-right font-mono">¥{subtotal.toLocaleString()}</td>
-                          </tr>
-                          <tr className="divide-x divide-zinc-950 border-t border-zinc-200 font-bold">
-                            <td colSpan={3} className="bg-zinc-50 font-semibold px-3 py-2 text-right">消費税 ({(viewingDoc.taxRate * 100)}%)</td>
-                            <td colSpan={2} className="px-3 py-2 text-right font-mono">¥{tax.toLocaleString()}</td>
-                          </tr>
-                          <tr className="divide-x divide-zinc-950 border-t border-zinc-950 bg-zinc-50 font-black">
-                            <td colSpan={3} className="font-extrabold px-3 py-2.5 text-right uppercase tracking-wider">合計金額（税込価格）</td>
-                            <td colSpan={2} className="px-3 py-2.5 text-right font-mono text-xs text-zinc-950">¥{total.toLocaleString()}</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <div className="space-y-1.5 text-right sm:text-right border-b sm:border-l sm:border-b border-zinc-250 pb-4 sm:pl-4">
+                      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider block font-mono">■ 発行責任元</span>
+                      <p className="text-sm font-black text-zinc-900">{viewingDoc.sender}</p>
+                      <p className="text-[10px] text-zinc-500 font-mono">SYNC2 B2B Agency Ltd.</p>
+                      <p className="text-[9px] text-zinc-400">EMAIL: custom-ops@sync2.agency</p>
                     </div>
                   </div>
 
-                  {/* Memo footer / instructions */}
+                  {/* Total presentation block */}
+                  <div className="bg-[#8edce0]/10 border border-[#8edce0]/35 p-4 rounded-xl flex items-center justify-between">
+                    <span className="text-xs font-black text-zinc-700">御合計金額 (税込) :</span>
+                    <span className="text-xl font-black text-[#227276] font-mono">¥{total.toLocaleString()} -</span>
+                  </div>
+
+                  {/* Lines pricing table */}
+                  <div className="border border-zinc-250 rounded-xl overflow-hidden shadow-sm">
+                    <table className="w-full text-left text-[11px] border-collapse bg-white">
+                      <thead className="bg-zinc-50 border-b border-zinc-200 text-zinc-500 h-9 font-bold text-[10px]">
+                        <tr>
+                          <th className="px-4 py-2">品名 / 内訳項目</th>
+                          <th className="px-4 py-2 text-right">単価</th>
+                          <th className="px-4 py-2 text-center w-16">数量</th>
+                          <th className="px-4 py-2 text-right">金額</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-150 text-zinc-750 font-medium">
+                        {viewingDoc.items?.map((line: any, lIdx: number) => (
+                          <tr key={lIdx} className="h-9">
+                            <td className="px-4 py-2 font-bold text-zinc-900">{line.name}</td>
+                            <td className="px-4 py-2 text-right font-mono">¥{line.price.toLocaleString()}</td>
+                            <td className="px-4 py-2 text-center font-mono">{line.qty}</td>
+                            <td className="px-4 py-2 text-right font-mono font-bold text-zinc-900">¥{(line.price * line.qty).toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Totals box */}
+                  <div className="flex justify-end pt-1">
+                    <div className="w-56 text-xs space-y-1.5 font-mono text-zinc-650 pr-2">
+                      <div className="flex justify-between border-b border-zinc-150 pb-1">
+                        <span>小計金額</span>
+                        <span>¥{subtotal.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-zinc-150 pb-1">
+                        <span>消費税金額 ({(viewingDoc.taxRate * 100).toFixed(0)}%)</span>
+                        <span>¥{tax.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between font-black text-zinc-900 border-b border-zinc-300 pb-1.5 text-sm">
+                        <span>合計請求額</span>
+                        <span>¥{total.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Memo text block */}
                   {viewingDoc.memo && (
-                    <div className="p-4 bg-zinc-50 font-sans text-[10px] leading-relaxed border border-zinc-200 rounded-lg">
-                      <p className="font-bold text-zinc-650 tracking-wider text-[9px] uppercase pb-1 block font-mono">■ 備考/振込情報欄</p>
-                      <pre className="whitespace-pre-wrap font-sans text-zinc-600 font-semibold">{viewingDoc.memo}</pre>
+                    <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-lg">
+                      <p className="text-[9px] uppercase pb-1 block font-mono text-zinc-400">■ 備考/振込情報欄</p>
+                      <pre className="whitespace-pre-wrap font-sans text-xs text-zinc-650 font-bold leading-relaxed">{viewingDoc.memo}</pre>
                     </div>
                   )}
 
@@ -4076,7 +3452,6 @@ const BlackboxAccessPage = () => {
     </div>
   );
 };
-
 const FAQ = () => {
   const faqs = [
     {
@@ -4964,6 +4339,408 @@ const TechPage = () => {
   );
 };
 
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  author: string;
+  readTime: string;
+  summary: string;
+  image: string;
+  content: { emoji: string; sectionTitle: string; paragraphs: string[] }[];
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+  scheduledDate?: string;
+  isPublished?: boolean;
+}
+
+export const BLOG_POSTS: BlogPost[] = [
+  {
+    id: "sns-decider-creative",
+    title: "15秒で決裁者を虜にする超短尺クリエイティブ撮影手法",
+    category: "SNSマーケティング",
+    date: "2026.06.01",
+    author: "SYNC2 編集部",
+    readTime: "5分",
+    summary: "B2B企業や製品営業のショート動画において、最初の3秒、そして流れていく15秒間でどのように決裁者の意識をロックオンさせるかについて解説します。",
+    image: "https://picsum.photos/seed/decider/800/500",
+    content: [
+      {
+        emoji: "🎯",
+        sectionTitle: "3秒でのターゲットフック設計",
+        paragraphs: [
+          "B2Bショート動画においてもっとも普遍的な過ちは、企業ロゴや自己紹介などの無駄な贅肉からカットを開始してしまうことです。",
+          "決裁者がリールやTikTokで見ている時、興味がないと判断するまでの時間はわずか1.5秒前後。最初に投げるべきは『社内DXが進まない本当の経営課題』や『過剰なシステムコスト』など、痛みの実感を伴う具体的な問いかけです。"
+        ]
+      },
+      {
+        emoji: "📸",
+        sectionTitle: "高密度カット割りとスマホ撮影の最適解",
+        paragraphs: [
+          "長尺ビデオとは異なり、短尺では1秒間の情報密度（Visual Pacing）が極小化されなければなりません。1カットあたりの長さは最大でも2.5秒。画角を変えたり、クローズアップを効果的に挟むことで視覚のマンネリを防ぎます。",
+          "高級なシネマカメラは不要です。むしろ、最新の高性能スマートフォンに適切な外付けマイク、そして被写体を浮かび上がらせる高品質なポータブル照明を用いることで、親近感とシズル感を両立させる映像が作れます。"
+        ]
+      },
+      {
+        emoji: "⚙️",
+        sectionTitle: "CTA（行動喚起）へのスマートな接続",
+        paragraphs: [
+          "動画のラスト3秒には、必ずネクストアクションを明示します。SYNC2では、公式LINE経由の個別稟議書の無料雛形ダウンロードを推奨しています。",
+          "『この資料が必要な方はコメント欄で[稟議]と打つか、プロフィールのリンク先へ』と明確にガイダンスすることで、エンゲージメントとCVRは劇的に引き上げられます。"
+        ]
+      }
+    ]
+  },
+  {
+    id: "b2b-leads-ai",
+    title: "生成AIを活用したB2B問い合わせ自動返信によるリード獲得率の最適化",
+    category: "AI・システム開発",
+    date: "2026.06.05",
+    author: "SYNC2 運用代行室",
+    readTime: "6分",
+    summary: "ホワイトペーパー請求やお問い合わせの直後に、AIを用いた正確かつパーソナライズされた内容を自動返信することで、商談設定率を飛躍的に向上させる仕組み。",
+    image: "https://picsum.photos/seed/b2b-ai/800/500",
+    content: [
+      {
+        emoji: "⚡",
+        sectionTitle: "1分以内の『リアルタイム応答』が命取り",
+        paragraphs: [
+          "B2Bマーケティングにおけるリードの鮮度は、生魚のように繊細です。問い合わせから30分以上放置されると、関心温度は急激に冷え込み、競合他社のリサーチに移行してしまいます。",
+          "自動応答システムのミッションは、ただの受付完了通知ではありません。質問内容をインテリジェントに解析し、その企業の業界特性に応じた最適な初期回答を1分以内に届けることです。"
+        ]
+      },
+      {
+        emoji: "🤖",
+        sectionTitle: "Gemini APIによる自動分類とパーソナライズ文脈生成",
+        paragraphs: [
+          "SYNC2の開発するAIマーケティングレイヤーでは、入力された問い合わせ内容をGeminiが瞬時に分析します。",
+          "『予算不足に悩んでいる』のか『インハウスでのスキル不足』なのかを分類し、その障壁を取り除くための無料ケーススタディのPDFリンクなどを瞬時に個別コンパイルして動的返信メールの中に差し込みます。これにより無機質な返信がパーソナライズされた営業レターへと昇華します。"
+        ]
+      },
+      {
+        emoji: "📈",
+        sectionTitle: "商談予約カレンダー連携へのスマート誘導",
+        paragraphs: [
+          "初期回答に続いて、AIが自動的に空き日程を同期しているカレンダー連携ツールへのリンクを掲示します。",
+          "商談予約に心理摩擦（フリクション）を感じさせないよう、チャットインターフェース内で予約が完結するシームレス設計を構築。これにより従来比2.4倍以上の商談化率を実現しています。"
+        ]
+      }
+    ]
+  },
+  {
+    id: "brand-asset-marketing",
+    title: "SNSアカウントを社内資産化するブランド設計・デザインガイドライン",
+    category: "SNS運用代行サービス",
+    date: "2026.05.28",
+    author: "佐藤ルイス SYNC2代表",
+    readTime: "8分",
+    summary: "個人の属人性に依存せず、恒久的な企業の知財・リード獲得マシーンとしてSNSアカウントを確立するためのブランド一貫性とデザイン規格の設計方法。",
+    image: "https://picsum.photos/seed/asset/800/500",
+    content: [
+      {
+        emoji: "🎨",
+        sectionTitle: "一目で伝わる独自のビジュアル・トンマナ定義",
+        paragraphs: [
+          "多くの企業アカウントが、担当メンバー交代時のデザインブレやバズ目的の低質投稿によって自滅しています。",
+          "ブランドの資産化を達成するためには、グリッドルール、厳選したフォントファミリー（例：Interペアリング）、コーポレートカラー、キャラクターの語尾ニュアンスなどを完璧に記述したプレイブック（ガイドライン）が不可欠です。"
+        ]
+      },
+      {
+        emoji: "📦",
+        sectionTitle: "ノウハウをフォーマットカプセル化する",
+        paragraphs: [
+          "投稿テンプレートは、毎回の制作コストを削減するだけでなく、アカウントの『視認性ブランド』を補強します。",
+          "何百ものデザインパターンを手動で作るのではなく、主要パターンからなる数種類のマスターフレームを用意し、それをローテーションしていく構造化アプローチが長命な運用を約束します。"
+        ]
+      },
+      {
+        emoji: "🤝",
+        sectionTitle: "顧客ライフサイクルに溶け込むSNSとAIのペアリング",
+        paragraphs: [
+          "バズは単なる認知獲得（トップ・オブ・ファンネル）に過ぎません。そのバズ流入者をどうやってLINEやメールマガジン、そしてホワイトペーパーなどのミドルファネルに引き込み、AIによる自動フォローアップで関係深耕しLTV化するかが重要です。",
+          "SNSを切り離して考えるのではなく、システムと完全同期された『B2Bエンゲージメント・サプライチェーン』を敷くことこそが究極の資産化（ビジネス自動化）です。"
+        ]
+      }
+    ]
+  }
+];
+
+const ScrollToTopButton = () => {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const toggle = () => setShow(window.scrollY > 300);
+    window.addEventListener('scroll', toggle);
+    return () => window.removeEventListener('scroll', toggle);
+  }, []);
+  if (!show) return null;
+  return (
+    <button 
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      className="fixed bottom-6 right-6 w-11 h-11 bg-[#1a1a1a] text-[#8edce0] hover:bg-zinc-800 rounded-full flex items-center justify-center cursor-pointer shadow-lg transition-all z-40 border border-[#8edce0]/20"
+    >
+      <ChevronUp className="w-5 h-5" />
+    </button>
+  );
+};
+
+const BlogPage = () => {
+  const { id } = useParams<{ id?: string }>();
+  const navigate = useNavigate();
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("すべて");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const loaded = localStorage.getItem('sync2_blog_posts');
+    if (loaded) {
+      try {
+        setPosts(JSON.parse(loaded));
+      } catch (e) {
+        setPosts(BLOG_POSTS);
+      }
+    } else {
+      setPosts(BLOG_POSTS);
+    }
+  }, []);
+
+  const categories = ["すべて", "SNSマーケティング", "B2B営業・リード獲得", "SNS運用代行サービス", "AI・システム開発"];
+
+  // Render single post mode
+  if (id) {
+    const post = posts.find(p => p.id === id);
+    if (!post) {
+      return (
+        <div className="pt-32 pb-24 text-center max-w-xl mx-auto px-6 space-y-4 font-sans text-zinc-900 select-none">
+          <h2 className="text-2xl font-black text-zinc-900">記事が見つかりません</h2>
+          <p className="text-zinc-500 text-xs">指定されたURLは変更されたか、削除された可能性があります。</p>
+          <button 
+            onClick={() => navigate('/blog')}
+            className="bg-[#1a1a1a] text-[#8edce0] px-6 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          >
+            ブログ一覧に戻る
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="pt-32 pb-24 bg-white text-zinc-800 selection:bg-[#8edce0]/30 min-h-screen">
+        <Helmet>
+          <title>{post.seoTitle || `${post.title} | SYNC2 INSIGHTS`}</title>
+          <meta name="description" content={post.seoDescription || post.summary} />
+          {post.seoKeywords && <meta name="keywords" content={post.seoKeywords} />}
+        </Helmet>
+
+        <article className="max-w-4xl mx-auto px-6 space-y-8 font-sans">
+          {/* Breadcrumbs / Back button */}
+          <div className="flex items-center gap-2 text-xs font-bold text-zinc-500">
+            <button onClick={() => navigate('/blog')} className="hover:text-zinc-950 inline-flex items-center gap-1 cursor-pointer">
+              <ArrowLeft className="w-4 h-4" />
+              <span>一覧に戻る</span>
+            </button>
+            <span>/</span>
+            <span className="text-zinc-400 font-medium line-clamp-1">{post.title}</span>
+          </div>
+
+          <div className="space-y-4">
+            <span className="px-3 py-1 bg-[#8edce0]/10 text-[#307d80] rounded text-[10px] font-black tracking-widest uppercase font-mono border border-[#8edce0]/25">
+              {post.category}
+            </span>
+            <h1 className="text-2xl sm:text-3.5xl lg:text-4xl font-extrabold text-zinc-950 leading-tight tracking-tight">
+              {post.title}
+            </h1>
+            <div className="flex items-center gap-4 text-xs font-bold text-zinc-500 font-mono">
+              <span className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-zinc-400" />
+                <span>{post.date}</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-zinc-400" />
+                <span>読了予定: {post.readTime}</span>
+              </span>
+              <span className="text-zinc-400">|</span>
+              <span>執筆者: {post.author}</span>
+            </div>
+          </div>
+
+          {/* Featured cover image */}
+          <div className="aspect-[16/10] sm:aspect-[16/9] bg-zinc-100 rounded-3xl overflow-hidden border border-zinc-200">
+            <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+          </div>
+
+          {/* Description summary card */}
+          <div className="p-6 bg-zinc-50 border border-zinc-200 rounded-2xl">
+            <h3 className="text-xs font-black text-[#307c80] uppercase tracking-widest font-mono mb-2">📌 インサイトサマリー</h3>
+            <p className="text-zinc-700 text-xs sm:text-sm font-semibold leading-relaxed font-sans">{post.summary}</p>
+          </div>
+
+          {/* Main chapters */}
+          <div className="space-y-10 pt-4 leading-relaxed font-sans text-zinc-800 text-[13px] sm:text-[14px]">
+            {post.content?.map((sec, idx) => (
+              <div key={idx} className="space-y-4">
+                <h2 className="text-lg sm:text-xl font-extrabold text-zinc-900 border-b border-zinc-150 pb-2.5 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-[#8edce0]/10 text-lg flex items-center justify-center">{sec.emoji || "💡"}</span>
+                  <span>{sec.sectionTitle}</span>
+                </h2>
+                <div className="space-y-3">
+                  {sec.paragraphs?.map((pStr, pIdx) => (
+                    <p key={pIdx} className="font-semibold text-zinc-650 leading-relaxed">
+                      {pStr}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Inline Deep CRM CTA at bottom */}
+          <div className="mt-16 bg-[#1a1a1a] rounded-[2rem] p-8 text-center text-white relative overflow-hidden shadow-2xl border border-zinc-800">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#8edce0]/10 blur-[60px] pointer-events-none" />
+            <span className="text-[9px] font-black tracking-[0.45em] text-[#8edce0] uppercase font-mono block mb-3">SYNC2 EXECUTIVE BRIEFING</span>
+            <h3 className="text-lg sm:text-xl font-bold mb-4 font-sans text-zinc-100">貴社のデジタル戦略、プロに診断させてみませんか？</h3>
+            <p className="text-zinc-400 text-xs max-w-xl mx-auto mb-6 leading-relaxed">
+              SNS運用でのCV単価最小化、AIエージェント構築、LINE自動連携など、SYNC2コアチームが完全無料でオンライン現状診断・お見積設計を行います。
+            </p>
+            <a 
+              href="https://lin.ee/UwOZ7ho"
+              className="inline-flex bg-[#8edce0] hover:bg-teal-400 text-zinc-950 font-black text-xs px-8 py-3.5 rounded-full tracking-widest cursor-pointer transition-all items-center gap-2 active:scale-95 shadow-lg select-none"
+            >
+              <span>LINE公式アカウントで相談する</span>
+              <MessageSquare className="w-4 h-4" />
+            </a>
+          </div>
+
+          {/* Bottom Back Button */}
+          <div className="pt-8 text-center border-t border-zinc-150">
+            <button 
+              type="button"
+              onClick={() => navigate('/blog')}
+              className="bg-transparent hover:bg-zinc-50 font-bold text-zinc-600 border border-zinc-200 hover:text-zinc-900 px-6 py-2.5 rounded-xl text-xs transition-colors cursor-pointer"
+            >
+              ブログ記事一覧へ戻る
+            </button>
+          </div>
+        </article>
+      </div>
+    );
+  }
+
+  // Render blog listings mode
+  const filtered = posts.filter(post => {
+    const matchCat = selectedCategory === "すべて" || post.category === selectedCategory;
+    const matchSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        post.summary.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchCat && matchSearch;
+  });
+
+  return (
+    <div className="pt-32 pb-24 bg-zinc-50 min-h-screen text-zinc-800 selection:bg-[#8edce0]/30 font-sans">
+      <Helmet>
+        <title>SYNC2 INSIGHTS | ブログ & 戦略的ナレッジハブ</title>
+        <meta name="description" content="SYNC2がお届けする、SNSショート動画マーケティング戦略、決裁者リード獲得、業務DX、最新AIシステム開発に関する価値ある統合ナレッジガイドです。" />
+      </Helmet>
+
+      <div className="max-w-7xl mx-auto px-6 space-y-10">
+        
+        {/* Editorial Title banner */}
+        <div className="space-y-4 max-w-3xl">
+          <span className="text-[10px] font-black tracking-[0.35em] text-[#307d80] uppercase font-mono">SYNC2 MARKETING INSIGHTS</span>
+          <h1 className="text-3xl sm:text-5xl font-black text-zinc-900 tracking-tight leading-tight">
+            ビジネスを、自動化し、資産化する。
+          </h1>
+          <p className="text-zinc-500 text-xs sm:text-sm font-semibold max-w-2xl leading-relaxed">
+            ブランド認知からリードナーチャリング、見積書等のバックオフィス連携、そしてシステム・インテリジェントAI連携。SYNC2チームが現場で実証している最新ノウハウを惜しみなく提示します。
+          </p>
+        </div>
+
+        {/* Categories selector & search bar row */}
+        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white border border-zinc-200 p-4 rounded-3xl shadow-sm">
+          <div className="flex overflow-x-auto gap-1.5 pb-2 md:pb-0 scrollbar-none font-sans font-bold text-xs select-none">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3.5 h-9 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                  selectedCategory === cat
+                    ? 'bg-[#1a1a1a] text-[#8edce0]'
+                    : 'bg-zinc-50 text-zinc-650 hover:bg-zinc-100 border border-zinc-200'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative w-full md:max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+            <input 
+              type="text" 
+              placeholder="記事をキーワードで検索..."
+              className="w-full h-9 pl-9 pr-4 bg-zinc-50 border border-zinc-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-[#8edce0] font-bold text-zinc-800"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Listings grid */}
+        {filtered.length === 0 ? (
+          <div className="text-center py-20 bg-white border border-zinc-200 rounded-3xl shadow-sm">
+            <p className="text-zinc-500 text-xs font-bold">検索条件に一致するインサイト記事が見つかりませんでした。</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {filtered.map(post => (
+              <article 
+                key={post.id}
+                onClick={() => navigate(`/blog/${post.id}`)}
+                className="bg-white border border-zinc-200 rounded-3xl overflow-hidden hover:border-zinc-300 hover:shadow-xl transition-all h-full flex flex-col justify-between cursor-pointer group"
+              >
+                <div>
+                  <div className="aspect-[16/10] bg-zinc-50 overflow-hidden relative border-b border-zinc-100">
+                    <img 
+                      src={post.image} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500" 
+                    />
+                    <span className="absolute top-4 left-4 px-2.5 py-1 bg-[#1a1a1a] text-[#8edce0] text-[9px] font-black rounded tracking-widest uppercase font-mono">
+                      {post.category}
+                    </span>
+                  </div>
+
+                  <div className="p-5 sm:p-6 space-y-3">
+                    <div className="flex items-center gap-3 text-[10px] font-mono font-bold text-zinc-400">
+                      <span>{post.date}</span>
+                      <span>•</span>
+                      <span>読了 {post.readTime}</span>
+                    </div>
+                    <h2 className="text-sm sm:text-base font-extrabold text-zinc-950 group-hover:text-[#307d80] transition-colors line-clamp-2 leading-snug">
+                      {post.title}
+                    </h2>
+                    <p className="text-[11px] text-zinc-500 md:text-zinc-600 line-clamp-3 leading-relaxed font-semibold">
+                      {post.summary}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-5 sm:p-6 pt-0 flex justify-end">
+                  <span className="text-[11px] font-black text-zinc-800 group-hover:text-[#307d80] transition-colors inline-flex items-center gap-1">
+                    <span>このインサイトを読む</span>
+                    <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+};
 export default function App() {
   return (
     <div className="min-h-screen bg-white text-zinc-800 font-sans selection:bg-[#8edce0]/30 selection:text-[#373d43]">
