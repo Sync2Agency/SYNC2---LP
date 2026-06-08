@@ -4367,6 +4367,12 @@ const Home = () => {
   const [userInput, setUserInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
+  const chatEndRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages, isTyping]);
+
   const suggestedQuestions = [
     "SYNC2の総合的な強みは何ですか？",
     "新規アプリ開発やシステム構築の実績・流れを教えてください",
@@ -4599,15 +4605,27 @@ const Home = () => {
 
             {/* Simulated Chat Interface */}
             <div className="bg-white border border-zinc-100 rounded-[2.5rem] shadow-2xl p-4 md:p-8 flex flex-col h-[425px] md:h-[520px]">
-              <div className="flex items-center gap-3 pb-4 border-b border-zinc-100 mb-4">
-                <div className="relative w-10 h-10 bg-zinc-50 rounded-full border border-zinc-100 flex items-center justify-center text-[#8edce0]">
-                  <MessageSquare className="w-5 h-5" />
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
+              <div className="flex items-center gap-3 pb-4 border-b border-zinc-100 mb-4 justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="relative w-10 h-10 bg-zinc-50 rounded-full border border-zinc-100 flex items-center justify-center text-[#8edce0]">
+                    <MessageSquare className="w-5 h-5" />
+                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-zinc-900 leading-none">SYNC2 AI Advisor</h3>
+                    <span className="text-[9px] font-bold text-zinc-400 tracking-wider uppercase">Active Live Agent</span>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-zinc-900 leading-none">SYNC2 AI Advisor</h3>
-                  <span className="text-[9px] font-bold text-zinc-400 tracking-wider uppercase">Active Live Agent</span>
-                </div>
+                
+                <button 
+                  onClick={() => {
+                    setChatMessages([{ role: 'assistant', text: "はじめまして、SYNC2 AIコンサルタントです。マーケティング、ブランディング、またはアプリ・AI・システム開発について何でもお気軽にご質問ください。" }]);
+                  }}
+                  title="チャットをリセット"
+                  className="p-1.5 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-lg transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
 
               {/* Chat History Frame */}
@@ -4632,6 +4650,7 @@ const Home = () => {
                     </div>
                   </div>
                 )}
+                <div ref={chatEndRef} />
               </div>
 
               {/* Chat Input */}
