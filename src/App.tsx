@@ -4815,16 +4815,39 @@ const BlogPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const loaded = localStorage.getItem('sync2_blog_posts');
-    if (loaded) {
-      try {
-        setPosts(JSON.parse(loaded));
-      } catch (e) {
-        setPosts(BLOG_POSTS);
+    const initBlogPage = async () => {
+      const loadedPosts = await idbStore.get('sync2_blog_posts');
+      if (loadedPosts) {
+        try {
+          if (Array.isArray(loadedPosts)) {
+            setPosts(loadedPosts);
+          } else {
+            const parsed = JSON.parse(loadedPosts);
+            if (Array.isArray(parsed)) {
+              setPosts(parsed);
+            } else {
+              setPosts(BLOG_POSTS);
+            }
+          }
+        } catch (e) {
+          setPosts(BLOG_POSTS);
+        }
+      } else {
+        const oldLoaded = localStorage.getItem('sync2_blog_posts');
+        if (oldLoaded) {
+          try {
+            const parsed = JSON.parse(oldLoaded);
+            setPosts(parsed);
+            await idbStore.set('sync2_blog_posts', parsed);
+          } catch {
+            setPosts(BLOG_POSTS);
+          }
+        } else {
+          setPosts(BLOG_POSTS);
+        }
       }
-    } else {
-      setPosts(BLOG_POSTS);
-    }
+    };
+    initBlogPage();
   }, []);
 
   const categories = ["すべて", "SNSマーケティング", "B2B営業・リード獲得", "SNS運用代行サービス", "AI・システム開発"];
